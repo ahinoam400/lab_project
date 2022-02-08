@@ -3,7 +3,7 @@
 int preAssembler(char* assemblyFile);
 
 int main(){
-    preAssembler("assembltExample.ac");
+    preAssembler("assembltExample.as");
 }
 
 int preAssembler(char* assemblyFile){
