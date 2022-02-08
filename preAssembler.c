@@ -1,12 +1,18 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include <stdlib.h> 
+int MAX = 80;
 int preAssembler(char* assemblyFile);
 
 int main(){
-    preAssembler("assembltExample.as");
+    preAssembler("assemblyExample.as");
 }
 
 int preAssembler(char* assemblyFile){
-    fopen(assemblyFile, "r");
-    fopen("aftePreAssembler.am", "w");
+    FILE *assembly = fopen(assemblyFile, "r");
+    FILE *afteAssembler;
+    char str[80];
+    if(assembly == NULL){
+        printf("Error opening file\n");
+        return(-1);
+    }
 }
