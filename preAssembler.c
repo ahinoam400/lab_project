@@ -21,6 +21,9 @@ int preAssembler(char* assemblyFileName){
     after = removeExtension(assemblyFileName);
     strcat(after, ".am");
     afteAssembler = fopen(after, "w");
+    while(fgets(str, 80, assembly)){
+        
+    }
 }
 
 //remove the extension from a file name
