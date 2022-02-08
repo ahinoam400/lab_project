@@ -11,7 +11,7 @@ int main(){
 int preAssembler(char* assemblyFileName){
     FILE *assembly = fopen(assemblyFileName, "r");
     FILE *afteAssembler;
-    char *after;
+    char after[20];
     char str[80];
     if(assembly == NULL){
         printf("Error opening file\n");
@@ -19,4 +19,5 @@ int preAssembler(char* assemblyFileName){
     }
     strcpy(after, assemblyFileName);
     strcat(after, ".am");
+    afteAssembler = fopen(after, "w");
 }
