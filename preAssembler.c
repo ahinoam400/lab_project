@@ -13,6 +13,8 @@ int preAssembler(char* assemblyFileName){
     FILE *assembly = fopen(assemblyFileName, "r");
     FILE *afteAssembler;
     char *after;
+    int i;
+    char ws[10] = "\t ";
     char str[80];
     if(assembly == NULL){
         printf("Error opening file\n");
@@ -22,7 +24,7 @@ int preAssembler(char* assemblyFileName){
     strcat(after, ".am");
     afteAssembler = fopen(after, "w");
     while(fgets(str, 80, assembly)){
-        
+        for(i=0; strchr(ws, str[i]); i++);
     }
 }
 
