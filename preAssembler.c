@@ -13,9 +13,6 @@ int preAssembler(char* assemblyFileName){
     FILE *assembly = fopen(assemblyFileName, "r");
     FILE *afteAssembler;
     char *after;
-    int i,j;
-    char firstField[10];
-    char ws[10] = "\t ";
     char str[80];
     if(assembly == NULL){
         printf("Error opening file\n");
