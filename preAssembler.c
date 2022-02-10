@@ -25,7 +25,7 @@ int preAssembler(char* assemblyFileName){
         
     }
 }
-
+//this is a test
 //remove the extension from a file name
 char *removeExtension(char* myStr) {
     char *retStr;
