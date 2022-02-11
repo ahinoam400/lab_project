@@ -12,24 +12,7 @@ typedef struct macroNode{
 }
 
 int main(){
-    macroSpread("assemblyExample.as");
-}
-
-int preAssembler(char* assemblyFileName){
-    FILE *assembly = fopen(assemblyFileName, "r");
-    FILE *afterAssembler;
-    char *after;
-    char str[MAX];
-    if(assembly == NULL){
-        printf("Error opening file\n");
-        return(-1);
-    }
-    after = removeExtension(assemblyFileName);
-    strcat(after, ".am");
-    afterAssembler = fopen(after, "w");
-    while(fgets(str, MAX, assembly)){
-        
-    }
+    macroSpread("assemblyExample.as")
 }
 
 //remove the extension from a file name
