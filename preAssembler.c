@@ -9,7 +9,7 @@ typedef struct macroNode{
     char name[80];
     char macro[80][80];
     struct macroNode *next;
-}
+}macroNode;
 
 int main(){
     macroSpread("assemblyExample.as");
@@ -38,7 +38,7 @@ void macroSpread(char *fileName){
     char line[MAX], lineCopy[MAX];
     macroSpreadName = removeExtension(fileName);
     strcat(macroSpreadName, ".am");
-    macroSpreadFile = fopen(macroSpreadName, "a")
+    macroSpreadFile = fopen(macroSpreadName, "a");
     if(assembly == NULL ){
         printf("Error opening file\n");
         return;
@@ -48,7 +48,7 @@ void macroSpread(char *fileName){
         for(i=0; i<length; i++){
             lineCopy[i] = line[i];
         }
-        token = strtok(lineֻCopy, " ");
+        token = strtok(lineCopy, " ");
         if(macroFlag==1){
             if(!strcmp(token,"endm") == 0){
                 macroFlag = 0;
