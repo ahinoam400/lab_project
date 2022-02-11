@@ -54,15 +54,15 @@ void macroSpread(char *fileName){
                 macroFlag = 0;
                 continue;
             }
-            next.macro[i++][0] = line;
+            next->macro[i++]= line;
         }
-        while(node.next != NULL){
-            if(!strcmp(node.name,token) == 0){
-                fwrite(node.macro + "\n", sizeof(node.macro), 1, macroSpreadFile);
+        while(node->next != NULL){
+            if(!strcmp(node->name,token) == 0){
+                fwrite(node->macro + "\n", sizeof(node->macro), 1, macroSpreadFile);
                 flag = 1;
                 break;
             }
-            node = node.next;
+            node = node->next;
         }
         node = head;
         if(flag == 1){
@@ -73,14 +73,15 @@ void macroSpread(char *fileName){
             macroFlag = 1;
             token = strtok(NULL, " ");
             if(head == NULL){
-                head.name = token;
+                head->name = token;
                 next = head;
                 continue;
             }
-            next.name = token;
+            next->name = token;
             continue;
         }
-        fwrite(line + "\n", sizeof(line), 1, macroSpreadFile);
+        strcat(line, "\n");
+        fwrite(line, sizeof(line), 1, macroSpreadFile);
     }
     
 }
