@@ -12,7 +12,7 @@ typedef struct macroNode{
 }
 
 int main(){
-    preAssembler("assemblyExample.as");
+    macroSpread("assemblyExample.as");
 }
 
 int preAssembler(char* assemblyFileName){
