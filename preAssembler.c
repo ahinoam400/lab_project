@@ -12,7 +12,7 @@ typedef struct macroNode{
 }
 
 int main(){
-    macroSpread("assemblyExample.as")
+    macroSpread("assemblyExample.as");
 }
 
 //remove the extension from a file name
@@ -28,7 +28,7 @@ char *removeExtension(char* myStr) {
     return retStr;
 }
 
-void macroSpread(char* fileName){
+void macroSpread(char *fileName){
     FILE *assembly = fopen(fileName, "r");
     FILE *macroSpreadFile;//the macro spread file should have the same name as fileName but with a diffrent extension
     char *macroSpreadName;
