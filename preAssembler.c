@@ -33,7 +33,7 @@ void macroSpread(char *fileName){
     FILE *macroSpreadFile;//the macro spread file should have the same name as fileName but with a diffrent extension
     char *macroSpreadName;
     macroNode *head = NULL, *node = head, *next, *temp;
-    int macroFlag = 0, flag = 0, index = 0, length,i;
+    int macroFlag = 0, flag = 0, index = 0;
     char *token;
     char line[MAX], lineCopy[MAX];
     macroSpreadName = removeExtension(fileName);
@@ -44,17 +44,14 @@ void macroSpread(char *fileName){
         return;
     }
     while(fgets(line, MAX, assembly)!= 0){
-        length = sizeof(line)/sizeof(char);
-        for(i=0; i<length; i++){
-            lineCopy[i] = line[i];
-        }
+        strcpy(lineCopy, line);
         token = strtok(lineCopy, " ");
         if(macroFlag==1){
             if(!strcmp(token,"endm") == 0){
                 macroFlag = 0;
                 continue;
             }
-            next->macro[i++]= line;
+            next->macro[index++]= line;
         }
         while(node->next != NULL){
             if(!strcmp(node->name,token) == 0){
