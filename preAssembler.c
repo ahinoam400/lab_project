@@ -8,7 +8,7 @@ void macroSpread(char* fileName);
 typedef struct macroNode{
     char name[MAX];
     char macro[MAX][MAX];
-    macroList next;
+    struct *macroNode next;
 }
 
 int main(){
@@ -52,7 +52,7 @@ void macroSpread(char* fileName){
     int macroFlag = 0, flag = 0, index = 0;;
     char *token;
     char line[MAX];
-    while(fgets(line, MAX, assembly)!= EOF){
+    while(fgets(line, MAX, assembly)!= 0){
         if(macroFlag==1){
             if(line == "endm"){
                 macroFlag = 0;
@@ -62,7 +62,7 @@ void macroSpread(char* fileName){
         }
         while(node.next != NULL){
             if(node.name == line){
-                fwrite(node.macro, sizeof(node.macro), 1, macroSpread);
+                fwrite(node.macro + "\n", sizeof(node.macro), 1, macroSpread );
                 flag = 1;
                 break;
             }
@@ -85,7 +85,7 @@ void macroSpread(char* fileName){
             next.name = token;
             continue;
         }
-        fwrite(line, sizeof(line), 1, macroSpread);
+        fwrite(line + "\n", sizeof(line), 1, macroSpread);
     }
     
 }
