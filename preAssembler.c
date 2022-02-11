@@ -6,9 +6,9 @@ int preAssembler(char* assemblyFileName);
 char *removeExtension(char* myStr);
 void macroSpread(char* fileName);
 typedef struct macroNode{
-    char name[MAX];
-    char macro[MAX][MAX];
-    struct *macroNode next;
+    char name[80];
+    char macro[80][80];
+    struct macroNode *next;
 }
 
 int main(){
@@ -47,22 +47,35 @@ char *removeExtension(char* myStr) {
 
 void macroSpread(char* fileName){
     FILE *assembly = fopen(fileName, "r");
-    FILE *macroSpread = fopen("macroSpread", "a");
+    FILE *macroSpreadFile;//the macro spread file should have the same name as fileName but with a diffrent extension
+    char *macroSpreadName;
     macroNode *head = NULL, *node = head, *next, *temp;
-    int macroFlag = 0, flag = 0, index = 0;;
+    int macroFlag = 0, flag = 0, index = 0, length,i;
     char *token;
-    char line[MAX];
+    char line[MAX], lineCopy[MAX];
+    macroSpreadName = removeExtension(fileName);
+    strcat(macroSpreadName, ".am");
+    macroSpreadFile = fopen(macroSpreadName, "a")
+    if(assembly == NULL ){
+        printf("Error opening file\n");
+        return;
+    }
     while(fgets(line, MAX, assembly)!= 0){
+        length = sizeof(line)/sizeof(char);
+        for(i=0; i<length; i++){
+            lineCopy[i] = line[i];
+        }
+        token = strtok(lineֻCopy, " ");
         if(macroFlag==1){
-            if(line == "endm"){
+            if(!strcmp(token,"endm") == 0){
                 macroFlag = 0;
                 continue;
             }
             next.macro[i++][0] = line;
         }
         while(node.next != NULL){
-            if(node.name == line){
-                fwrite(node.macro + "\n", sizeof(node.macro), 1, macroSpread );
+            if(!strcmp(node.name,token) == 0){
+                fwrite(node.macro + "\n", sizeof(node.macro), 1, macroSpreadFile);
                 flag = 1;
                 break;
             }
@@ -73,8 +86,7 @@ void macroSpread(char* fileName){
             flag = 0;
             continue;
         }
-        token = strtok(line, " ");
-        if(token == "macro"){
+        if(strcmp(token,"macro") == 0){
             macroFlag = 1;
             token = strtok(NULL, " ");
             if(head == NULL){
@@ -85,7 +97,7 @@ void macroSpread(char* fileName){
             next.name = token;
             continue;
         }
-        fwrite(line + "\n", sizeof(line), 1, macroSpread);
+        fwrite(line + "\n", sizeof(line), 1, macroSpreadFile);
     }
     
 }
