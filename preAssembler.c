@@ -43,6 +43,7 @@ void macroSpread(char *fileName){
     macroSpreadName = removeExtension(fileName);
     strcat(macroSpreadName, ".am");
     macroSpreadFile = fopen(macroSpreadName, "a");
+    head = (macroNode*)malloc(sizeof(macroNode));
     node = (macroNode*)malloc(sizeof(macroNode));
     while(fgets(line, MAX, assembly)!= 0){
         strcpy(lineCopy, line);
@@ -56,7 +57,7 @@ void macroSpread(char *fileName){
             strcpy(tail->macro[index++], line);
         }
         node = head;
-        while(node->next != NULL){
+        while(node->next != NULL){ //error: Segmentation fault
             if(!strcmp(node->name,token) == 0){
                 strcat(node->macro[index], "\n");
                 fwrite(node->macro, sizeof(node->macro), 1, macroSpreadFile);
@@ -73,7 +74,6 @@ void macroSpread(char *fileName){
             macroFlag = 1;
             token = strtok(NULL, " ");
             if(head == NULL){
-                head = (macroNode*)malloc(sizeof(macroNode));
                 strcpy(head->name, token);
                 tail = head;
                 continue;
