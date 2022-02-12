@@ -43,6 +43,8 @@ void macroSpread(char *fileName){
         printf("Error opening file\n");
         return;
     }
+    head = (macroNode*)malloc(sizeof(macroNode));
+    
     while(fgets(line, MAX, assembly)!= 0){
         strcpy(lineCopy, line);
         token = strtok(lineCopy, " ");
@@ -51,11 +53,12 @@ void macroSpread(char *fileName){
                 macroFlag = 0;
                 continue;
             }
-            next->macro[index++]= line;
+            strcpy(next->macro[index++], line);
         }
         while(node->next != NULL){
             if(!strcmp(node->name,token) == 0){
-                fwrite(node->macro + "\n", sizeof(node->macro), 1, macroSpreadFile);
+                strcat(node->macro[index], "\n");
+                fwrite(node->macro, sizeof(node->macro), 1, macroSpreadFile);
                 flag = 1;
                 break;
             }
@@ -70,11 +73,11 @@ void macroSpread(char *fileName){
             macroFlag = 1;
             token = strtok(NULL, " ");
             if(head == NULL){
-                head->name = token;
+                strcpy(head->name, token);
                 next = head;
                 continue;
             }
-            next->name = token;
+            strcpy(next->name, token);
             continue;
         }
         strcat(line, "\n");
