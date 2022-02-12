@@ -57,7 +57,7 @@ void macroSpread(char *fileName){
             strcpy(tail->macro[index++], line);
         }
         node = head;
-        while(node->next != NULL){ //error: Segmentation fault
+        while(node->next != NULL){
             if(!strcmp(node->name,token) == 0){
                 strcat(node->macro[index], "\n");
                 fwrite(node->macro, sizeof(node->macro), 1, macroSpreadFile);
