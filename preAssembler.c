@@ -30,31 +30,32 @@ char *removeExtension(char* myStr) {
 
 void macroSpread(char *fileName){
     FILE *assembly = fopen(fileName, "r");
-    FILE *macroSpreadFile;//the macro spread file should have the same name as fileName but with a diffrent extension
+    FILE *macroSpreadFile;
     char *macroSpreadName;
-    macroNode *head = NULL, *node = head, *next, *temp;
+    macroNode *head = NULL, *node = NULL, *tail = NULL;
     int macroFlag = 0, flag = 0, index = 0;
     char *token;
     char line[MAX], lineCopy[MAX];
-    macroSpreadName = removeExtension(fileName);
-    strcat(macroSpreadName, ".am");
-    macroSpreadFile = fopen(macroSpreadName, "a");
     if(assembly == NULL ){
         printf("Error opening file\n");
         return;
     }
-    head = (macroNode*)malloc(sizeof(macroNode));
-    
+    macroSpreadName = removeExtension(fileName);
+    strcat(macroSpreadName, ".am");
+    macroSpreadFile = fopen(macroSpreadName, "a");
+    node = (macroNode*)malloc(sizeof(macroNode));
     while(fgets(line, MAX, assembly)!= 0){
         strcpy(lineCopy, line);
         token = strtok(lineCopy, " ");
         if(macroFlag==1){
             if(!strcmp(token,"endm") == 0){
+                tail = tail->next;
                 macroFlag = 0;
                 continue;
             }
-            strcpy(next->macro[index++], line);
+            strcpy(tail->macro[index++], line);
         }
+        node = head;
         while(node->next != NULL){
             if(!strcmp(node->name,token) == 0){
                 strcat(node->macro[index], "\n");
@@ -64,7 +65,6 @@ void macroSpread(char *fileName){
             }
             node = node->next;
         }
-        node = head;
         if(flag == 1){
             flag = 0;
             continue;
@@ -73,11 +73,14 @@ void macroSpread(char *fileName){
             macroFlag = 1;
             token = strtok(NULL, " ");
             if(head == NULL){
+                head = (macroNode*)malloc(sizeof(macroNode));
                 strcpy(head->name, token);
-                next = head;
+                tail = head;
                 continue;
+            }else{
+                tail = (macroNode*)malloc(sizeof(macroNode));
+                strcpy(tail->name, token);
             }
-            strcpy(next->name, token);
             continue;
         }
         strcat(line, "\n");
@@ -85,4 +88,5 @@ void macroSpread(char *fileName){
     }
     
 }
+
 
