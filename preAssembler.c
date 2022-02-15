@@ -44,26 +44,27 @@ void macroSpread(char *fileName){
     strcat(macroSpreadName, ".am");
     macroSpreadFile = fopen(macroSpreadName, "w");
     head = (macroNode*)malloc(sizeof(macroNode));
-    node = (macroNode*)malloc(sizeof(macroNode));
-    while(fgets(line, MAX, assembly)!= 0){
+    tail = head;
+    while(fgets(line, MAX, assembly)){
         strcpy(lineCopy, line);
         token = strtok(lineCopy, " ");
         if(macroFlag==1){
-            if(!strcmp(token,"endm") == 0){
+            if(strcmp(token,"endm") == 0){
                 tail = tail->next;
                 macroFlag = 0;
                 continue;
             }
             strcpy(tail->macro[index++], line);
+            continue;
         }
         node = head;
-        while(node->next != NULL){
-            /* This loop hecks if the first field in the line is a macro from the list */
-            if(!strcmp(node->name,token) == 0){
+        while(!macroFlag && node->next != NULL){
+            /* This loop checks if the first field in the line is a macro from the list */
+            if(strcmp(node->name,token) == 0){
                 strcat(node->macro[index], "\n");
                 fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);
                 flag = 1;
-                break;
+                continue;
             }
             node = node->next;
         }
@@ -73,15 +74,11 @@ void macroSpread(char *fileName){
         }
         if(strcmp(token,"macro") == 0){
             macroFlag = 1;
-            token = strtok(NULL, " ");
-            if(head == NULL){
-                strcpy(head->name, token);
-                tail = head;
-                continue;
-            }else{
-                tail = (macroNode*)malloc(sizeof(macroNode));
+            token = strtok(NULL, " \n");
+                tail->next = (macroNode*)malloc(sizeof(macroNode));
+                tail = tail->next;
                 strcpy(tail->name, token);
-            }
+                index = 0;
             continue;
         }
      //   strcat(line, "\n");
