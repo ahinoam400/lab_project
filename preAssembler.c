@@ -62,7 +62,7 @@ void macroSpread(char *fileName){
             /* This loop checks if the first field in the line is a macro from the list */
             if(strcmp(node->name,token) == 0){
                 strcat(node->macro[index], "\n");
-                fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);
+                fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);//Does not work
                 flag = 1;
                 continue;
             }
