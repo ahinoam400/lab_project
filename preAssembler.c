@@ -59,7 +59,7 @@ void macroSpread(char *fileName){
         node = head;
         while(node->next != NULL){
             if(!strcmp(node->name,token) == 0){
-                strcat(node->macro[index], "\n");
+              //  strcat(node->macro[index], "\n");
                 fwrite(node->macro, sizeof(node->macro), 1, macroSpreadFile);
                 flag = 1;
                 break;
@@ -83,7 +83,7 @@ void macroSpread(char *fileName){
             }
             continue;
         }
-        strcat(line, "\n");
+     //   strcat(line, "\n");
         fwrite(line, sizeof(line), 1, macroSpreadFile);
     }
     
