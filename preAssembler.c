@@ -42,7 +42,7 @@ void macroSpread(char *fileName){
     }
     macroSpreadName = removeExtension(fileName);
     strcat(macroSpreadName, ".am");
-    macroSpreadFile = fopen(macroSpreadName, "a");
+    macroSpreadFile = fopen(macroSpreadName, "w");
     head = (macroNode*)malloc(sizeof(macroNode));
     node = (macroNode*)malloc(sizeof(macroNode));
     while(fgets(line, MAX, assembly)!= 0){
@@ -58,9 +58,10 @@ void macroSpread(char *fileName){
         }
         node = head;
         while(node->next != NULL){
+            /* This loop hecks if the first field in the line is a macro from the list */
             if(!strcmp(node->name,token) == 0){
-              //  strcat(node->macro[index], "\n");
-                fwrite(node->macro, sizeof(node->macro), 1, macroSpreadFile);
+                strcat(node->macro[index], "\n");
+                fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);
                 flag = 1;
                 break;
             }
@@ -84,7 +85,7 @@ void macroSpread(char *fileName){
             continue;
         }
      //   strcat(line, "\n");
-        fwrite(line, sizeof(line), 1, macroSpreadFile);
+        fwrite(line, strlen(line), 1, macroSpreadFile);
     }
     
 }
