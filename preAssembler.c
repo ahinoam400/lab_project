@@ -47,7 +47,7 @@ void macroSpread(char *fileName){
     tail = head;
     while(fgets(line, MAX, assembly)){
         strcpy(lineCopy, line);
-        token = strtok(lineCopy, " ");
+        token = strtok(lineCopy, " \n   ");
         if(macroFlag==1){
             if(strcmp(token,"endm") == 0){
                 tail = tail->next;
@@ -58,28 +58,33 @@ void macroSpread(char *fileName){
             continue;
         }
         node = head;
-        while(!macroFlag && node->next != NULL){
+        do{
             /* This loop checks if the first field in the line is a macro from the list */
-            if(strcmp(node->name,token) == 0){
-                strcat(node->macro[index], "\n");
-                fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);//Does not work
-                flag = 1;
-                continue;
+            if(node != NULL && token != NULL){
+                if(strcmp(node->name,token) == 0){
+                    strcat(node->macro[index], "\n");
+                    fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);//Does not work
+                    flag = 1;
+                }
             }
             node = node->next;
         }
+        while(!macroFlag && node != NULL);
+        
         if(flag == 1){
             flag = 0;
             continue;
         }
-        if(strcmp(token,"macro") == 0){
-            macroFlag = 1;
-            token = strtok(NULL, " \n");
+        if(token != NULL){
+            if(strcmp(token,"macro") == 0){
+                macroFlag = 1;
+                token = strtok(NULL, " \n");
                 tail->next = (macroNode*)malloc(sizeof(macroNode));
                 tail = tail->next;
                 strcpy(tail->name, token);
                 index = 0;
-            continue;
+                continue;
+            }
         }
      //   strcat(line, "\n");
         fwrite(line, strlen(line), 1, macroSpreadFile);
