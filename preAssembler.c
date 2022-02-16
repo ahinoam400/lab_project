@@ -36,20 +36,21 @@ void macroSpread(char *fileName){
         strcpy(lineCopy, line);
         token = strtok(lineCopy, " \n   ");
         if(macroFlag==1){
-            if(strcmp(token,"endm") == 0){
+            if(strcmp(token,"endm") == 0){/*end of the macro */
                 macroFlag = 0;
                 continue;
             }
+            /*copies the macro contents to the linked list */
             strcpy(tail->macro[index++], line);
             macroLength++;
             continue;
         }
         node = head;
         do{
-            /* This loop checks if the first field in the line is a macro from the list */
             if(node != NULL && token != NULL){
-                if(strcmp(node->name,token) == 0){
+                if(strcmp(node->name,token) == 0){/*checks if token is a macro from the list */
                     for(index = 0; index<macroLength; index++){
+                        /*copies the macro contents to macroSpreadFile */
                         fwrite(node->macro[index], strlen(node->macro[index]), 1, macroSpreadFile);
                     }
                     flag = 1;
@@ -64,7 +65,7 @@ void macroSpread(char *fileName){
             continue;
         }
         if(token != NULL){
-            if(strcmp(token,"macro") == 0){
+            if(strcmp(token,"macro") == 0){/*add a new macro to the linked list*/
                 macroFlag = 1, macroLength = 0, index = 0;
                 token = strtok(NULL, " \n");
                 tail->next = (macroNode*)malloc(sizeof(macroNode));
