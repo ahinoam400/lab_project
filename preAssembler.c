@@ -33,7 +33,7 @@ void macroSpread(char *fileName){
     FILE *macroSpreadFile;
     char *macroSpreadName;
     macroNode *head = NULL, *node = NULL, *tail = NULL;
-    int macroFlag = 0, flag = 0, index = 0;
+    int macroFlag = 0, flag = 0, index = 0, macroLength;;
     char *token;
     char line[MAX], lineCopy[MAX];
     if(assembly == NULL ){
@@ -55,6 +55,7 @@ void macroSpread(char *fileName){
                 continue;
             }
             strcpy(tail->macro[index++], line);
+            macroLength++;
             continue;
         }
         node = head;
@@ -63,7 +64,9 @@ void macroSpread(char *fileName){
             if(node != NULL && token != NULL){
                 if(strcmp(node->name,token) == 0){
                     strcat(node->macro[index], "\n");
-                    fwrite(node->macro, strlen(node->macro), 1, macroSpreadFile);//Does not work
+                    for(index = 0; index<macroLength; index++){
+                        fwrite(node->macro[index], strlen(node->macro[index]), 1, macroSpreadFile);//Does not work
+                    }
                     flag = 1;
                 }
             }
@@ -77,7 +80,7 @@ void macroSpread(char *fileName){
         }
         if(token != NULL){
             if(strcmp(token,"macro") == 0){
-                macroFlag = 1;
+                macroFlag = 1, macroLength = 0;
                 token = strtok(NULL, " \n");
                 tail->next = (macroNode*)malloc(sizeof(macroNode));
                 tail = tail->next;
