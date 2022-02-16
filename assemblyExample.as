@@ -10,7 +10,11 @@ LOOP:       prn     #48
             lea     STR,r6
             m1
             sub     r1,r2
+            macro m2
+                inc r1
+            endm
             bne     END 
+            m2
             cmp     vall,#-6
             bne     END[r15]
             dec     K
