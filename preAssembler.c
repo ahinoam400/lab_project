@@ -37,8 +37,6 @@ void macroSpread(char *fileName){
         token = strtok(lineCopy, " \n   ");
         if(macroFlag==1){
             if(strcmp(token,"endm") == 0){
-                tail = tail->next;
-                tail = (macroNode*)malloc(sizeof(macroNode));
                 macroFlag = 0;
                 continue;
             }
