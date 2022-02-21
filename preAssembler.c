@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
-int MAX = 80;
+int MAX_LINE_LEN = 80;
 int preAssembler(char* assemblyFileName);
-char *removeExtension(char* myStr);
 void macroSpread(char* fileName);
 typedef struct macroNode{
     char name[80];
@@ -12,24 +11,26 @@ typedef struct macroNode{
 }macroNode;
 
 int main(){
-    macroSpread("assemblyExample.as");
+    macroSpread("assemblyExample");
 }
 
 void macroSpread(char *fileName){
-    FILE *assembly = fopen(fileName, "r");
+    FILE *assembly;
     FILE *macroSpreadFile;
-    char *macroSpreadName;
+    char fileNameCopy[MAX_LINE_LEN];
     macroNode *head = NULL, *node = NULL, *tail = NULL;
     int macroFlag = 0, flag = 0, index = 0, macroLength;
     char *token;
-    char line[80], lineCopy[80];
+    char line[MAX_LINE_LEN], lineCopy[MAX_LINE_LEN];
+    size_t len = strlen(fileName);
+    strcpy(fileNameCopy, fileName);
+    assembly = fopen(strcat(fileNameCopy, ".as"), "r");
+    fileNameCopy[len] = '\0';
+    macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
     if(assembly == NULL ){
         printf("Error opening file\n");
         return;
     }
-    macroSpreadName = removeExtension(fileName);
-    strcat(macroSpreadName, ".am");
-    macroSpreadFile = fopen(macroSpreadName, "w");
     head = (macroNode*)malloc(sizeof(macroNode));
     tail = head;
     while(fgets(line, MAX, assembly)){
@@ -78,16 +79,5 @@ void macroSpread(char *fileName){
     }
 }
 
-/*remove the extension from a file name*/
-char *removeExtension(char* myStr) {
-    char *retStr;
-    char *lastExt;
-    if (myStr == NULL) return NULL;
-    if ((retStr = malloc (strlen (myStr) + 1)) == NULL) return NULL;
-    strcpy (retStr, myStr);
-    lastExt = strrchr (retStr, '.');
-    if (lastExt != NULL)
-        *lastExt = '\0';
-    return retStr;
-}
+
 
