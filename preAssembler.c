@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
-int MAX_LINE_LEN = 80;
+ 
+#include "constant.h"
 int preAssembler(char* assemblyFileName);
 void macroSpread(char* fileName);
 typedef struct macroNode{
