@@ -1,12 +1,14 @@
 #include <stdio.h>
-
+#include <stdlib.h>
 #include "constant.h"
-#include "stracts.h"
+#include "structs.h"
 long int DecimalToBinary(int n);
-
+int isCommand(char commandName[MAX_LINE_LEN]);
+extern command cmd_arr[];
 
 int main(){
     printf("%ld", DecimalToBinary(8));
+    
 }
 
 /*this function get a line, turns on the flag if there is a label,
@@ -17,7 +19,7 @@ int lineProcess(char* line){
 }
 
 /*convert decimal number to binary number*/
-long int DecimalToBinary(int decNum){
+long int decimalToBinary(int decNum){
     int binaryNum[16];
     int i = 0 , counter;
     long int reverse = 0;
@@ -34,3 +36,15 @@ long int DecimalToBinary(int decNum){
     return reverse;
 }
 
+int isCommand(char commandName[MAX_LINE_LEN]){
+    command *cmd = (command*)malloc(sizeof(command));
+    int index, cmp;
+    for(index = 0; index<MAX_CMD_NUM; index++){
+        cmd = &cmd_arr[index];
+        if((cmp = strcmp(commandName, cmd->cmdName)) == 0){
+            return (index<5?1:0);
+        }
+        cmd = (command*)malloc(sizeof(command));
+    }
+    return -1;
+}
