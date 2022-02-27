@@ -29,8 +29,8 @@ typedef struct{/*two words for direct addressing mode*/
     int empty_bit : 1;
     /*the second word:*/
     unsigned int offset :16;
-    int coding_class : 3;/*R=Relocatable or E=External*/
-    int empty_bit : 1;
+    int coding_class_2 : 3;/*R=Relocatable or E=External*/
+    int empty_bit_2 : 1;
 }direct_words;
 
 typedef struct{/*two words for index addressing mode*/
@@ -40,8 +40,8 @@ typedef struct{/*two words for index addressing mode*/
     int empty_bit : 1;
     /*the second word:*/
     unsigned int offset :16;
-    int coding_class : 3;/*R=Relocatable or E=External*/
-    int empty_bit : 1;
+    int coding_class_3 : 3;/*R=Relocatable or E=External*/
+    int empty_bit_3 : 1;
 }index_words;
 
 typedef union{/*hold the code for a line*/

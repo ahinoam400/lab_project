@@ -7,17 +7,17 @@ int isCommand(char commandName[MAX_LINE_LEN]);
 extern command cmd_arr[];
 
 int main(){
-    printf("%ld", DecimalToBinary(8));
+    printf("%d\n", isCommand("stopf"));
     
 }
 
 /*this function get a line, turns on the flag if there is a label,
  calculates how many words are needed in memory (according to the 
- command and according to the operands) and puts the line in memory*/
+ command and according to the operands) and puts the line in memory
 int lineProcess(char* line){
-
+    
 }
-
+*/
 /*convert decimal number to binary number*/
 long int decimalToBinary(int decNum){
     int binaryNum[16];
