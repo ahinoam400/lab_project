@@ -50,7 +50,9 @@ typedef union{/*hold the code for a line*/
     immediate_word imm_word; /*for immediate addressing mode*/
     direct_words dir_words; /*for direct addressing mode*/
     index_words inx_word; /*for index addressing mode*/
+}code_line;
+
+typedef struct{/*hold the code for a file*/
+    code_line code_line;
+    struct code *next;
 }code;
-
-
-

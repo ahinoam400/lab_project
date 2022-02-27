@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "constant.h"
 #include "structs.h"
 long int DecimalToBinary(int n);
@@ -7,7 +8,7 @@ int isCommand(char commandName[MAX_LINE_LEN]);
 extern command cmd_arr[];
 
 int main(){
-    printf("%d\n", isCommand("stopf"));
+    printf("%d\n", isCommand("cmp"));
     
 }
 
@@ -37,11 +38,21 @@ long int decimalToBinary(int decNum){
 }
 
 int isCommand(char commandName[MAX_LINE_LEN]){
+    code *head = (code*)malloc(sizeof(code));
+    code *tail = head;
     command *cmd = (command*)malloc(sizeof(command));
     int index, cmp;
     for(index = 0; index<MAX_CMD_NUM; index++){
         cmd = &cmd_arr[index];
         if((cmp = strcmp(commandName, cmd->cmdName)) == 0){
+            tail->next = (code*)malloc(sizeof(code));
+            tail = tail->next;
+            tail->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
+            tail->code_line.command.coding_class = ABSOLUTE; 
+            if(index <= 14){
+                tail->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
+                tail->code_line.word.coding_class = ABSOLUTE;
+            }
             return (index<5?1:0);
         }
         cmd = (command*)malloc(sizeof(command));

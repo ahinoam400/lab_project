@@ -1,6 +1,9 @@
 
 #define MAX_LINE_LEN 80
 #define MAX_CMD_NUM 16
+#define ABSOLUTE 100
+#define RELOCATABLE 010
+#define EXTERNAL 001
 
 typedef struct symbol{ /*struct for symbols table*/
     char *symbol[MAX_LINE_LEN];
