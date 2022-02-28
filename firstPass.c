@@ -73,8 +73,8 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
             head->baseAddress = 0;
             head->offset = 0;
             strcat(head->attributes, "external");
-            head->next = (symbol*)malloc(sizeof(symbol));
-            tail = head->next;
+            tail = (symbol*)malloc(sizeof(symbol));
+            head->next = tail;
             return ;
         }
         head->value = IC;
@@ -82,8 +82,8 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         head->offset = IC - head->baseAddress;
         if(!strcmp(attribute, ".data")||!strcmp(attribute, ".string")) strcat(head->attributes, "data");
         else strcat(head->attributes, "code");
-        head->next = (symbol*)malloc(sizeof(symbol));
-        tail = head->next;
+        tail = (symbol*)malloc(sizeof(symbol));
+        head->next = tail;
     }
     else{
         strcpy(tail->symbol, symbolName);
@@ -92,8 +92,9 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
             tail->baseAddress = 0;
             tail->offset = 0;
             strcat(tail->attributes, "external");
-            tail->next = (symbol*)malloc(sizeof(symbol));
-            tail = tail->next;
+            symbol *temp = (symbol*)malloc(sizeof(symbol));
+            temp = tail;
+            tail = temp->next;
             return ;
         }
         tail->value = IC;
@@ -101,8 +102,8 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         tail->offset = IC - tail->baseAddress;
         if(!strcmp(attribute, ".data")||!strcmp(attribute, ".string")) strcat(tail->attributes, "data");
         else strcat(tail->attributes, "code");
-        tail = (symbol*)malloc(sizeof(symbol));
-        tail->next = (symbol*)malloc(sizeof(symbol));
-        tail = tail->next;
+        symbol *temp = (symbol*)malloc(sizeof(symbol));
+        temp = tail;
+        tail = temp->next;
     }
 }
