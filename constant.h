@@ -6,11 +6,11 @@
 #define EXTERNAL 001
 
 typedef struct symbol{ /*struct for symbols table*/
-    char *symbol[MAX_LINE_LEN];
+    char symbol[MAX_LINE_LEN];
     int value;
     int baseAddress;
     int offset;
-    char *attributes[MAX_LINE_LEN];
+    char attributes[MAX_LINE_LEN];
     struct symbol* next;
 }symbol;
 

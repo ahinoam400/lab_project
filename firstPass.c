@@ -5,11 +5,15 @@
 #include "structs.h"
 long int DecimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
+void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
 extern command cmd_arr[];
+extern symbol *head = NULL, *tail = NULL;
 
 int main(){
-    printf("%d\n", isCommand("cmp"));
-    
+    addSymbol("TEST", 100, ".data");
+    printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
+    addSymbol("EXT", 105, ".string");
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
 }
 
 /*this function get a line, turns on the flag if there is a label,
@@ -58,4 +62,47 @@ int isCommand(char commandName[MAX_LINE_LEN]){
         cmd = (command*)malloc(sizeof(command));
     }
     return -1;
+}
+
+void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]){
+    if(head == NULL){
+        head = (symbol*)malloc(sizeof(symbol));
+        strcpy(head->symbol, symbolName);
+        if(!strcmp(attribute, ".extern")){
+            head->value = 0;
+            head->baseAddress = 0;
+            head->offset = 0;
+            strcat(head->attributes, "external");
+            head->next = (symbol*)malloc(sizeof(symbol));
+            tail = head->next;
+            return ;
+        }
+        head->value = IC;
+        head->baseAddress = (IC/32)*32;
+        head->offset = IC - head->baseAddress;
+        if(!strcmp(attribute, ".data")||!strcmp(attribute, ".string")) strcat(head->attributes, "data");
+        else strcat(head->attributes, "code");
+        head->next = (symbol*)malloc(sizeof(symbol));
+        tail = head->next;
+    }
+    else{
+        strcpy(tail->symbol, symbolName);
+        if(!strcmp(attribute, ".extern")){
+            tail->value = 0;
+            tail->baseAddress = 0;
+            tail->offset = 0;
+            strcat(tail->attributes, "external");
+            tail->next = (symbol*)malloc(sizeof(symbol));
+            tail = tail->next;
+            return ;
+        }
+        tail->value = IC;
+        tail->baseAddress = (IC/32)*32;
+        tail->offset = IC - tail->baseAddress;
+        if(!strcmp(attribute, ".data")||!strcmp(attribute, ".string")) strcat(tail->attributes, "data");
+        else strcat(tail->attributes, "code");
+        tail = (symbol*)malloc(sizeof(symbol));
+        tail->next = (symbol*)malloc(sizeof(symbol));
+        tail = tail->next;
+    }
 }
