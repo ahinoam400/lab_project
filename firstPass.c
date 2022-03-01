@@ -38,10 +38,7 @@ long int decimalToBinary(int decNum){
 
 /*finds the addressing mode of the operand*/
 int addressingMode(char *operand){
-    int i=0;
-    if(operand[0] == '#'){
-
-    }
+    
 }
 
 int isCommand(char commandName[MAX_LINE_LEN]){
@@ -117,6 +114,6 @@ int isLegalNumber(char *number){
     int i=0;
     if(number[i] == '-' || number[i] == '+')i++;
     while(number[i]!='\0'){
-        
+
     }
 }
