@@ -6,6 +6,8 @@
 long int DecimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
+int addressingMode(char *operand);
+int isLegalNumber(char *number);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
 
@@ -16,13 +18,6 @@ int main(){
     printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
 }
 
-/*this function get a line, turns on the flag if there is a label,
- calculates how many words are needed in memory (according to the 
- command and according to the operands) and puts the line in memory
-int lineProcess(char* line){
-    
-}
-*/
 /*convert decimal number to binary number*/
 long int decimalToBinary(int decNum){
     int binaryNum[16];
@@ -41,6 +36,14 @@ long int decimalToBinary(int decNum){
     return reverse;
 }
 
+/*finds the addressing mode of the operand*/
+int addressingMode(char *operand){
+    int i=0;
+    if(operand[0] == '#'){
+
+    }
+}
+
 int isCommand(char commandName[MAX_LINE_LEN]){
     code *head = (code*)malloc(sizeof(code));
     code *tail = head;
@@ -57,7 +60,9 @@ int isCommand(char commandName[MAX_LINE_LEN]){
                 tail->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
                 tail->code_line.word.coding_class = ABSOLUTE;
             }
-            return (index<5?1:0);
+            if(index<6) return 2;
+            if(index<15)return 1;
+            return 0;
         }
         cmd = (command*)malloc(sizeof(command));
     }
@@ -104,5 +109,14 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         tail = (symbol*)malloc(sizeof(symbol));
         tail->next = (symbol*)malloc(sizeof(symbol));
         tail = tail->next;
+    }
+}
+
+/*checks if number is a legal number and convert number to int */
+int isLegalNumber(char *number){
+    int i=0;
+    if(number[i] == '-' || number[i] == '+')i++;
+    while(number[i]!='\0'){
+        
     }
 }
