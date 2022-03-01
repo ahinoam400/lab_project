@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "constant.h"
 #include "structs.h"
 long int DecimalToBinary(int n);
@@ -8,10 +9,12 @@ int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
 int addressingMode(char *operand);
 int isLegalNumber(char *number);
+int isRegister(char *str);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
 
 int main(){
+    printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));
     addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
@@ -38,6 +41,25 @@ long int decimalToBinary(int decNum){
 
 /*finds the addressing mode of the operand*/
 int addressingMode(char *operand){
+    enum states{ladder, label};
+    enum addressingModes{immediate, direct, index, register_direct}
+    int state, adrressing_mode ,i,num;
+    char *copy;
+    if(operand[0] == '#')
+        state = ladder;
+    if(isRegister(operand))
+        adrressing_mode = register_direct;
+    for(i=0; operand[i]!='\0';i++){
+        if(state = ladder){
+            copy = operand+1;
+            if(num = isLegalNumber(copy)){
+                addressingMode = immediate;
+            }
+            else{
+                return 0;
+            }
+        }
+    }
     
 }
 
@@ -109,15 +131,27 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         tail = temp->next;
     }
 }
-<<<<<<< HEAD
 
-/*checks if number is a legal number and convert number to int */
+/*checks if num is a legal number */
 int isLegalNumber(char *number){
-    int i=0;
+    int num, i=0;
     if(number[i] == '-' || number[i] == '+')i++;
     while(number[i]!='\0'){
-
+        if(!isdigit(number[i]))return 0;
+        i++;
     }
+    return atoi(number);
 }
-=======
->>>>>>> 1f114e2d2829ea9289ae4803fda4920836db8a57
+
+int isRegister(char *str){
+    int i=0, number;
+    char *str2;
+    if(str[i]!='r')return 0;
+    for(i=1; str[i]!='\0'; i++){
+        if(!isdigit(str[i]))return 0;
+    }
+    str2 = str+1;
+    number = atoi(str2);
+    if(number > 15)return 0;
+    return number;
+}
