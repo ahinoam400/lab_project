@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include "constant.h"
 #include "structs.h"
+int firstPass(char *filename);
 long int DecimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
@@ -12,6 +13,7 @@ int isLegalNumber(char *number);
 int isRegister(char *str);
 int addressingMode(char *operand);
 extern command cmd_arr[];
+<<<<<<< HEAD
 extern symbol *head = NULL, *tail = NULL;
 code *head_code = (code*)malloc(sizeof(code));
 code *tail_code = head_code;
@@ -23,6 +25,39 @@ int main(){
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
     printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
+=======
+extern symbol *head = NULL, *tail = NULL, *temp = NULL;
+
+int main(){
+    /*printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));*/
+    addSymbol("TEST", 100, ".data");
+    printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
+    addSymbol("EXT", 105, ".extern");
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
+>>>>>>> 948101120af9f660dfe2c174d6f4f13a3225c3c4
+}
+
+int firstPass(char *filename){
+    FILE assembly = fopen(strcat(fileNameCopy, ".am"), "r");
+    if(assembly == NULL ){
+        printf("Error opening file\n");
+        return -1;
+    }
+    int IC = 100, DC = 0;
+    int errFlag = 0, symbolFlag = 0;
+    char line[MAX_LINE_LEN];
+    char *token, *temp;
+    while(fgets(line, MAX_LINE_LEN, assembly)){
+        token = strtok(line, " ");
+        if(!strcmp(token[strlen(token)-1], ":")){
+            symbolFlag = 1;
+            strcpy(temp, token);
+            token = strtok(NULL, " ");
+            if(!strcmp(token, ".string")||!strcmp(token, ".data")){
+                addSymbol(temp, IC, token);
+            }
+        }
+    }
 }
 
 /*convert decimal number to binary number*/
@@ -44,10 +79,17 @@ long int decimalToBinary(int decNum){
 }
 
 /*finds the addressing mode of the operand*/
+<<<<<<< HEAD
 int addressingMode(char *operand, int src_or_dest){
    /* enum states{};*/
     enum addressingModes{immediate, direct, index, register_direct};
     int state, addressing_mode=zero ,i,num;
+=======
+int addressingMode(char *operand){
+    enum states{ladder, label};
+    enum addressingModes{immediate, direct, index, register_direct};
+    int state, adrressing_mode ,i,num;
+>>>>>>> 948101120af9f660dfe2c174d6f4f13a3225c3c4
     char *copy;
     if(operand[0] == '#'){
         copy = operand+1;
@@ -113,6 +155,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         head->next = tail;
     }
     else{
+        tail = (symbol*)malloc(sizeof(symbol));
         strcpy(tail->symbol, symbolName);
         if(!strcmp(attribute, ".extern")){
             tail->value = 0;
@@ -120,8 +163,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
             tail->offset = 0;
             strcat(tail->attributes, "external");
             symbol *temp = (symbol*)malloc(sizeof(symbol));
-            temp = tail;
-            tail = temp->next;
+            tail->next = temp;
             return ;
         }
         tail->value = IC;
@@ -130,8 +172,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         if(!strcmp(attribute, ".data")||!strcmp(attribute, ".string")) strcat(tail->attributes, "data");
         else strcat(tail->attributes, "code");
         symbol *temp = (symbol*)malloc(sizeof(symbol));
-        temp = tail;
-        tail = temp->next;
+        tail->next = temp;
     }
 }
 
