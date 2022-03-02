@@ -10,15 +10,19 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
 int addressingMode(char *operand);
 int isLegalNumber(char *number);
 int isRegister(char *str);
+int addressingMode(char *operand);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
+code *head_code = (code*)malloc(sizeof(code));
+code *tail_code = head_code;
 
 int main(){
-    printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));
+    printf("%d, %d", addressingMode("#-15"), addressingMode("r14"));
+    /*printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));
     addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
-    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
 }
 
 /*convert decimal number to binary number*/
@@ -40,44 +44,43 @@ long int decimalToBinary(int decNum){
 }
 
 /*finds the addressing mode of the operand*/
-int addressingMode(char *operand){
-    enum states{ladder, label};
-    enum addressingModes{immediate, direct, index, register_direct}
-    int state, adrressing_mode ,i,num;
+int addressingMode(char *operand, int src_or_dest){
+   /* enum states{};*/
+    enum addressingModes{immediate, direct, index, register_direct};
+    int state, addressing_mode=zero ,i,num;
     char *copy;
-    if(operand[0] == '#')
-        state = ladder;
-    if(isRegister(operand))
-        adrressing_mode = register_direct;
-    for(i=0; operand[i]!='\0';i++){
-        if(state = ladder){
-            copy = operand+1;
-            if(num = isLegalNumber(copy)){
-                addressingMode = immediate;
-            }
-            else{
-                return 0;
-            }
+    if(operand[0] == '#'){
+        copy = operand+1;
+        if(num = isLegalNumber(copy)){
+            addressing_mode = immediate;
+        }
+        else{
+            return 0;
         }
     }
-    
+    else if(isRegister(operand)){
+        addressing_mode = register_direct;
+    }
+    if(src_or_dest == 0)/*if the operand is a source operand*/
+        tail_code->code_line.word.src_address = decimalToBinary(addressing_mode);
+    if(src_or_dest == 1)/*if the operand is a destination operand*/
+        tail_code->code_line.word.dest_address = decimalToBinary(addressing_mode);
+    return addressing_mode;
 }
 
 int isCommand(char commandName[MAX_LINE_LEN]){
-    code *head = (code*)malloc(sizeof(code));
-    code *tail = head;
     command *cmd = (command*)malloc(sizeof(command));
     int index, cmp;
     for(index = 0; index<MAX_CMD_NUM; index++){
         cmd = &cmd_arr[index];
         if((cmp = strcmp(commandName, cmd->cmdName)) == 0){
-            tail->next = (code*)malloc(sizeof(code));
-            tail = tail->next;
-            tail->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
-            tail->code_line.command.coding_class = ABSOLUTE; 
+            tail_code->next = (code*)malloc(sizeof(code));
+            tail_code = tail_code->next;
+            tail_code->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
+            tail_code->code_line.command.coding_class = ABSOLUTE; 
             if(index <= 14){
-                tail->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
-                tail->code_line.word.coding_class = ABSOLUTE;
+                tail_code->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
+                tail_code->code_line.word.coding_class = ABSOLUTE;
             }
             if(index<6) return 2;
             if(index<15)return 1;
