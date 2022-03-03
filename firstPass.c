@@ -8,37 +8,26 @@ int firstPass(char *filename);
 long int DecimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
-int addressingMode(char *operand);
 int isLegalNumber(char *number);
 int isRegister(char *str);
-int addressingMode(char *operand);
+int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
-<<<<<<< HEAD
 extern symbol *head = NULL, *tail = NULL;
 code *head_code = (code*)malloc(sizeof(code));
 code *tail_code = head_code;
 
 int main(){
-    printf("%d, %d", addressingMode("#-15"), addressingMode("r14"));
-    /*printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));
-    addSymbol("TEST", 100, ".data");
+    printf("%d, %d", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
+    /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
     printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
-=======
-extern symbol *head = NULL, *tail = NULL, *temp = NULL;
-
-int main(){
-    /*printf("%d, %d, %d, %d", isRegister("r4"), isRegister("r16"), isRegister("ra1"), isRegister("b4"));*/
-    addSymbol("TEST", 100, ".data");
-    printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
-    addSymbol("EXT", 105, ".extern");
-    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
->>>>>>> 948101120af9f660dfe2c174d6f4f13a3225c3c4
 }
 
 int firstPass(char *filename){
-    FILE assembly = fopen(strcat(fileNameCopy, ".am"), "r");
+    char *fileNameCopy;
+    strcpy(fileNameCopy, filename);
+    FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if(assembly == NULL ){
         printf("Error opening file\n");
         return -1;
@@ -49,7 +38,7 @@ int firstPass(char *filename){
     char *token, *temp;
     while(fgets(line, MAX_LINE_LEN, assembly)){
         token = strtok(line, " ");
-        if(!strcmp(token[strlen(token)-1], ":")){
+        if(token[strlen(token)-1] == ':'){
             symbolFlag = 1;
             strcpy(temp, token);
             token = strtok(NULL, " ");
@@ -79,17 +68,9 @@ long int decimalToBinary(int decNum){
 }
 
 /*finds the addressing mode of the operand*/
-<<<<<<< HEAD
-int addressingMode(char *operand, int src_or_dest){
-   /* enum states{};*/
-    enum addressingModes{immediate, direct, index, register_direct};
-    int state, addressing_mode=zero ,i,num;
-=======
-int addressingMode(char *operand){
-    enum states{ladder, label};
-    enum addressingModes{immediate, direct, index, register_direct};
-    int state, adrressing_mode ,i,num;
->>>>>>> 948101120af9f660dfe2c174d6f4f13a3225c3c4
+int findAddressingMode(char *operand, int src_or_dest){
+    enum addressingModes{immediate = 0, direct, index, register_direct};
+    int state, addressing_mode=-1 ,i,num;
     char *copy;
     if(operand[0] == '#'){
         copy = operand+1;
