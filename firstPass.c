@@ -6,20 +6,24 @@
 #include "structs.h"
 int firstPass(char *filename);
 long int DecimalToBinary(int n);
-/*int isCommand(char commandName[MAX_LINE_LEN]);*/
+int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
 int isLegalSymName(char symbolName[MAX_LINE_LEN]);
-int isNameInTable(char symbolName(MAC_LINE_LEN));
+int isNameInTable(char symbolName[MAX_LINE_LEN]);
 int isLegalNumber(char *number);
 int isRegister(char *str);
-/*int findAddressingMode(char *operand, int src_or_dest);*/
+int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
-/*code *head_code = (code*)malloc(sizeof(code));
-code *tail_code = head_code;*/
+extern code *head_code = NULL;
+/*head_code = (code*)malloc(sizeof(code));*/
+extern code *tail_code = NULL;
+/*tail_code = head_code;*/
 
 int main(){
-   /* printf("%d, %d", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));*/
+    head_code = (code*)malloc(sizeof(code));
+    tail_code = head_code;
+    printf("%d, %d\n", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
     addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
@@ -47,13 +51,13 @@ int firstPass(char *filename){
             strcpy(name, token);
             name = strtok(name, ":");
             if(!isLegalSymName(name)){
-                printf("ILLEGAL SYMBOL NAME ERROR");
-                errflag = 1;
+                printf("ERROR: ILLEGAL SYMBOL NAME");
+                errFlag = 1;
                 continue;
             }
             if(isNameInTable(name)){
-                printf("SYMBOL NAME EXIST ERROR");
-                errflag = 1;
+                printf("ERROR: SYMBOL NAME ALREADY EXISTS");
+                errFlag = 1;
                 continue;
             }
             token = strtok(NULL, " ");
@@ -69,8 +73,8 @@ int firstPass(char *filename){
             }
             addSymbol(name, IC, ".code");
             if(isCommand(token)==-1){
-                printf("COMMAND NAME ERROR");
-                errflag = 1;
+                printf("ERROR: COMMAND NAME");
+                errFlag = 1;
                 continue;
             }
         }
@@ -95,7 +99,7 @@ long int decimalToBinary(int decNum){
     return reverse;
 }
 
-/*finds the addressing mode of the operand
+/*finds the addressing mode of the operand*/
 int findAddressingMode(char *operand, int src_or_dest){
     enum addressingModes{immediate = 0, direct, index, register_direct};
     int state, addressing_mode=-1 ,i,num;
@@ -112,9 +116,9 @@ int findAddressingMode(char *operand, int src_or_dest){
     else if(isRegister(operand)){
         addressing_mode = register_direct;
     }
-    if(src_or_dest == 0)/*if the operand is a source operand
+    if(src_or_dest == 0)/*if the operand is a source operand*/
         tail_code->code_line.word.src_address = decimalToBinary(addressing_mode);
-    if(src_or_dest == 1)/*if the operand is a destination operand
+    if(src_or_dest == 1)/*if the operand is a destination operand*/
         tail_code->code_line.word.dest_address = decimalToBinary(addressing_mode);
     return addressing_mode;
 }
@@ -140,7 +144,7 @@ int isCommand(char commandName[MAX_LINE_LEN]){
         cmd = (command*)malloc(sizeof(command));
     }
     return -1;
-}*/
+}
 
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]){
     if(head == NULL){
@@ -185,18 +189,14 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
     }
 }
 int isLegalSymName(char symbolName[MAX_LINE_LEN]){
-    if(!isCommand(symbolName)) return 0;
-    char num[2];
-    strcat(num, symbolName[1]);
-    strcat(num, symbolName[2]);
-    if(symbolName[0] == 'r'&&atoi(num)<19&&atoi(num)>=0) return 0;
+    if(isCommand(symbolName)!=-1||isRegister(symbolName)!=0) return 0;
     return 1;
 }
 
-int isNameInTable(char symbolName(MAC_LINE_LEN)){
-    symbol sym = head;
+int isNameInTable(char symbolName[MAX_LINE_LEN]){
+    symbol *sym = head;
     while(sym != NULL){
-        if(!strcmp(sym->symbolName, symbolName)) return 1;
+        if(!strcmp(sym->symbol, symbolName)) return 1;
         sym = sym->next;
     }
     return 0;
