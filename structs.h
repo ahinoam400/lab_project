@@ -44,12 +44,26 @@ typedef struct{/*two words for index addressing mode*/
     int empty_bit_3 : 1;
 }index_words;
 
+typedef struct{
+    int data_num : 16;
+    int coding_class_4 : 3;
+    int empty_bit_4 : 1;
+}data;
+
+typedef struct{
+    char *str : 16;
+    int coding_class_5 : 3;
+    int empty_bit_5 : 1;
+}string;
+
 typedef union{/*hold the code for a line*/
     cmd_word command;
     second_word word; /*for comands with operands*/
     immediate_word imm_word; /*for immediate addressing mode*/
     direct_words dir_words; /*for direct addressing mode*/
     index_words inx_word; /*for index addressing mode*/
+    data data_word;
+    string string_word;
 }code_line;
 
 typedef struct{/*hold the code for a file*/

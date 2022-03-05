@@ -23,6 +23,10 @@ extern code *tail_code = NULL;
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
+    findAddressingMode("#-1", 0);
+    findAddressingMode("x", 1);
+    findAddressingMode("x[r12]", 1);
+    findAddressingMode("r2", 0);
     printf("%d, %d\n", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
     addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
@@ -42,6 +46,7 @@ int firstPass(char *filename){
     }
     int IC = 100, DC = 0;
     int errFlag = 0, symbolFlag = 0;
+    int num, i;
     char line[MAX_LINE_LEN];
     char *token, *name;
     while(fgets(line, MAX_LINE_LEN, assembly)){
@@ -61,9 +66,26 @@ int firstPass(char *filename){
                 continue;
             }
             token = strtok(NULL, " ");
-            if(!strcmp(token, ".string")||!strcmp(token, ".data")){
+            if(!strcmp(token, ".string")){
                 addSymbol(name, IC, token);
-                /*enter step 7 here*/
+                token = strtok(NULL, " ");
+                for(i=0; token[i]!='\0'; i++){  
+                    tail_code->next = (code*)malloc(sizeof(code));
+                    tail_code->code_line.string_word.str = token[i];
+                    tail_code->code_line.string_word.coding_class_5 = ABSOLUTE;
+                }
+                continue;
+            }
+            if(!strcmp(token, ".data"){
+                addSymbol(name, IC, token);
+                token = strtok(NULL, " ");
+                if(!(num = isLegalNumber(token))){
+                    printf("ERROR : ILLEGAL DATA");
+                    return 0;
+                }
+                tail_code->next = (code*)malloc(sizeof(code));
+                tail_code->code_line.data_word.data_num = decimalToBinary(num);
+                tail_code->code_line.data_word.coding_class_4 = ABSOLUTE;
                 continue;
             }
             if(!strcmp(token, ".entry")) continue;
@@ -103,22 +125,41 @@ long int decimalToBinary(int decNum){
 int findAddressingMode(char *operand, int src_or_dest){
     enum addressingModes{immediate = 0, direct, index, register_direct};
     int state, addressing_mode=-1 ,i,num;
-    char *copy;
+    char *copy, *token;
     if(operand[0] == '#'){
         copy = operand+1;
         if(num = isLegalNumber(copy)){
             addressing_mode = immediate;
         }
-        else{
-            return 0;
-        }
     }
     else if(isRegister(operand)){
         addressing_mode = register_direct;
     }
+    else if(isLegalSymName(operand)){
+        addressing_mode = direct;
+    }
+    else{
+        token = strtok(operand, "[]");
+        if(!isLegalSymName(token)){
+            printf("ERROR : ILLEGAL OPERAND");
+            return 0;
+        }
+        token = strtok(operand, "[]");
+        if(!(num = isRegister(token))){
+            printf("ERROR : ILLEGAL REGISTER");
+            return 0;
+        }
+        if(num < 10){
+            printf("ERROR : ILLEGAL REGISTER NUMBER");
+            return 0;
+        }
+        addressing_mode = index;
+    }
     if(src_or_dest == 0)/*if the operand is a source operand*/
+        tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.src_address = decimalToBinary(addressing_mode);
     if(src_or_dest == 1)/*if the operand is a destination operand*/
+        tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.dest_address = decimalToBinary(addressing_mode);
     return addressing_mode;
 }
@@ -201,6 +242,7 @@ int isNameInTable(char symbolName[MAX_LINE_LEN]){
     }
     return 0;
 }
+
 /*checks if num is a legal number */
 int isLegalNumber(char *number){
     int num, i=0;
