@@ -13,10 +13,11 @@ int isRegister(char *str);
 int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
-code *head_code = (code*)malloc(sizeof(code));
-code *tail_code = head_code;
+code *head_code = NULL, *tail_code = NULL;
 
 int main(){
+    head_code = (code*)malloc(sizeof(code));
+    tail_code = head_code;
     printf("%d, %d", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
     /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
