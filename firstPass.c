@@ -8,21 +8,28 @@ int firstPass(char *filename);
 long int DecimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
+int isLegalSymName(char symbolName[MAX_LINE_LEN]);
+int isNameInTable(char symbolName[MAX_LINE_LEN]);
 int isLegalNumber(char *number);
 int isRegister(char *str);
 int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
 extern symbol *head = NULL, *tail = NULL;
-code *head_code = NULL, *tail_code = NULL;
+extern code *head_code = NULL;
+/*head_code = (code*)malloc(sizeof(code));*/
+extern code *tail_code = NULL;
+/*tail_code = head_code;*/
 
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
-    printf("%d, %d", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
-    /*addSymbol("TEST", 100, ".data");
+    printf("%d, %d\n", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
+    addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
-    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
+    addSymbol("SYM", 127, ".extern");
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
 }
 
 int firstPass(char *filename){
@@ -36,15 +43,39 @@ int firstPass(char *filename){
     int IC = 100, DC = 0;
     int errFlag = 0, symbolFlag = 0;
     char line[MAX_LINE_LEN];
-    char *token, *temp;
+    char *token, *name;
     while(fgets(line, MAX_LINE_LEN, assembly)){
         token = strtok(line, " ");
         if(token[strlen(token)-1] == ':'){
             symbolFlag = 1;
-            strcpy(temp, token);
+            strcpy(name, token);
+            name = strtok(name, ":");
+            if(!isLegalSymName(name)){
+                printf("ERROR: ILLEGAL SYMBOL NAME");
+                errFlag = 1;
+                continue;
+            }
+            if(isNameInTable(name)){
+                printf("ERROR: SYMBOL NAME ALREADY EXISTS");
+                errFlag = 1;
+                continue;
+            }
             token = strtok(NULL, " ");
             if(!strcmp(token, ".string")||!strcmp(token, ".data")){
-                addSymbol(temp, IC, token);
+                addSymbol(name, IC, token);
+                /*enter step 7 here*/
+                continue;
+            }
+            if(!strcmp(token, ".entry")) continue;
+            if(!strcmp(token, ".extern")){
+                addSymbol(name, 0, token);
+                continue;
+            }
+            addSymbol(name, IC, ".code");
+            if(isCommand(token)==-1){
+                printf("ERROR: COMMAND NAME");
+                errFlag = 1;
+                continue;
             }
         }
     }
@@ -157,7 +188,19 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         tail->next = temp;
     }
 }
+int isLegalSymName(char symbolName[MAX_LINE_LEN]){
+    if(isCommand(symbolName)!=-1||isRegister(symbolName)!=0) return 0;
+    return 1;
+}
 
+int isNameInTable(char symbolName[MAX_LINE_LEN]){
+    symbol *sym = head;
+    while(sym != NULL){
+        if(!strcmp(sym->symbol, symbolName)) return 1;
+        sym = sym->next;
+    }
+    return 0;
+}
 /*checks if num is a legal number */
 int isLegalNumber(char *number){
     int num, i=0;
