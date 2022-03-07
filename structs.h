@@ -51,7 +51,7 @@ typedef struct{
 }data;
 
 typedef struct{
-    char *str : 16;
+    int str : 16;
     int coding_class_5 : 3;
     int empty_bit_5 : 1;
 }string;

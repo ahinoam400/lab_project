@@ -27,13 +27,29 @@ int main(){
     findAddressingMode("x", 1);
     findAddressingMode("x[r12]", 1);
     findAddressingMode("r2", 0);
-    printf("%d, %d\n", findAddressingMode("#-15", 0), findAddressingMode("r14", 1));
-    addSymbol("TEST", 100, ".data");
+    /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
     printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
     addSymbol("SYM", 127, ".extern");
-    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);
+    printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
+}
+/*convert decimal number to binary number*/
+long int decimalToBinary(int decNum){
+    int binaryNum[16];
+    int i = 0 , counter;
+    long int reverse = 0;
+    for(counter=0; counter<16; counter++)
+        binaryNum[counter] = 0;
+  
+    while(decNum > 0){
+        binaryNum[i] = decNum%2;
+        decNum = decNum/2;
+        i++;
+    }
+    for (i=i-1; i>=0; i--)
+        reverse = 10 * reverse + binaryNum[i];
+    return reverse;
 }
 
 int firstPass(char *filename){
@@ -76,7 +92,7 @@ int firstPass(char *filename){
                 }
                 continue;
             }
-            if(!strcmp(token, ".data"){
+            if(!strcmp(token, ".data")){
                 addSymbol(name, IC, token);
                 token = strtok(NULL, " ");
                 if(!(num = isLegalNumber(token))){
@@ -103,23 +119,6 @@ int firstPass(char *filename){
     }
 }
 
-/*convert decimal number to binary number*/
-long int decimalToBinary(int decNum){
-    int binaryNum[16];
-    int i = 0 , counter;
-    long int reverse = 0;
-    for(counter=0; counter<16; counter++)
-        binaryNum[counter] = 0;
-  
-    while(decNum > 0){
-        binaryNum[i] = decNum%2;
-        decNum = decNum/2;
-        i++;
-    }
-    for (i=i-1; i>=0; i--)
-        reverse = 10 * reverse + binaryNum[i];
-    return reverse;
-}
 
 /*finds the addressing mode of the operand*/
 int findAddressingMode(char *operand, int src_or_dest){
@@ -155,12 +154,14 @@ int findAddressingMode(char *operand, int src_or_dest){
         }
         addressing_mode = index;
     }
-    if(src_or_dest == 0)/*if the operand is a source operand*/
+    if(src_or_dest == 0){/*if the operand is a source operand*/
         tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.src_address = decimalToBinary(addressing_mode);
-    if(src_or_dest == 1)/*if the operand is a destination operand*/
+    }
+    if(src_or_dest == 1){/*if the operand is a destination operand*/
         tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.dest_address = decimalToBinary(addressing_mode);
+    }
     return addressing_mode;
 }
 
@@ -230,7 +231,11 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
     }
 }
 int isLegalSymName(char symbolName[MAX_LINE_LEN]){
+    int i;
     if(isCommand(symbolName)!=-1||isRegister(symbolName)!=0) return 0;
+    for(i=0; symbolName[i]!='\0'; i++){
+        if(!isalpha(symbolName[i]) && !isdigit(symbolName[i]))return 0;
+    }
     return 1;
 }
 
