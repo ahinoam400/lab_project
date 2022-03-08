@@ -14,17 +14,12 @@ int isLegalNumber(char *number);
 int isRegister(char *str);
 int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
-extern symbol *head = NULL, *tail = NULL;
-extern code *head_code = NULL;
-/*head_code = (code*)malloc(sizeof(code));*/
-extern code *tail_code = NULL;
-/*tail_code = head_code;*/
+symbol *head = NULL, *tail = NULL;
+code *head_code = NULL, *tail_code = NULL;
 
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
-    findAddressingMode("#-1", 0);
-    findAddressingMode("x", 1);
     findAddressingMode("x[r12]", 1);
     findAddressingMode("r2", 0);
     /*addSymbol("TEST", 100, ".data");
@@ -88,7 +83,7 @@ int firstPass(char *filename){
                 for(i=0; token[i]!='\0'; i++){  
                     tail_code->next = (code*)malloc(sizeof(code));
                     tail_code->code_line.string_word.str = token[i];
-                    tail_code->code_line.string_word.coding_class_5 = ABSOLUTE;
+                    tail_code->code_line.string_word.class.absolute = 1;
                 }
                 continue;
             }
@@ -101,7 +96,7 @@ int firstPass(char *filename){
                 }
                 tail_code->next = (code*)malloc(sizeof(code));
                 tail_code->code_line.data_word.data_num = decimalToBinary(num);
-                tail_code->code_line.data_word.coding_class_4 = ABSOLUTE;
+                tail_code->code_line.data_word.class.absolute = 1;
                 continue;
             }
             if(!strcmp(token, ".entry")) continue;
@@ -119,12 +114,13 @@ int firstPass(char *filename){
     }
 }
 
-
 /*finds the addressing mode of the operand*/
 int findAddressingMode(char *operand, int src_or_dest){
     enum addressingModes{immediate = 0, direct, index, register_direct};
     int state, addressing_mode=-1 ,i,num;
     char *copy, *token;
+    char *symCopy = malloc(strlen(operand)), *regCopy = malloc(strlen(operand));
+    
     if(operand[0] == '#'){
         copy = operand+1;
         if(num = isLegalNumber(copy)){
@@ -138,15 +134,18 @@ int findAddressingMode(char *operand, int src_or_dest){
         addressing_mode = direct;
     }
     else{
-        token = strtok(operand, "[]");
-        if(!isLegalSymName(token)){
+        strcpy(symCopy, operand);
+        for(i=0; symCopy[i]!='\0' && symCopy[i]!='['; i++);
+        symCopy[i-1] = '\0';
+        regCopy = operand+i;
+        if(regCopy[strlen(regCopy)-1]!=']' || !isLegalSymName(symCopy)){
             printf("ERROR : ILLEGAL OPERAND");
             return 0;
         }
-        token = strtok(operand, "[]");
-        if(!(num = isRegister(token))){
-            printf("ERROR : ILLEGAL REGISTER");
-            return 0;
+        regCopy[strlen(regCopy)-1] = '\0';
+        if(!(num = isRegister(regCopy))){
+            printf("ERROR : ILLEGAL OPERAND");
+            return 0;            
         }
         if(num < 10){
             printf("ERROR : ILLEGAL REGISTER NUMBER");
@@ -174,10 +173,10 @@ int isCommand(char commandName[MAX_LINE_LEN]){
             tail_code->next = (code*)malloc(sizeof(code));
             tail_code = tail_code->next;
             tail_code->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
-            tail_code->code_line.command.coding_class = ABSOLUTE; 
+            tail_code->code_line.command.class.absolute = 1; 
             if(index <= 14){
                 tail_code->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
-                tail_code->code_line.word.coding_class = ABSOLUTE;
+                tail_code->code_line.word.class.absolute = 1;
             }
             if(index<6) return 2;
             if(index<15)return 1;
