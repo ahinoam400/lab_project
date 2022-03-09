@@ -66,7 +66,7 @@ typedef union{/*hold the code for a line*/
     second_word word; /*for comands with operands*/
     immediate_word imm_word; /*for immediate addressing mode*/
     direct_words dir_words; /*for direct addressing mode*/
-    index_words inx_word; /*for index addressing mode*/
+    index_words inx_words; /*for index addressing mode*/
     data data_word;
     string string_word;
 }code_line;

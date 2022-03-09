@@ -20,7 +20,7 @@ code *head_code = NULL, *tail_code = NULL;
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
-    findAddressingMode("x[r12]", 1);
+    printf("%d",findAddressingMode("x[r12]", 1));
     findAddressingMode("r2", 0);
     /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
@@ -117,9 +117,10 @@ int firstPass(char *filename){
 /*finds the addressing mode of the operand*/
 int findAddressingMode(char *operand, int src_or_dest){
     enum addressingModes{immediate = 0, direct, index, register_direct};
-    int state, addressing_mode=-1 ,i,num;
-    char *copy, *token;
-    char *symCopy = malloc(strlen(operand)), *regCopy = malloc(strlen(operand));
+    int state, addressing_mode=-1 ,i,num, len, j;
+    char *copy;
+    char symCopy[strlen(operand)], regCopy[strlen(operand)];
+    symbol *node = head;
     
     if(operand[0] == '#'){
         copy = operand+1;
@@ -128,6 +129,7 @@ int findAddressingMode(char *operand, int src_or_dest){
         }
     }
     else if(isRegister(operand)){
+        num = isRegister(operand);
         addressing_mode = register_direct;
     }
     else if(isLegalSymName(operand)){
@@ -137,12 +139,13 @@ int findAddressingMode(char *operand, int src_or_dest){
         strcpy(symCopy, operand);
         for(i=0; symCopy[i]!='\0' && symCopy[i]!='['; i++);
         symCopy[i-1] = '\0';
-        regCopy = operand+i;
+        strcpy(regCopy,operand+i+1);
         if(regCopy[strlen(regCopy)-1]!=']' || !isLegalSymName(symCopy)){
             printf("ERROR : ILLEGAL OPERAND");
             return 0;
         }
-        regCopy[strlen(regCopy)-1] = '\0';
+        len = strlen(regCopy);
+        regCopy[len-1] = '\0';
         if(!(num = isRegister(regCopy))){
             printf("ERROR : ILLEGAL OPERAND");
             return 0;            
@@ -153,15 +156,66 @@ int findAddressingMode(char *operand, int src_or_dest){
         }
         addressing_mode = index;
     }
+    if(addressing_mode < 0)return -1;
     if(src_or_dest == 0){/*if the operand is a source operand*/
-        tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.src_address = decimalToBinary(addressing_mode);
     }
     if(src_or_dest == 1){/*if the operand is a destination operand*/
-        tail_code->next = (code*)malloc(sizeof(code));
         tail_code->code_line.word.dest_address = decimalToBinary(addressing_mode);
     }
-    return addressing_mode;
+    switch (addressing_mode){
+    case immediate:
+        tail_code->code_line.imm_word.class.absolute = 1;
+        tail_code->code_line.imm_word.word = decimalToBinary(num);
+        break;
+    case direct:
+        while(node != NULL){
+            if(!strcmp(node->symbol, operand)){
+                if(!strcmp(node->attributes,"external")){
+                    tail_code->code_line.dir_words.class.external = 1;
+                    tail_code->code_line.dir_words.class_2.external = 1;
+                    break;    
+                }
+                tail_code->code_line.dir_words.base_address = node->baseAddress;
+                tail_code->code_line.dir_words.offset = node->offset;
+                tail_code->code_line.dir_words.class.relocatable = 1;
+                tail_code->code_line.dir_words.class_2.relocatable = 1;
+            }
+            node = node->next;
+        }
+        break;
+    case index:
+        while(node != NULL){
+            if(!strcmp(node->symbol, symCopy)){
+                if(!strcmp(node->attributes,"external")){
+                    tail_code->code_line.inx_words.class.external = 1;
+                    tail_code->code_line.inx_words.class_2.external = 1;
+                    break;    
+                }
+                tail_code->code_line.inx_words.base_address = node->baseAddress;
+                tail_code->code_line.inx_words.offset = node->offset;
+                tail_code->code_line.inx_words.class.relocatable = 1;
+                tail_code->code_line.inx_words.class_2.relocatable = 1;
+                if(src_or_dest == 0){
+                    tail_code->code_line.word.src_register = decimalToBinary(num);
+                }
+                if(src_or_dest == 1){
+                    tail_code->code_line.word.dest_register = decimalToBinary(num);
+                }
+            }
+            node = node->next;
+        }
+    case register_direct:
+        if(src_or_dest == 0){
+            tail_code->code_line.word.src_register = decimalToBinary(num);
+        }
+        if(src_or_dest == 1){
+            tail_code->code_line.word.dest_register = decimalToBinary(num);
+        }
+
+    default:
+        break;
+    }
 }
 
 int isCommand(char commandName[MAX_LINE_LEN]){
