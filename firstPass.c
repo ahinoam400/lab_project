@@ -20,7 +20,6 @@ code *head_code = NULL, *tail_code = NULL;
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
-    printf("%d",findAddressingMode("x[r12]", 1));
     findAddressingMode("r2", 0);
     /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
@@ -63,7 +62,6 @@ int firstPass(char *filename){
     while(fgets(line, MAX_LINE_LEN, assembly)){
         token = strtok(line, " ");
         if(token[strlen(token)-1] == ':'){
-            symbolFlag = 1;
             strcpy(name, token);
             name = strtok(name, ":");
             if(!isLegalSymName(name)){
@@ -76,42 +74,80 @@ int firstPass(char *filename){
                 errFlag = 1;
                 continue;
             }
+            symbolFlag = 1;
             token = strtok(NULL, " ");
-            if(!strcmp(token, ".string")){
+        }
+
+        if(!strcmp(token, ".string")){
+            if(symbolFlag)
                 addSymbol(name, IC, token);
-                token = strtok(NULL, " ");
-                for(i=0; token[i]!='\0'; i++){  
-                    tail_code->next = (code*)malloc(sizeof(code));
-                    tail_code->code_line.string_word.str = token[i];
-                    tail_code->code_line.string_word.class.absolute = 1;
-                }
-                continue;
-            }
-            if(!strcmp(token, ".data")){
-                addSymbol(name, IC, token);
-                token = strtok(NULL, " ");
-                if(!(num = isLegalNumber(token))){
-                    printf("ERROR : ILLEGAL DATA");
-                    return 0;
-                }
+            token = strtok(NULL, " ");
+            for(i=0; token[i]!='\0'; i++){  
                 tail_code->next = (code*)malloc(sizeof(code));
-                tail_code->code_line.data_word.data_num = decimalToBinary(num);
-                tail_code->code_line.data_word.class.absolute = 1;
-                continue;
+                tail_code->code_line.string_word.str = token[i];
+                tail_code->code_line.string_word.class.absolute = 1;
+                DC++;
             }
-            if(!strcmp(token, ".entry")) continue;
-            if(!strcmp(token, ".extern")){
-                addSymbol(name, 0, token);
-                continue;
+            continue;
+        }
+        if(!strcmp(token, ".data")){
+            if(symbolFlag)
+                addSymbol(name, IC, token);
+            token = strtok(NULL, " ");
+            if(!(num = isLegalNumber(token))){
+                printf("ERROR : ILLEGAL DATA");
+                return 0;
             }
-            addSymbol(name, IC, ".code");
-            if(isCommand(token)==-1){
-                printf("ERROR: COMMAND NAME");
+            tail_code->next = (code*)malloc(sizeof(code));
+            tail_code->code_line.data_word.data_num = decimalToBinary(num);
+            tail_code->code_line.data_word.class.absolute = 1;
+            DC++;
+            continue;
+        }
+        if(!strcmp(token, ".entry")) continue;
+        if(!strcmp(token, ".extern")){
+            if(!symbolFlag){
+                printf("ERROR : NO SYMBOL");
                 errFlag = 1;
                 continue;
             }
+            if()
+            addSymbol(name, 0, token);
+            continue;
+        }
+        if(symbolFlag)
+            addSymbol(name, IC, ".code");
+        if(isCommand(token)==-1){
+            printf("ERROR: COMMAND NAME");
+            errFlag = 1;
+            continue;
+        }
+
+        if(!strcmp(token, ".string")){
+            token = strtok(NULL, " ");
+            for(i=0; token[i]!='\0'; i++){  
+                tail_code->next = (code*)malloc(sizeof(code));
+                tail_code->code_line.string_word.str = token[i];
+                tail_code->code_line.string_word.class.absolute = 1;
+                DC++;
+            }
+            continue;
+        }
+        if(!strcmp(token, ".data")){
+            addSymbol(name, IC, token);
+            token = strtok(NULL, " ");
+            if(!(num = isLegalNumber(token))){
+                printf("ERROR : ILLEGAL DATA");
+                return 0;
+            }
+            tail_code->next = (code*)malloc(sizeof(code));
+            tail_code->code_line.data_word.data_num = decimalToBinary(num);
+            tail_code->code_line.data_word.class.absolute = 1;
+            DC++;
+            continue;
         }
     }
+
 }
 
 /*finds the addressing mode of the operand*/
