@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include "constant.h"
 #include "structs.h"
-#include "functions.h"
+/*#include "functions.h"*/
 int firstPass(char *filename);
 long int decimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
@@ -17,6 +17,7 @@ int isRegister(char *str);
 int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
 int addDataNode();
+int ICF, DCF;
 symbol *head = NULL, *tail = NULL;
 code *head_code = NULL, *tail_code = NULL;
 
@@ -40,7 +41,7 @@ int firstPass(char *filename){
         printf("ERORR OPENING FILE\n");
         return -1;
     }
-    int IC = 100, DC = 0, lineLength;
+    int IC = 100, DC = 0, L = 0, lineLength = 0;
     int errFlag = 0, symbolFlag = 0;
     int num, i, command;
     char line[MAX_LINE_LEN];
@@ -127,8 +128,25 @@ int firstPass(char *filename){
                     continue;
                 }
             }
+            /*enter steps 13-15 here, i couldn't understand them and i got stuck because of them... 0_0*/
+            IC += lineLength;
+            L += lineLength;
+            lineLength = 0;
         }
     }
+    ICF = IC;
+    DCF = DC;
+    symbol *sym = (symbol*)malloc(sizeof(symbol));
+    sym = head;
+    while (sym != NULL){
+        if(!strcmp(sym->attributes, ".data")){
+            sym->value = ICF;
+            sym->baseAddress = (ICF/32)*32;
+            sym->offset = ICF - sym->baseAddress;
+        }
+        sym = sym->next;
+    }
+    free(sym);
 }
 
 int addDataNode(){
