@@ -2,10 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdbool.h>
 #include "constant.h"
 #include "structs.h"
+#include "functions.h"
 int firstPass(char *filename);
-long int DecimalToBinary(int n);
+long int decimalToBinary(int n);
 int isCommand(char commandName[MAX_LINE_LEN]);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]);
 int isLegalSymName(char symbolName[MAX_LINE_LEN]);
@@ -14,13 +16,14 @@ int isLegalNumber(char *number);
 int isRegister(char *str);
 int findAddressingMode(char *operand, int src_or_dest);
 extern command cmd_arr[];
+int addDataNode();
 symbol *head = NULL, *tail = NULL;
 code *head_code = NULL, *tail_code = NULL;
 
 int main(){
     head_code = (code*)malloc(sizeof(code));
     tail_code = head_code;
-    findAddressingMode("r2", 0);
+    firstPass("test");
     /*addSymbol("TEST", 100, ".data");
     printf("%s, %d, %d, %d, %s\n", head->symbol, head->value, head->baseAddress, head->offset, head->attributes);
     addSymbol("EXT", 105, ".string");
@@ -28,126 +31,122 @@ int main(){
     addSymbol("SYM", 127, ".extern");
     printf("%s, %d, %d, %d, %s\n", tail->symbol, tail->value, tail->baseAddress, tail->offset, tail->attributes);*/
 }
-/*convert decimal number to binary number*/
-long int decimalToBinary(int decNum){
-    int binaryNum[16];
-    int i = 0 , counter;
-    long int reverse = 0;
-    for(counter=0; counter<16; counter++)
-        binaryNum[counter] = 0;
-  
-    while(decNum > 0){
-        binaryNum[i] = decNum%2;
-        decNum = decNum/2;
-        i++;
-    }
-    for (i=i-1; i>=0; i--)
-        reverse = 10 * reverse + binaryNum[i];
-    return reverse;
-}
 
 int firstPass(char *filename){
-    char *fileNameCopy;
+    char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if(assembly == NULL ){
-        printf("Error opening file\n");
+        printf("ERORR OPENING FILE\n");
         return -1;
     }
-    int IC = 100, DC = 0;
+    int IC = 100, DC = 0, lineLength;
     int errFlag = 0, symbolFlag = 0;
-    int num, i;
+    int num, i, command;
     char line[MAX_LINE_LEN];
-    char *token, *name;
+    char *token, name2[MAX_LINE_LEN], *name, firstChar = ' ';
+    bool isEmptyLine = true;
     while(fgets(line, MAX_LINE_LEN, assembly)){
-        token = strtok(line, " ");
-        if(token[strlen(token)-1] == ':'){
-            strcpy(name, token);
-            name = strtok(name, ":");
-            if(!isLegalSymName(name)){
-                printf("ERROR: ILLEGAL SYMBOL NAME");
-                errFlag = 1;
+        lineLength = strlen(line);
+        line[lineLength] = '\0';
+        for (i=0; i<lineLength ; i++){
+			if (!isspace(line[i])) {
+				isEmptyLine = false;
+				firstChar = line[i];
+				break;
+			}
+		}
+        if(firstChar!=';' && isEmptyLine == false){
+            token = strtok(line, " ");
+            if(token[strlen(token)-1] == ':'){
+                strcpy(name2, token);
+                name = name2;
+                name = strtok(name, ":");
+                if(!isLegalSymName(name)){
+                    printf("ERROR: ILLEGAL SYMBOL NAME");
+                    errFlag = 1;
+                   continue;
+                }
+                if(isNameInTable(name)){
+                    printf("ERROR: SYMBOL NAME ALREADY EXISTS");
+                    errFlag = 1;
+                    continue;
+                }
+                symbolFlag = 1;
+            }
+            if(!strcmp(token, ".string")){
+                if(symbolFlag)
+                    addSymbol(name, IC, token);
+                token = strtok(NULL, " ");
+                for(i=0; token[i]!='\0'; i++){  
+                    if(!addDataNode()){
+                        errFlag = 1;
+                        continue;
+                    }          
+                    tail_code->code_line.string_word.str = token[i];
+                    tail_code->code_line.string_word.class.absolute = 1;
+                    DC++;
+                }
                 continue;
             }
-            if(isNameInTable(name)){
-                printf("ERROR: SYMBOL NAME ALREADY EXISTS");
-                errFlag = 1;
-                continue;
-            }
-            symbolFlag = 1;
-            token = strtok(NULL, " ");
-        }
-
-        if(!strcmp(token, ".string")){
-            if(symbolFlag)
-                addSymbol(name, IC, token);
-            token = strtok(NULL, " ");
-            for(i=0; token[i]!='\0'; i++){  
-                tail_code->next = (code*)malloc(sizeof(code));
-                tail_code->code_line.string_word.str = token[i];
-                tail_code->code_line.string_word.class.absolute = 1;
+            else if(!strcmp(token, ".data")){
+                if(symbolFlag)
+                    addSymbol(name, IC, token);
+                token = strtok(NULL, " ");
+                if(!(num = isLegalNumber(token))){
+                    printf("ERROR : ILLEGAL DATA");
+                    return 0;
+                }
+                if(!addDataNode()){
+                    errFlag = 1;
+                    continue;
+                }
+                tail_code->code_line.data_word.data_num = decimalToBinary(num);
+                tail_code->code_line.data_word.class.absolute = 1;
                 DC++;
-            }
-            continue;
-        }
-        if(!strcmp(token, ".data")){
-            if(symbolFlag)
-                addSymbol(name, IC, token);
-            token = strtok(NULL, " ");
-            if(!(num = isLegalNumber(token))){
-                printf("ERROR : ILLEGAL DATA");
-                return 0;
-            }
-            tail_code->next = (code*)malloc(sizeof(code));
-            tail_code->code_line.data_word.data_num = decimalToBinary(num);
-            tail_code->code_line.data_word.class.absolute = 1;
-            DC++;
-            continue;
-        }
-        if(!strcmp(token, ".entry")) continue;
-        if(!strcmp(token, ".extern")){
-            if(!symbolFlag){
-                printf("ERROR : NO SYMBOL");
-                errFlag = 1;
                 continue;
             }
-            if()
-            addSymbol(name, 0, token);
-            continue;
-        }
-        if(symbolFlag)
-            addSymbol(name, IC, ".code");
-        if(isCommand(token)==-1){
-            printf("ERROR: COMMAND NAME");
-            errFlag = 1;
-            continue;
-        }
-
-        if(!strcmp(token, ".string")){
-            token = strtok(NULL, " ");
-            for(i=0; token[i]!='\0'; i++){  
-                tail_code->next = (code*)malloc(sizeof(code));
-                tail_code->code_line.string_word.str = token[i];
-                tail_code->code_line.string_word.class.absolute = 1;
-                DC++;
+            else if(!strcmp(token, ".entry")) continue;
+            else if(!strcmp(token, ".extern")){
+                if(!symbolFlag){
+                    printf("ERROR : THERE IS NO SYMBOL");
+                    errFlag = 1;
+                    continue;
+                }
+                addSymbol(name, 0, token);
+                continue;
             }
-            continue;
-        }
-        if(!strcmp(token, ".data")){
-            addSymbol(name, IC, token);
-            token = strtok(NULL, " ");
-            if(!(num = isLegalNumber(token))){
-                printf("ERROR : ILLEGAL DATA");
-                return 0;
+            else{ 
+                if(symbolFlag){
+                    addSymbol(name, IC, ".code");
+                    token = strtok(NULL, " ");
+                }
+                if(command = isCommand(token)==-1){
+                    printf("ERROR: COMMAND NAME");
+                    errFlag = 1;
+                    continue;
+                }
             }
-            tail_code->next = (code*)malloc(sizeof(code));
-            tail_code->code_line.data_word.data_num = decimalToBinary(num);
-            tail_code->code_line.data_word.class.absolute = 1;
-            DC++;
-            continue;
         }
     }
+}
 
+int addDataNode(){
+    tail_code->next = (code*)malloc(sizeof(code));
+    if(tail_code->next == NULL){
+        printf("ERROR : MEMORY ALLOCATION FAILED");
+        return 0;
+    }
+    tail_code = tail_code->next;
+    return 1;
+}
+int isNameInTable(char symbolName[MAX_LINE_LEN]){
+    symbol *sym = head;
+    while(sym != NULL){
+        if(!strcmp(sym->symbol, symbolName)) return 1;
+        sym = sym->next;
+    }
+    return 0;
 }
 
 /*finds the addressing mode of the operand*/
@@ -328,24 +327,34 @@ int isLegalSymName(char symbolName[MAX_LINE_LEN]){
     return 1;
 }
 
-int isNameInTable(char symbolName[MAX_LINE_LEN]){
-    symbol *sym = head;
-    while(sym != NULL){
-        if(!strcmp(sym->symbol, symbolName)) return 1;
-        sym = sym->next;
-    }
-    return 0;
-}
 
 /*checks if num is a legal number */
 int isLegalNumber(char *number){
     int num, i=0;
     if(number[i] == '-' || number[i] == '+')i++;
-    while(number[i]!='\0'){
+    while(number[i]!='\0' && number[i]!='\n'){
         if(!isdigit(number[i]))return 0;
         i++;
     }
     return atoi(number);
+}
+
+/*convert decimal number to binary number*/
+long int decimalToBinary(int decNum){
+    int binaryNum[16];
+    int i = 0 , counter;
+    long int reverse = 0;
+    for(counter=0; counter<16; counter++)
+        binaryNum[counter] = 0;
+  
+    while(decNum > 0){
+        binaryNum[i] = decNum%2;
+        decNum = decNum/2;
+        i++;
+    }
+    for (i=i-1; i>=0; i--)
+        reverse = 10 * reverse + binaryNum[i];
+    return reverse;
 }
 
 int isRegister(char *str){
