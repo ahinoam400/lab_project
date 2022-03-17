@@ -1,6 +1,6 @@
 typedef union{
     unsigned int absolute : 1;
-    unsigned int relocatable: 1;
+    unsigned int relocatable : 1;
     unsigned int external : 1;
 }coding_class;
 
