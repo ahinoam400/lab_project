@@ -1,10 +1,4 @@
 #include "firstPassFunctions.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-symbol *head = NULL, *tail = NULL;
-code *head_code = NULL, *tail_code = NULL;
 
 int main(){
     char *arr[MAX_LINE_LEN];
@@ -19,7 +13,7 @@ int split(char* str, char *arr[]){
     int stringIndex = 0, i = 0;
     int start = 0, end ,operandsNum = 0, oprandsCounter;
     int state = before;
-    char ws[10] = "\t \n";
+    char ws[6] = "\t \n";
     strcat(str," "); /* Add extra space in order to process the last param*/
     while (str[stringIndex]){
         switch (state){
@@ -223,10 +217,15 @@ int isCommand(char commandName[MAX_LINE_LEN]){
                 tail_code->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
                 tail_code->code_line.word.class.absolute = 1;
             }
-            if(index < 6)
+            if(index < 6){
+                L+=2;
                 return 2;
-            if (index < 15)
+            }
+            if (index < 15){
+                L+=2;
                 return 1;
+            }
+            L+=1;
             return 0;
         }
         cmd = (command *)malloc(sizeof(command));
