@@ -3,6 +3,8 @@
     "files.associations": {
         "string.h": "c",
         "functions.h": "c",
-        "firstpassfunctions.h": "c"
+        "firstpassfunctions.h": "c",
+        "ctype.h": "c",
+        "constant.h": "c"
     }
 }
