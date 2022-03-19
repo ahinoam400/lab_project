@@ -1,0 +1,1 @@
+int isNameInTable(char symbolName[MAX_LINE_LEN]);

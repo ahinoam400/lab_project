@@ -1,9 +1,7 @@
 #include "firstPassFunctions.h"
 
 int main(){
-    char *arr[MAX_LINE_LEN];
-    char test[100] = " .data 123";
-    split(test, arr);
+    return 0;
 }
 
 /*this function split the line into array*/
@@ -11,7 +9,7 @@ int split(char* str, char *arr[]){
     enum states{before, cmd_sym_data, after_param, after_command,
                 in_operand, after_oprtand, comma};
     int stringIndex = 0, i = 0;
-    int start = 0, end ,operandsNum = 0, oprandsCounter;
+    int start = 0, end ,operandsNum = 0, oprandsCounter = 0;
     int state = before;
     char ws[6] = "\t \n";
     strcat(str," "); /* Add extra space in order to process the last param*/
@@ -27,8 +25,6 @@ int split(char* str, char *arr[]){
             break;
 
         case cmd_sym_data:
-            if (str[stringIndex] == ',')
-                return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
             if(strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
                 arr[i] = str + start;
@@ -53,9 +49,16 @@ int split(char* str, char *arr[]){
             break;
 
         case after_param:
-            if(str[stringIndex] == ',')
-                return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
+            if(str[stringIndex] == ','){
+                if(operandsNum <= oprandsCounter)
+                    return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
+                state = comma;
+                break;
+            }
             if(!strchr(ws,str[stringIndex])){
+                if(operandsNum > oprandsCounter){
+                    return(printAndReturn("ERROR : MISSING COMMA", -1));
+                }
                 start = stringIndex;
                 state = cmd_sym_data;
             }
@@ -98,23 +101,15 @@ int split(char* str, char *arr[]){
 
 int addDataNode()
 {
+    if(tail_code == NULL)
+        tail_code = (code *)malloc(sizeof(code));
     tail_code->next = (code *)malloc(sizeof(code));
     if (tail_code->next == NULL)
         return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED", 0));
     tail_code = tail_code->next;
     return 1;
 }
-int isNameInTable(char symbolName[MAX_LINE_LEN])
-{
-    symbol *sym = head;
-    while (sym != NULL)
-    {
-        if (!strcmp(sym->symbol, symbolName))
-            return 1;
-        sym = sym->next;
-    }
-    return 0;
-}
+
 
 /*finds the addressing mode of the operand*/
 int findAddressingMode(char *operand, int src_or_dest){
@@ -126,13 +121,16 @@ int findAddressingMode(char *operand, int src_or_dest){
 
     if (operand[0] == '#'){
         copy = operand + 1;
-        if (num = isLegalNumber(copy))
+        if (num = isLegalNumber(copy)){
             addressing_mode = immediate;
+            L++;
+        }
     }else if (isRegister(operand)){
         num = isRegister(operand);
         addressing_mode = register_direct;
     }else if (isLegalSymName(operand)){
         addressing_mode = direct;
+        L+=2;
     }else{
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
@@ -147,6 +145,7 @@ int findAddressingMode(char *operand, int src_or_dest){
         if (num < 10)
             return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER", 0));
         addressing_mode = index;
+        L+=2;
     }
     if (addressing_mode < 0)
         return -1;
@@ -211,11 +210,13 @@ int isCommand(char commandName[MAX_LINE_LEN]){
         cmd = &cmd_arr[index];
         if ((cmp = strcmp(commandName, cmd->cmdName)) == 0){
             addDataNode();
-            tail_code->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
-            tail_code->code_line.command.class.absolute = 1;
-            if (index <= 14){
-                tail_code->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
-                tail_code->code_line.word.class.absolute = 1;
+                    tail_code->code_line.command.opcode = decimalToBinary(cmd_arr[index].cmd_opcode);
+                    tail_code->code_line.command.class.absolute = 1;
+                    L++;
+            if (index < 14){
+                    tail_code->code_line.word.funct = decimalToBinary(cmd_arr[index].cmd_funct);
+                    tail_code->code_line.word.class.absolute = 1;
+                    L++;
             }
             if(index < 6){
                 L+=2;
@@ -279,6 +280,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         tail->next = temp;
     }
 }
+
 int isLegalSymName(char symbolName[MAX_LINE_LEN]){
     int i;
     if (isCommand(symbolName) != -1 || isRegister(symbolName) != 0)
@@ -338,6 +340,6 @@ int isRegister(char *str){
 }
 
 int printAndReturn(char *str, int num){
-    printf("%s", str);
+    printf("%s\n", str);
     return num;
 }

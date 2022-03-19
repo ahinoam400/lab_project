@@ -1,5 +1,5 @@
 #include "firstPassFunctions.h"
-/*#include "functions.h"*/
+#include "commonFunctions.h"
 int firstPass(char *filename);
 extern command cmd_arr[];
 int ICF, DCF;
@@ -106,12 +106,16 @@ int firstPass(char *filename){
                     printf("ERROR: COMMAND NAME");
                     errFlag = 1;
                     continue;
+                }   
+                if(command < 5){
+                    findAddressingMode(arr[j++]);
+                    findAddressingMode(arr[j++]);
+                }
+                if(command > 5 && command < 14){
+                    findAddressingMode(arr(j++));
                 }
             }
-
-            /*enter steps 13-15 here, i couldn't understand them and i got stuck because of them... 0_0*/
-            IC += lineLength;
-            L += lineLength;
+            IC += L;
             lineLength = 0;
         }
     }
@@ -131,40 +135,3 @@ int firstPass(char *filename){
     return !errFlag;
 }
 
-int secondPass(char *filename){
-    char fileNameCopy[MAX_LINE_LEN];
-    strcpy(fileNameCopy, filename);
-    FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
-    if (assembly == NULL)
-    {
-        printf("ERORR OPENING FILE\n");
-        return -1;
-    }
-    char line[MAX_LINE_LEN];
-    char *token;
-    int errFlag = 0;
-    symbol *sym = (symbol *)malloc(sizeof(symbol));
-    while(fgets(line, MAX_LINE_LEN, assembly)){
-        token = strtok(line, " ");
-        if(!isLegalSymName(token))
-            continue;
-        if(!(strcmp(token, ".data"))||!(strcmp(token, ".string"))||!(strcmp(token, ".extern")))
-            continue;
-        if(!strcmp(token, ".entry")){
-            token = strtok(NULL, " ");
-            if(!isNameInTable(token)){
-                errFlag = 1;
-                printf("ERROR: NAME IS NOT IN TABLE");
-                continue;
-            }
-            sym = head;
-            while(sym != NULL){
-                if(!strcmp(sym->symbol, token)){
-                    strcat(sym->attributes, ", entry");
-                    break;
-                }
-                sym = sym->next;
-            }
-        }
-    }
-}
