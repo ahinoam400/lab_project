@@ -16,7 +16,7 @@ int firstPass(char *filename){
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if (assembly == NULL)
-        return(printAndReturn("ERORR OPENING FILE\n", -1));
+        return(printAndReturn("ERROR OPENING FILE\n", -1));
     int lineLength = 0;
     int errFlag = 0, symbolFlag = 0;
     int num, i, command, j=0;
@@ -78,7 +78,7 @@ int firstPass(char *filename){
                     addSymbol(name, IC, arr[j]);
                 j++;
                 if (!(num = isLegalNumber(arr[j])))
-                    return(printAndReturn("ERROR : ILLEGAL DATA", 0));
+                    return(printAndReturn("ERROR: ILLEGAL DATA\n", 0));
                 if (!addDataNode()){
                     errFlag = 1;
                     continue;
@@ -93,7 +93,7 @@ int firstPass(char *filename){
                 continue;
             else if (!strcmp(arr[j], ".extern")){
                 if (!symbolFlag){
-                    printf("ERROR : THERE IS NO SYMBOL");
+                    printf("ERROR: THERE IS NO SYMBOL\n");
                     errFlag = 1;
                     continue;
                 }
@@ -105,7 +105,7 @@ int firstPass(char *filename){
                     j++;
                 }
                 if (command = isCommand(arr[j]) == -1){
-                    printf("ERROR: COMMAND NAME");
+                    printf("ERROR: COMMAND NAME\n");
                     errFlag = 1;
                     continue;
                 }   
