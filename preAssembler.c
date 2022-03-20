@@ -1,11 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
- 
 #include "constant.h"
-int preAssembler(char* assemblyFileName);
 void macroSpread(char* fileName);
-typedef struct macroNode{
+typedef struct macroNode{ /*a struct that holds within it a list with all of the macros*/
     char name[80];
     char macro[80][80];
     struct macroNode *next;

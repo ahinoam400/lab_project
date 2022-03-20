@@ -1,15 +1,14 @@
 #include "commonFunctions.h"
 
-int secondPass(char *filename, code code_tail , code code_head , symbol symbol_head symbol symbol_tail){
+int secondPass(char *filename, code code_tail , code code_head , symbol symbol_head ,symbol symbol_tail){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if (assembly == NULL){
-        printf("ERORR OPENING FILE\n");
+        printf("ERROR OPENING FILE\n");
         return -1;
     }
     char line[MAX_LINE_LEN];
-    char *token;
     int errFlag = 0;
     int i=0;
     symbol *sym = (symbol *)malloc(sizeof(symbol));
@@ -24,7 +23,7 @@ int secondPass(char *filename, code code_tail , code code_head , symbol symbol_h
             i++;
             if(!isNameInTable(arr[i], symbol_head)){
                 errFlag = 1;
-                printf("ERROR: NAME IS NOT IN TABLE");
+                printf("ERROR: NAME IS NOT IN TABLE\n");
                 continue;
             }
             sym = head;
@@ -35,6 +34,9 @@ int secondPass(char *filename, code code_tail , code code_head , symbol symbol_h
                 }
                 sym = sym->next;
             }
+            continue;
         }
+        /* step 6 here */
     }
+    return !errFlag;
 }

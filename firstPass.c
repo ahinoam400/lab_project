@@ -18,7 +18,7 @@ int firstPass(char *filename)
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if (assembly == NULL)
-        return (printAndReturn("ERORR OPENING FILE\n", -1));
+        return(printAndReturn("ERROR OPENING FILE\n", -1));
     int lineLength = 0;
     int errFlag = 0, symbolFlag = 0;
     int num, i, command, j = 0, addresing_mode;
@@ -107,7 +107,7 @@ int firstPass(char *filename)
                 continue;
             else if (!strcmp(arr[j], ".extern")){
                 if (!symbolFlag){
-                    printf("ERROR : THERE IS NO SYMBOL");
+                    printf("ERROR: THERE IS NO SYMBOL\n");
                     errFlag = 1;
                     continue;
                 }
@@ -118,9 +118,8 @@ int firstPass(char *filename)
                     addSymbol(name, IC, ".code", symbol_head, symbol_tail);
                     j++;
                 }
-                if (command = isCommand(arr[j], code_tail) == -1)
-                {
-                    printf("ERROR: COMMAND NAME");
+                if (command = isCommand(arr[j]) == -1){
+                    printf("ERROR: COMMAND NAME\n");
                     errFlag = 1;
                     continue;
                 }
