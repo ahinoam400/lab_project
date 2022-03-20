@@ -1,11 +1,13 @@
 #include "firstPassFunctions.h"
-#include "commonFunctions.h"
 int firstPass(char *filename);
 extern command cmd_arr[];
 int ICF, DCF;
+int IC = 100, DC = 0, L = 0;
+symbol *symbol_head = NULL, *symbol_tail = NULL;
+code *code_head = NULL, *tail_code = NULL;
 int main(){
-    head_code = (code *)malloc(sizeof(code));
-    tail_code = head_code;
+    code_head = (code *)malloc(sizeof(code));
+    tail_code  = code_head;
     firstPass("test");
 }
 
@@ -19,7 +21,7 @@ int firstPass(char *filename){
     int errFlag = 0, symbolFlag = 0;
     int num, i, command, j=0;
     char line[MAX_LINE_LEN], ws[6] = "\t \n", *name;
-    char *token, name2[MAX_LINE_LEN], *name, firstChar = ' ';
+    char firstChar = ' ';
     bool isEmptyLine = true;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN];
@@ -42,13 +44,13 @@ int firstPass(char *filename){
                     continue; 
                 }
                 name = arr[j];
-                name[j][strlen(name[j])-1] = '\0';
-                if (!isLegalSymName(name)){
+                name[strlen(name)-1] = '\0';
+                if (!isLegalSymName(name, symbol_head)){
                     printf("ERROR: ILLEGAL SYMBOL NAME\n");
                     errFlag = 1;
                     continue;
                 }
-                if (isNameInTable(name)){
+                if (isNameInTable(name, symbol_head)){
                     printf("ERROR: SYMBOL NAME ALREADY EXISTS\n");
                     errFlag = 1;
                     continue;
@@ -65,7 +67,7 @@ int firstPass(char *filename){
                         errFlag = 1;
                         continue;
                     }
-                    tail_code->code_line.string_word.str = token[i]; /*not working well*/
+                    tail_code->code_line.string_word.str = arr[j][i];
                     tail_code->code_line.string_word.class.absolute = 1;
                     tail_code->code_line.string_word.class.relocatable = 0;
                     tail_code->code_line.string_word.class.external = 0;
@@ -81,7 +83,7 @@ int firstPass(char *filename){
                     errFlag = 1;
                     continue;
                 }
-                tail_code->code_line.data_word.data_num = decimalToBinary(num); /*not working well*/
+                tail_code->code_line.data_word.data_num = num;
                 tail_code->code_line.data_word.class.absolute = 1;
                 tail_code->code_line.string_word.class.relocatable = 0;
                 tail_code->code_line.string_word.class.external = 0;
@@ -95,7 +97,7 @@ int firstPass(char *filename){
                     errFlag = 1;
                     continue;
                 }
-                addSymbol(name, 0, token);
+                addSymbol(name, 0, arr[j]);
                 continue;
             }else{
                 if (symbolFlag){
@@ -107,12 +109,13 @@ int firstPass(char *filename){
                     errFlag = 1;
                     continue;
                 }   
+                L+=command;
                 if(command < 5){
-                    findAddressingMode(arr[j++]);
-                    findAddressingMode(arr[j++]);
+                    findAddressingMode(arr[j++], 0);
+                    findAddressingMode(arr[j++], 1);
                 }
                 if(command > 5 && command < 14){
-                    findAddressingMode(arr(j++));
+                    findAddressingMode(arr[j++], 0);
                 }
             }
             IC += L;
@@ -122,7 +125,7 @@ int firstPass(char *filename){
     ICF = IC;
     DCF = DC;
     symbol *sym = (symbol *)malloc(sizeof(symbol));
-    sym = head;
+    sym = symbol_head;
     while (sym != NULL){
         if (!strcmp(sym->attributes, ".data")){
             sym->value = ICF;

@@ -1,7 +1,6 @@
 
 #define MAX_LINE_LEN 80
 #define MAX_CMD_NUM 16
-int IC = 100, DC = 0, L = 0;
 
 typedef struct symbol{ /*struct for symbols table*/
     char symbol[MAX_LINE_LEN];
