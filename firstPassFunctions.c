@@ -5,7 +5,7 @@ int main(){
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
-int findAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *code_tail){
+int findAndWriteAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *code_tail, int first_or_second){
     enum addressingModes{immediate = 0, direct,index, register_direct};
     int state, addressing_mode = -1, i, num, len, j;
     char *copy;
@@ -19,25 +19,23 @@ int findAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *c
     }else if (isRegister(operand)){
         num = isRegister(operand);
         addressing_mode = register_direct;
-    }else if (isLegalSymName(operand, code_tail)){
+    }else if (isLegalSymName(operand)){
         addressing_mode = direct;
     }else{
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i - 1] = '\0';
         strcpy(regCopy, operand + i + 1);
-        if (regCopy[strlen(regCopy) - 1] != ']' || !isLegalSymName(symCopy, code_tail))
-            return(printAndReturn("ERROR : ILLEGAL OPERAND",0));
+        if (regCopy[strlen(regCopy) - 1] != ']' || !isLegalSymName(symCopy))
+            return(printAndReturn("ERROR : ILLEGAL OPERAND\n",-1));
         len = strlen(regCopy);
         regCopy[len - 1] = '\0';
         if (!(num = isRegister(regCopy)))
-            return(printAndReturn("ERROR : ILLEGAL OPERAND", 0));
+            return(printAndReturn("ERROR : ILLEGAL OPERAND\n", -1));
         if (num < 10)
-            return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER", 0));
+            return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER\n", -1));
         addressing_mode = index;
     }
-    if (addressing_mode < 0)
-        return -1;
     if (src_or_dest == 0) /*if the operand is a source operand*/
         code_tail->code_line.word.src_address = addressing_mode;
     if (src_or_dest == 1) /*if the operand is a destination operand*/
@@ -48,6 +46,7 @@ int findAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *c
         code_tail->code_line.imm_word.word = num;
         break;
     case direct:
+        if(first_or_second == 0);/*if this is the first pass - wait til the second pass*/
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){
@@ -64,6 +63,7 @@ int findAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *c
         }
         break;
     case index:
+        if(first_or_second == 0);/*if this is the first pass - wait til the second pass*/
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
@@ -84,9 +84,9 @@ int findAddressingMode(char *operand, int src_or_dest, symbol *sym_head, code *c
         }
     case register_direct:
         if (src_or_dest == 0)
-            code_tail->code_line.word.src_register = num /*decimalToBinary(num)*/;
+            code_tail->code_line.word.src_register = num;
         if (src_or_dest == 1)
-            code_tail->code_line.word.dest_register = num /*decimalToBinary(num)*/;
+            code_tail->code_line.word.dest_register = num;
     default:
         break;
     }
@@ -141,9 +141,9 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
 }
 
 /*this function checks if symbolName is a legal name for a symbol*/
-int isLegalSymName(char symbolName[MAX_LINE_LEN], code *code_tail){
+int isLegalSymName(char symbolName[MAX_LINE_LEN]){
     int i;
-    if (isCommand(symbolName, code_tail) != -1 || isRegister(symbolName) != 0)
+    if (isCommand(symbolName) != -1 || isRegister(symbolName) != 0)
         return 0;
     for (i = 0; symbolName[i] != '\0'; i++){
         if (!isalpha(symbolName[i]) && !isdigit(symbolName[i]))
