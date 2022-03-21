@@ -11,7 +11,7 @@ int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head){
 }
 
 /*this function split the line str into array*/
-int split(char* str, char *arr[], code *head, code *tail){
+int split(char* str, char *arr[]){
     enum states{before, cmd_sym_data, after_param, after_command,
                 in_operand, after_oprtand, comma};
     int stringIndex = 0, i = 0;
@@ -34,7 +34,7 @@ int split(char* str, char *arr[], code *head, code *tail){
             if(strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
                 arr[i] = str + start;
-                operandsNum = isCommand(arr[i], tail);
+                operandsNum = isCommand(arr[i]);
                 if((operandsNum > -1)){
                     state = after_command;
                     i++;
@@ -107,14 +107,16 @@ int split(char* str, char *arr[], code *head, code *tail){
 
 /*create new code node*/
 code* addDataNode(code *tail){
-    if(tail == NULL)
+    if(tail == NULL){
         tail = (code *)malloc(sizeof(code));
-    tail->next = (code *)malloc(sizeof(code));
-    if (tail->next == NULL){
+    }else{
+        tail->next = (code *)malloc(sizeof(code));
+        tail = tail->next;
+    }
+    if (tail == NULL){
         printf("ERROR : MEMORY ALLOCATION FAILED");
         return;
     }
-    tail = tail->next;
     return tail;
 }
 
@@ -124,29 +126,16 @@ int printAndReturn(char *str, int num){
     return num;
 }
 
-/*this function checks if commandName is a command and writes the 
-  code of the found command. the function returns the number of 
-  operands of the command and -1 if commandName is not command*/
-int isCommand(char commandName[MAX_LINE_LEN], code *current_tail){
+/*this function checks if commandName is a command. returns the number 
+of operands of the command or -1 if commandName is not command*/
+int isCommand(char commandName[MAX_LINE_LEN]){
     command *cmd = (command *)malloc(sizeof(command));
-    code *new_tail;
     int index, cmp;
     for (index = 0; index < MAX_CMD_NUM; index++){
         cmd = &cmd_arr[index];
         if ((cmp = strcmp(commandName, cmd->cmdName)) == 0){/*if commandName is command*/
-            new_tail = addDataNode(current_tail);/*add the first word of code*/
-            new_tail->code_line.command.opcode = cmd_arr[index].cmd_opcode;
-            new_tail->code_line.command.class.absolute = 1;
-            if (index < 14){/*if the command have oprands - add the second word of code*/
-                new_tail->code_line.word.funct = cmd_arr[index].cmd_funct;
-                new_tail->code_line.word.class.absolute = 1;
-            }
-            if(index < 6){
-                return 2;
-            }
-            if (index < 15){
-                return 1;
-            }
+            if(index < 5) return 2;
+            if (index < 14) return 1;
             return 0;
         }
         cmd = (command *)malloc(sizeof(command));
