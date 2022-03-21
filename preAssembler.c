@@ -77,6 +77,3 @@ void macroSpread(char *fileName){
         fwrite(line, strlen(line), 1, macroSpreadFile);
     }
 }
-
-
-
