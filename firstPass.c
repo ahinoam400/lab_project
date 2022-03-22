@@ -171,7 +171,7 @@ int firstPass(char *filename){
     sym = symbol_head;
     while (sym != NULL){
         if (!strcmp(sym->attributes, ".data")){
-            sym->value =+ ICF;
+            sym->value += ICF;
             sym->offset = sym->value % 16;
             sym->baseAddress = sym->value - sym->offset;
 
