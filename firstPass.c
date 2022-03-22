@@ -5,6 +5,7 @@ int ICF, DCF;
 int IC = 100, DC = 0, L = 0;
 symbol *symbol_head = NULL, *symbol_tail = NULL;
 code *code_head = NULL, *code_tail = NULL;
+data *data_head = NULL, *data_tail = NULL;
 int main(){
     code_head = (code *)malloc(sizeof(code));
     code_tail = code_head;
@@ -25,6 +26,8 @@ int firstPass(char *filename){
     char firstChar = ' ';
     bool isEmptyLine = true;
     command *cmd = (command *)malloc(sizeof(command));
+    data_head = (data*)malloc(sizeof(data));
+    data_tail = data_head;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN];
         L = 0;
@@ -62,37 +65,43 @@ int firstPass(char *filename){
             }
             if (!strcmp(arr[j], ".string")){
                 if (symbolFlag)
-                    addSymbol(name, IC, arr[j], symbol_head, symbol_tail);
+                    addSymbol(name, IC, arr[j]);
                 j++;
                 for (i = 0; arr[j][i] != '\0'; i++){
-                    if (!addDataNode(code_tail)){
+                    if (!addDataNode(data_tail)){
                         errFlag = 1;
                         continue;
                     }
-                    code_tail->code_line.string_word.str = arr[j][i];
-                    code_tail->code_line.string_word.class.absolute = 1;
-                    code_tail->code_line.string_word.class.relocatable = 0;
-                    code_tail->code_line.string_word.class.external = 0;
+                    data_tail->item = arr[j][i];
+                    printf(".string data_tail->item : %d", data_tail->item);
+                    data_tail->empty_bit = 0;
+                    data_tail->class.absolute = 1;
+                    data_tail->class.relocatable = 0;
+                    data_tail->class.external = 0;
                     DC++;
                 }
             }else if (!strcmp(arr[j], ".data")){
                 if (symbolFlag)
-                    addSymbol(name, IC, arr[j], symbol_head, symbol_tail);
+                    addSymbol(name, IC, arr[j]);
                 j++;
                 if (!(num = isLegalNumber(arr[j]))){
                     printf("ERROR : ILLEGAL NUMBER\n");
                     errFlag = 1;
                     continue;
                 }
-                if (!addDataNode(code_tail)){
-                    errFlag = 1;
-                    continue;
+                for(; arr[j][0] != '\0'; j++){
+                    if (!addDataNode(data_tail)){
+                        errFlag = 1;
+                        continue;
+                    }
+                    data_tail->item = num;
+                    printf(".data data_tail->item : %d", data_tail->item);
+                    data_tail->class.absolute = 1;
+                    data_tail->class.relocatable = 0;
+                    data_tail->class.external = 0;
+                    DC++;
                 }
-                code_tail->code_line.data_word.data_num = num;
-                code_tail->code_line.data_word.class.absolute = 1;
-                code_tail->code_line.data_word.class.relocatable = 0;
-                code_tail->code_line.data_word.class.external = 0;
-                DC++;
+                
             }else if (!strcmp(arr[j], ".entry"))
                 continue;
             else if (!strcmp(arr[j], ".extern")){
@@ -101,11 +110,11 @@ int firstPass(char *filename){
                     errFlag = 1;
                     continue;
                 }
-                addSymbol(name, 0, arr[j], symbol_head, symbol_tail);
+                addSymbol(name, 0, arr[j]);
                 continue;
             } else{
                 if (symbolFlag){
-                    addSymbol(name, IC, ".code", symbol_head, symbol_tail);
+                    addSymbol(name, IC, ".code");
                     j++;
                 }
                 if (operandsNum = isCommand(arr[j]) == -1){
@@ -116,7 +125,7 @@ int firstPass(char *filename){
                 for (i = 0; i < MAX_CMD_NUM; i++){
                     cmd = &cmd_arr[i];
                     if ((strcmp(arr[j++], cmd->cmdName)) == 0){                                       /*if arr[j] is command*/
-                        code_tail = addDataNode(code_tail); /*add the first word*/
+                        code_tail = addCodeNode(code_tail); /*add the first word*/
                         code_tail->code_line.command.opcode = cmd_arr[i].cmd_opcode;
                         code_tail->code_line.command.class.absolute = 1;
                         L++;
@@ -128,7 +137,7 @@ int firstPass(char *filename){
                     }
                 }
                 if (operandsNum > 0){ /*if the command have operand*/
-                    addressing_mode = addressingModeFirstPass(arr[j++], 0, symbol_head, code_tail);
+                    addressing_mode = addressingModeFirstPass(arr[j++], 1);
                     if (addressing_mode == immediate)
                         L++;
                     if (addressing_mode == direct || addressing_mode == index)
@@ -138,7 +147,7 @@ int firstPass(char *filename){
                         continue;
                     }
                     if (operandsNum < 1){ /*if the command have two operands*/
-                        addressing_mode = addressingModeFirstPass(arr[j++], 1, symbol_head, code_tail);
+                        addressing_mode = addressingModeFirstPass(arr[j++], 1);
                         if (addressing_mode == immediate)L++;
                         if (addressing_mode == direct || addressing_mode == index)L += 2;
                         if (addressing_mode == -1){
@@ -149,23 +158,28 @@ int firstPass(char *filename){
                 }
             }
         }
+        code_tail->code_line.count.ic = IC;
+        code_tail->code_line.count.l = L;
         IC += L;
         lineLength = 0;
     }
+    if(errFlag)
+        return 0;
     ICF = IC;
     DCF = DC;
     symbol *sym = (symbol *)malloc(sizeof(symbol));
     sym = symbol_head;
     while (sym != NULL){
         if (!strcmp(sym->attributes, ".data")){
-            sym->value = ICF;
-            sym->baseAddress = (ICF / 32) * 32;
-            sym->offset = ICF - sym->baseAddress;
+            sym->value =+ ICF;
+            sym->offset = sym->value % 16;
+            sym->baseAddress = sym->value - sym->offset;
+
         }
         sym = sym->next;
     }
     free(sym);
-    return !errFlag;
+    return 1;
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
@@ -228,7 +242,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest){
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN]){
     if (symbol_head == NULL){
         symbol_head = (symbol *)malloc(sizeof(symbol));
-        strcpy(head->symbol, symbolName);
+        strcpy(symbol_head->symbol, symbolName);
         if (!strcmp(attribute, ".extern")){
             symbol_head->value = 0;
             symbol_head->baseAddress = 0;
