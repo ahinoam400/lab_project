@@ -115,7 +115,7 @@ code* addDataNode(code *tail){
     }
     if (tail == NULL){
         printf("ERROR : MEMORY ALLOCATION FAILED");
-        return;
+        return NULL;
     }
     return tail;
 }
