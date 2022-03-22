@@ -1,5 +1,6 @@
 #include "commonFunctions.h"
 
+
 int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head){
     symbol *sym = head;
     while (sym != NULL){
@@ -12,10 +13,10 @@ int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head){
 
 /*this function split the line str into array*/
 int split(char* str, char *arr[]){
-    enum states{before, cmd_sym_data, after_param, after_command,
+    enum states{before, cmd_sym_data, after_param, after_command_or_data,
                 in_operand, after_oprtand, comma};
     int stringIndex = 0, i = 0;
-    int start = 0, end ,operandsNum = 0, oprandsCounter = 0;
+    int start = 0, end ,operandsNum = 0, oprandsCounter = 0, dataCounter = 0;
     int state = before;
     char ws[6] = "\t \n";
     strcat(str," "); /* Add extra space in order to process the last param*/
@@ -35,8 +36,8 @@ int split(char* str, char *arr[]){
                 str[stringIndex] = 0;
                 arr[i] = str + start;
                 operandsNum = isCommand(arr[i]);
-                if((operandsNum > -1)){
-                    state = after_command;
+                if((operandsNum > -1 || !strcmp(arr[i], ".data"))){
+                    state = after_command_or_data;
                     i++;
                 }else{
                     state = after_param;
@@ -45,7 +46,7 @@ int split(char* str, char *arr[]){
             }
             break;
 
-        case after_command:
+        case after_command_or_data:
             if(str[stringIndex] == ',')
                 return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
             if(!strchr(ws,str[stringIndex])){
@@ -56,7 +57,7 @@ int split(char* str, char *arr[]){
 
         case after_param:
             if(str[stringIndex] == ','){
-                if(operandsNum <= oprandsCounter)
+                if(operandsNum <= oprandsCounter || dataCounter < 1)
                     return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
                 state = comma;
                 break;
@@ -77,12 +78,13 @@ int split(char* str, char *arr[]){
                 state = after_param;
             }
             if(str[stringIndex] == ','){
-                if(operandsNum <= oprandsCounter)
+                if(operandsNum <= oprandsCounter || dataCounter < 1)
                     return(printAndReturn("ERROR : ILLEGAL COMMA", -1));
                 str[stringIndex]=0;
                 arr[i++] = str+start;
                 state = comma;
                 oprandsCounter++;
+                dataCounter++;
             }
             break;
 
@@ -106,11 +108,26 @@ int split(char* str, char *arr[]){
 }
 
 /*create new code node*/
-code* addDataNode(code *tail){
+code* addCodeNode(code *tail){
     if(tail == NULL){
         tail = (code *)malloc(sizeof(code));
     }else{
         tail->next = (code *)malloc(sizeof(code));
+        tail = tail->next;
+    }
+    if (tail == NULL){
+        printf("ERROR : MEMORY ALLOCATION FAILED");
+        return NULL;
+    }
+    return tail;
+}
+
+/*create a new data node*/
+data* addDataNode(data *tail){
+    if(tail == NULL){
+        tail = (data *)malloc(sizeof(data));
+    }else{
+        tail->next = (data *)malloc(sizeof(data));
         tail = tail->next;
     }
     if (tail == NULL){

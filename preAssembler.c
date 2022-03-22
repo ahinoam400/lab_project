@@ -6,7 +6,7 @@ typedef struct macroNode{ /*a struct that holds within it a list with all of the
     struct macroNode *next;
 }macroNode;
 
-void macroSpread(char *fileName){
+int macroSpread(char *fileName){
     FILE *assembly;
     FILE *macroSpreadFile;
     char fileNameCopy[MAX_LINE_LEN];
@@ -20,12 +20,12 @@ void macroSpread(char *fileName){
     fileNameCopy[len] = '\0';
     macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
     if(assembly == NULL ){
-        printf("Error opening file\n");
-        return;
+        printf("ERROR : OPENING FILE\n");
+        return 0;
     }
     head = (macroNode*)malloc(sizeof(macroNode));
     tail = head;
-    while(fgets(line, MAX, assembly)){
+    while(fgets(line, MAX_LINE_LEN, assembly)){
         strcpy(lineCopy, line);
         token = strtok(lineCopy, " \n   ");
         if(macroFlag==1){
@@ -69,4 +69,5 @@ void macroSpread(char *fileName){
         }
         fwrite(line, strlen(line), 1, macroSpreadFile);
     }
+    return 1;
 }

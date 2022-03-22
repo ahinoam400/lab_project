@@ -1,8 +1,16 @@
+
 typedef union{
     unsigned int absolute : 1;
     unsigned int relocatable : 1;
     unsigned int external : 1;
 }coding_class;
+
+typedef struct{
+    unsigned int item : 16;
+    coding_class class;
+    unsigned int empty_bit : 1;
+    struct data *next;
+}data;
 
 typedef struct{/*the first word*/
     coding_class class;
@@ -50,16 +58,10 @@ typedef struct{/*two words for index addressing mode*/
 }index_words;
 
 typedef struct{
-    int data_num : 16;
-    coding_class class;
-    unsigned int empty_bit_4 : 1;
-}data;
+    int ic;
+    int l;
+}counters;
 
-typedef struct{
-    unsigned int str : 16;
-    coding_class class;
-    unsigned int empty_bit_5 : 1;
-}string;
 
 typedef union{/*hold the code for a line*/
     cmd_word command;
@@ -67,8 +69,7 @@ typedef union{/*hold the code for a line*/
     immediate_word imm_word; /*for immediate addressing mode*/
     direct_words dir_words; /*for direct addressing mode*/
     index_words inx_words; /*for index addressing mode*/
-    data data_word;
-    string string_word;
+    counters count;
 }code_line;
 
 struct code{/*hold the code for a file*/

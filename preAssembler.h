@@ -2,4 +2,4 @@
 #include <stdlib.h> 
 #include <string.h>
 #include "constant.h"
-void macroSpread(char *fileName);
+int macroSpread(char *fileName);

@@ -1,7 +1,6 @@
 #include "secondPass.h"
 
-
-int secondPass(char *filename, code code_tail , code code_head , symbol symbol_head ,symbol symbol_tail){
+int secondPass(char *filename, code *code_tail , code *code_head , symbol *symbol_head ,symbol *symbol_tail){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
@@ -11,7 +10,7 @@ int secondPass(char *filename, code code_tail , code code_head , symbol symbol_h
     }
     char line[MAX_LINE_LEN];
     int errFlag = 0;
-    int i=0;
+    int i=0, operandsNum, addressingMode;
     symbol *sym = (symbol *)malloc(sizeof(symbol));
     while(fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN];
@@ -37,20 +36,42 @@ int secondPass(char *filename, code code_tail , code code_head , symbol symbol_h
             }
             continue;
         }
-        /* step 6 here */
+        if(arr[i][strlen(arr[i])] == ':')i++;
+        if(operandsNum = isCommand(arr[i]))i++;
+        if(operandsNum >= 1){
+            addressingMode =  adressingModeSecondPass(arr[i++], symbol_head, code_head);
+            if(addressingMode == -1){
+                errFlag = 1;
+                continue;
+            }
+            if(operandsNum == 2){
+                addressingMode = adressingModeSecondPass(arr[i++], symbol_head, code_head);
+                if(addressingMode == -1){
+                    errFlag = 1;
+                    continue;
+                }
+            }
+        }
     }
     return !errFlag;
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
-int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_tail){
-    enum addressingModes{ direct = 0,index};
+int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_haed){
+    enum addressingModes{immediate =0, register_direct, direct,index};
     int state, addressing_mode = -1, i, num, len, j;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
     symbol *node = sym_head;
     /*find the addresing mode*/
-    if (isLegalSymName(operand)){
+    if (operand[0] == '#'){
+        copy = operand + 1;
+        if (num = isLegalNumber(copy))
+            addressing_mode = immediate;
+    }else if (isRegister(operand)){
+        num = isRegister(operand);
+        addressing_mode = register_direct;
+    }else if (isLegalSymName(operand)){
         addressing_mode = direct;
     }else{
         strcpy(symCopy, operand);
@@ -68,6 +89,10 @@ int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_tail){
         addressing_mode = index;
     }
     switch (addressing_mode){/*write the code of the addressing mode*/
+    case immediate:
+        break;
+    case register_direct:
+        break;
     case direct:
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
