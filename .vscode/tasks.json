@@ -7,7 +7,7 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "*.c",
+                "testFirstPass.c", "firstPass.c","commonFunctions.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}"
             ],

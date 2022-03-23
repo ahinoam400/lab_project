@@ -6,8 +6,7 @@
 #include "constant.h"
 #include "structs.h"
 int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head);
-int split(char* str, char *arr[]);
-code* addCodeNode(code *tail);
-int printAndReturn(char *str, int num);
+int split(char* str, char *arr[], int lineNum);
+int printAndReturn(char *str, int num, int lineNum);
 int isCommand(char commandName[MAX_LINE_LEN]);
-data* addDataNode(data *tail);
+

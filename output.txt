@@ -1,0 +1,4 @@
+tests/example.am
+10000
+43c1
+

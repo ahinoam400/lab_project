@@ -1,21 +1,29 @@
 
-typedef union{
-    unsigned int absolute : 1;
-    unsigned int relocatable : 1;
+typedef struct{
     unsigned int external : 1;
+    unsigned int relocatable : 1;
+    unsigned int absolute : 1;
 }coding_class;
 
 typedef struct{
     unsigned int item : 16;
     coding_class class;
     unsigned int empty_bit : 1;
+}data_line;
+
+struct data{/*hold the code for a file*/
+    data_line data_line;
     struct data *next;
-}data;
+};
+typedef struct data data;
 
 typedef struct{/*the first word*/
-    coding_class class;
     unsigned int opcode : 16;
+    unsigned int external : 1;
+    unsigned int relocatable : 1;
+    unsigned int absolute : 1;
     unsigned int empty_bit : 1;
+    coding_class class;
 }cmd_word;
 
  
@@ -25,7 +33,7 @@ typedef struct{/*for comands with operands*/
     unsigned int src_address : 2;
     unsigned int src_register : 4;
     unsigned int funct : 4;
-    coding_class class;
+    coding_class class:3;
     unsigned int empty_bit : 1;
 }second_word;
 
@@ -70,6 +78,7 @@ typedef union{/*hold the code for a line*/
     direct_words dir_words; /*for direct addressing mode*/
     index_words inx_words; /*for index addressing mode*/
     counters count;
+    unsigned int bytes:32;
 }code_line;
 
 struct code{/*hold the code for a file*/
@@ -77,3 +86,10 @@ struct code{/*hold the code for a file*/
     struct code *next;
 };
 typedef struct code code;
+
+
+struct images {
+    symbol *symbol_head, *symbol_tail;
+    code *code_head, *code_tail;
+    data *data_head, *data_tail;
+};
