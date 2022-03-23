@@ -20,3 +20,15 @@ void entryFile(symbol *head, char *fileName){
         sym = sym->next;
     }
 }
+
+int decToHex(int decNumber){
+	int temp;
+	char hexNumber;
+	temp = decNumber % 16;
+	if( temp < 10)
+	    temp =temp + 48; 
+    else
+	    temp = temp + 55;
+	hexNumber = temp;
+	return hexNumber;
+}
