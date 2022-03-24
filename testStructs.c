@@ -108,12 +108,13 @@ int testStructData() {
     char output[10];
     char expected[10]="10064";
     data mydata;
+    unsigned int *bytes = (unsigned int *)&(mydata.data_line);
+    *bytes=0;
     mydata.data_line.item = 100;
     mydata.data_line.external = 1;
     mydata.data_line.relocatable = 0;
     mydata.data_line.absolute = 0;
-    unsigned int *bytes = (unsigned int *)&mydata.data_line;
-    sprintf(output, "%x",bytes*);
+    sprintf(output, "%x", *bytes);
     if (!strcmp(output,expected)) {
         printf("%s succeded !\n",__func__);
         return 0;

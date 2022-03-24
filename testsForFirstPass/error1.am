@@ -9,8 +9,8 @@ STR: .string "efgh"
 .data notanumber
 .extern not*a*symbol
 mov, 1,2
-.data , 1
 .data 1,
+.data , 1
 prn 2,
 prn illegal*operand
 mov 1 2

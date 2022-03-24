@@ -1,144 +1,24 @@
-testsForFirstPass/error1.am
-aaaaa testsForFirstPass/error1 
------------------------testsForFirstPass/error1-----------------------;notcmd  1
-LINE 1 : ERROR: COMMAND NAME
-;mov 1
-LINE 2 : ERROR : MISSIMG OPERAND
-;stop 1
-LINE 3 : ERROR : EXCESS OPERAND
-; .data SYM: 123
-LINE 4 : ERROR : ILLEGAL NUMBER
-; SYM$: 123
-LINE 5 : ERROR: ILLEGAL SYMBOL NAME
-;STR: .string "abcd"
-;STR: .string "efgh"
-LINE 7 : ERROR: SYMBOL NAME ALREADY EXISTS
-;^mov 1 2
-LINE 8 : ERROR : ILLEGAL CHAR
-;.data notanumber
-LINE 9 : ERROR : ILLEGAL NUMBER
-;.extern not*a*symbol
-LINE 10 : ERROR: THERE IS NO SYMBOL
-;mov, 1,2
-LINE 11 : ERROR : ILLEGAL COMMA
-;.data , 1
-LINE 12 : ERROR : ILLEGAL COMMA
-;.data 1,
-LINE 13 : ERROR : ILLEGAL COMMA
-;prn 2,
-LINE 14 : ERROR : ILLEGAL COMMA
-;prn illegal*operand
-LINE 15 : ERROR : ILLEGAL OPERAND
+testsForFirstPass/addSymbol.am
+aaaaa testsForFirstPass/addSymbol 
+-----------------------testsForFirstPass/addSymbol-----------------------name: , base address: 0, offset: 0, attributes: , value: 0
+0
+0
 
-;mov 1 2
-LINE 16 : ERROR : MISSING COMMA
-;mov r20
-LINE 17 : ERROR : MISSIMG OPERAND
-;mov 1,,2
-LINE 18 : ERROR : MULTIPLE CONSECUTIVE COMMAS
-name: , base address: 0, offset: 0, attributes: , value: 0
-name: prn, base address: 96, offset: 4, attributes: code, value: 100
-64
-4000d
-0
-5
-0
+testsForFirstPass/error1.am
+aaaaa testsForFirstPass/addSymbol 
+-----------------------testsForFirstPass/addSymbol-----------------------name: , base address: 0, offset: 0, attributes: , value: 0
 0
 0
 
 testsForFirstPass/example.am
-aaaaa testsForFirstPass/error1 
------------------------testsForFirstPass/error1-----------------------;notcmd  1
-LINE 1 : ERROR: COMMAND NAME
-;mov 1
-LINE 2 : ERROR : MISSIMG OPERAND
-;stop 1
-LINE 3 : ERROR : EXCESS OPERAND
-; .data SYM: 123
-LINE 4 : ERROR : ILLEGAL NUMBER
-; SYM$: 123
-LINE 5 : ERROR: ILLEGAL SYMBOL NAME
-;STR: .string "abcd"
-;STR: .string "efgh"
-LINE 7 : ERROR: SYMBOL NAME ALREADY EXISTS
-;^mov 1 2
-LINE 8 : ERROR : ILLEGAL CHAR
-;.data notanumber
-LINE 9 : ERROR : ILLEGAL NUMBER
-;.extern not*a*symbol
-LINE 10 : ERROR: THERE IS NO SYMBOL
-;mov, 1,2
-LINE 11 : ERROR : ILLEGAL COMMA
-;.data , 1
-LINE 12 : ERROR : ILLEGAL COMMA
-;.data 1,
-LINE 13 : ERROR : ILLEGAL COMMA
-;prn 2,
-LINE 14 : ERROR : ILLEGAL COMMA
-;prn illegal*operand
-LINE 15 : ERROR : ILLEGAL OPERAND
-
-;mov 1 2
-LINE 16 : ERROR : MISSING COMMA
-;mov r20
-LINE 17 : ERROR : MISSIMG OPERAND
-;mov 1,,2
-LINE 18 : ERROR : MULTIPLE CONSECUTIVE COMMAS
-name: , base address: 0, offset: 0, attributes: , value: 0
-name: prn, base address: 96, offset: 4, attributes: code, value: 100
-64
-4000d
-0
-5
-0
+aaaaa testsForFirstPass/addSymbol 
+-----------------------testsForFirstPass/addSymbol-----------------------name: , base address: 0, offset: 0, attributes: , value: 0
 0
 0
 
 testsForFirstPass/testData.am
-aaaaa testsForFirstPass/error1 
------------------------testsForFirstPass/error1-----------------------;notcmd  1
-LINE 1 : ERROR: COMMAND NAME
-;mov 1
-LINE 2 : ERROR : MISSIMG OPERAND
-;stop 1
-LINE 3 : ERROR : EXCESS OPERAND
-; .data SYM: 123
-LINE 4 : ERROR : ILLEGAL NUMBER
-; SYM$: 123
-LINE 5 : ERROR: ILLEGAL SYMBOL NAME
-;STR: .string "abcd"
-;STR: .string "efgh"
-LINE 7 : ERROR: SYMBOL NAME ALREADY EXISTS
-;^mov 1 2
-LINE 8 : ERROR : ILLEGAL CHAR
-;.data notanumber
-LINE 9 : ERROR : ILLEGAL NUMBER
-;.extern not*a*symbol
-LINE 10 : ERROR: THERE IS NO SYMBOL
-;mov, 1,2
-LINE 11 : ERROR : ILLEGAL COMMA
-;.data , 1
-LINE 12 : ERROR : ILLEGAL COMMA
-;.data 1,
-LINE 13 : ERROR : ILLEGAL COMMA
-;prn 2,
-LINE 14 : ERROR : ILLEGAL COMMA
-;prn illegal*operand
-LINE 15 : ERROR : ILLEGAL OPERAND
-
-;mov 1 2
-LINE 16 : ERROR : MISSING COMMA
-;mov r20
-LINE 17 : ERROR : MISSIMG OPERAND
-;mov 1,,2
-LINE 18 : ERROR : MULTIPLE CONSECUTIVE COMMAS
-name: , base address: 0, offset: 0, attributes: , value: 0
-name: prn, base address: 96, offset: 4, attributes: code, value: 100
-64
-4000d
-0
-5
-0
+aaaaa testsForFirstPass/addSymbol 
+-----------------------testsForFirstPass/addSymbol-----------------------name: , base address: 0, offset: 0, attributes: , value: 0
 0
 0
 

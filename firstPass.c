@@ -2,8 +2,8 @@
 extern command cmd_arr[];
 int ICF, DCF;
 int IC = 100, DC = 0, L = 0;
-void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images images);
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images images);
+void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images);
 
 
 command cmd_arr[MAX_CMD_NUM]={
@@ -16,7 +16,7 @@ command cmd_arr[MAX_CMD_NUM]={
 };
 
 
-int firstPass(char *filename, struct images images){
+int firstPass(char *filename, struct images *images){
     enum addressingModes{ immediate = 0,direct,index,register_direct};
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
@@ -32,10 +32,10 @@ int firstPass(char *filename, struct images images){
     command *cmd = (command *)malloc(sizeof(command));
 
     while (fgets(line, MAX_LINE_LEN, assembly)){
-        printf(";%s",line);
+        printf(";%s\n",line);
         char *arr[MAX_LINE_LEN] = {0};
         lineNum++;
-        L = 0;
+        L = 0 , symbolFlag = 0;
         dataNum = split(line, arr, lineNum); /*split the line into array*/
         if(dataNum == -1)continue;
         lineLength = strlen(line);
@@ -67,7 +67,7 @@ int firstPass(char *filename, struct images images){
                     errFlag = 1;
                     continue;
                 }
-                if (isNameInTable(name, images.symbol_head)){
+                if (isNameInTable(name, images->symbol_head)){
                     printf("LINE %d : ERROR: SYMBOL NAME ALREADY EXISTS\n" , lineNum);
                     errFlag = 1;
                     continue;
@@ -76,8 +76,10 @@ int firstPass(char *filename, struct images images){
                 j++;
             }
             if (!strcmp(arr[j], ".string")){
-                if (symbolFlag)
-                    addSymbol(name, IC, arr[j], lineNum, images);
+                if (symbolFlag){
+                    images->symbol_tail = addSymbolNode(images->symbol_tail);
+                    addSymbol(name, DC, ".string", lineNum, images);
+                }
                 j++;
                 for (i = 0; arr[j][i] != '\0'; i++){
                     if(arr[j][i] == '\"')continue;
@@ -86,22 +88,24 @@ int firstPass(char *filename, struct images images){
                         errFlag = 1;
                         continue;
                     }
-                    images.data_tail = addDataNode(images.data_tail);
-                    if(images.data_tail == NULL){
+                    images->data_tail = addDataNode(images->data_tail);
+                    if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
                         errFlag = 1;
                         continue;
                     } 
-                    images.data_tail->data_line.item = arr[j][i];
-                    images.data_tail->data_line.empty_bit = 0;
-                    images.data_tail->data_line.absolute = 1; /*not working well*/
-                    images.data_tail->data_line.relocatable = 0;
-                    images.data_tail->data_line.external = 0;
+                    images->data_tail->data_line.item = arr[j][i];
+                    images->data_tail->data_line.empty_bit = 0;
+                    images->data_tail->data_line.absolute = 1; /*not working well*/
+                    images->data_tail->data_line.relocatable = 0;
+                    images->data_tail->data_line.external = 0;
                     DC++;
                 }
             }else if (!strcmp(arr[j], ".data")){
-                if (symbolFlag)
-                    addSymbol(name, IC, arr[j], lineNum, images);
+                if (symbolFlag){
+                    images->symbol_tail = addSymbolNode(images->symbol_tail);
+                    addSymbol(name, DC, ".data", lineNum, images);
+                }
                 j++;
                 num = isLegalNumber(arr[j]);
                 if(num == 0){ /*not working well - jump to line 180*/
@@ -110,17 +114,17 @@ int firstPass(char *filename, struct images images){
                     continue;
                 }
                 for(; j<dataNum; j++){
-                    images.data_tail = addDataNode(images.data_tail);
-                    if(images.data_tail == NULL){
+                    images->data_tail = addDataNode(images->data_tail);
+                    if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
                         errFlag = 1;
                         continue;
                     } 
-                    images.data_tail->data_line.item = num;
-                    printf(".data data_tail->item : %d\n", images.data_tail->data_line.item);
-                    images.data_tail->data_line.absolute = 1;
-                    images.data_tail->data_line.relocatable = 0;
-                    images.data_tail->data_line.external = 0;
+                    images->data_tail->data_line.item = num;
+                    printf(".data data_tail->item : %d\n", images->data_tail->data_line.item);
+                    images->data_tail->data_line.absolute = 1;
+                    images->data_tail->data_line.relocatable = 0;
+                    images->data_tail->data_line.external = 0;
                     DC++;
                 }
                 
@@ -133,10 +137,12 @@ int firstPass(char *filename, struct images images){
                     errFlag = 1;
                     continue;
                 }
-                addSymbol(arr[j], 0, ".extern", lineNum, images);
+                images->symbol_tail = addSymbolNode(images->symbol_tail);
+                addSymbol(arr[j], IC, ".extern", lineNum, images);
                 continue;
             } else{
                 if (symbolFlag){
+                    images->symbol_tail = addSymbolNode(images->symbol_tail);
                     addSymbol(name, IC, ".code", lineNum, images);
                 }
                 operandsNum = isCommand(arr[j]);
@@ -147,21 +153,25 @@ int firstPass(char *filename, struct images images){
                 }
                 for (i = 0; i < MAX_CMD_NUM; i++){
                     cmd = &cmd_arr[i];
-                    if ((strcmp(arr[j], cmd->cmdName)) == 0){                                       /*if arr[j] is command*/
-                        images.code_tail = addCodeNode(images.code_tail);/*add the first word*/
-                        if(images.code_tail == NULL){
+                    if ((strcmp(arr[j], cmd->cmdName)) == 0){/*if arr[j] is command*/
+                        images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                        if(images->code_tail == NULL){
                             printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
                             errFlag = 1;
                             continue;
                         } 
-                        images.code_tail->code_line.command.opcode = cmd_arr[i].cmd_opcode;
-                        images.code_tail->code_line.command.absolute = 1;
-                        images.code_tail->code_line.command.relocatable = 0;
-                        images.code_tail->code_line.command.external = 0;
+                        images->code_tail->code_line.command.opcode = 1<<(cmd_arr[i].cmd_opcode - 1);
+                        images->code_tail->code_line.command.absolute = 1;
                         L++;
-                        if (i < 14){                                                           /*if the command have oprands */
-                            images.code_tail->code_line.word.funct = cmd_arr[i].cmd_funct; /* add the second word*/
-                            images.code_tail->code_line.word.absolute = 1;
+                        if (i < 14){/*if the command have oprands */
+                            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                            if(images->code_tail == NULL){
+                                printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                                errFlag = 1;
+                                continue;
+                            } 
+                            images->code_tail->code_line.word.funct = cmd_arr[i].cmd_funct; /* add the second word*/
+                            images->code_tail->code_line.word.absolute = 1;
                             L++;
                         }
                         j++;
@@ -179,7 +189,7 @@ int firstPass(char *filename, struct images images){
                         continue;
                     }
                     if (operandsNum == 2){ /*if the command have two operands*/
-                        addressing_mode = addressingModeFirstPass(arr[j++], 1, lineNum, images);
+                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images);
                         if (addressing_mode == immediate)L++;
                         if (addressing_mode == direct || addressing_mode == index)L += 2;
                         if (addressing_mode == -1){
@@ -190,8 +200,8 @@ int firstPass(char *filename, struct images images){
                 }
             }
         }
-        images.code_tail->code_line.count.ic = IC;
-        images.code_tail->code_line.count.l = L;
+        /*images->code_tail->code_line.count.ic = IC;
+        images->code_tail->code_line.count.l = L;*/
         IC += L;
         lineLength = 0;
     }
@@ -200,7 +210,7 @@ int firstPass(char *filename, struct images images){
     ICF = IC;
     DCF = DC;
     symbol *sym = (symbol *)malloc(sizeof(symbol));
-    sym = images.symbol_head;
+    sym = images->symbol_head;
     while (sym != NULL){
         if (!strcmp(sym->attributes, ".data")){
             sym->value += ICF;
@@ -214,23 +224,23 @@ int firstPass(char *filename, struct images images){
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images images){
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images){
     enum addressingModes{immediate = 0, direct,index, register_direct};
-    int state, addressing_mode = -1, i, num, len, j;
+    int state, addressing_mode = -1, i, num, len, j , k;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
-    symbol *node = images.symbol_head;
+    symbol *node = images->symbol_head;
     /*find the addresing mode*/
     if (operand[0] == '#'){
         copy = operand + 1;
-        if (num = isLegalNumber(copy))
+        if(num = isLegalNumber(copy))
             addressing_mode = immediate;
-    }else if (isRegister(operand)){
+    }else if(isRegister(operand)){
         num = isRegister(operand);
         addressing_mode = register_direct;
-    }else if (isLegalSymName(operand)){
+    }else if(isLegalSymName(operand)){
         addressing_mode = direct;
-    }else{
+    }else {
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i - 1] = '\0';
@@ -245,57 +255,70 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
             return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER\n", -1, lineNum));
         addressing_mode = index;
     }
-    if (src_or_dest == 1) /*if the operand is a source operand*/
-        images.code_tail->code_line.word.src_address = addressing_mode;
-    if (src_or_dest == 0) /*if the operand is a destination operand*/
-        images.code_tail->code_line.word.dest_address = addressing_mode;
+        if (src_or_dest == 1) /*if the operand is a source operand*/
+            images->code_tail->code_line.word.src_address = addressing_mode;
+        if (src_or_dest == 0) /*if the operand is a destination operand*/
+            images->code_tail->code_line.word.dest_address = addressing_mode;
+    
     switch (addressing_mode){/*write the code of the addressing mode*/
     case immediate:
-        images.code_tail->code_line.imm_word.absolute = 1;
-        images.code_tail->code_line.imm_word.word = num;
+        images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+        if(images->code_tail == NULL){
+            return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
+        } 
+        images->code_tail->code_line.imm_word.absolute = 1;
+        images->code_tail->code_line.imm_word.word = num;
         break;
     case direct:
+        for(k=0; k<2; k++){
+            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+            if(images->code_tail == NULL){
+                return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
+            } 
+        }
         /*wait til the second pass*/
         break;
     case index:
+        for(k=0; k<2; k++){
+            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+            if(images->code_tail == NULL){
+                return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
+            } 
+        }
         /* wait til the second pass*/
     case register_direct:
         if (src_or_dest == 1)
-            images.code_tail->code_line.word.src_register = num;
+            images->code_tail->code_line.word.src_register = num;
         if (src_or_dest == 0)
-            images.code_tail->code_line.word.dest_register = num;
+            images->code_tail->code_line.word.dest_register = num;
     default:
         break;
     }
     return addressing_mode;
 }
 
-void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images images){
-    if (images.symbol_tail == NULL){
-        images.symbol_tail = (symbol *)malloc(sizeof(symbol));
-    }else{
-        images.symbol_tail->next = (symbol *)malloc(sizeof(symbol));
-        images.symbol_tail = images.symbol_tail->next;
-    }
-    if(images.symbol_tail == NULL){
+void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images){
+    //images->symbol_tail->next = (symbol *)malloc(sizeof(symbol));
+    //images->symbol_tail = images->symbol_tail->next;
+    if(images->symbol_tail == NULL){
         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
         return;
     }
-    strcpy(images.symbol_tail->symbol, symbolName);
+    strcpy(images->symbol_tail->symbol, symbolName);
     if (!strcmp(attribute, ".extern")){
-        images.symbol_tail->value = 0;
-        images.symbol_tail->baseAddress = 0;
-        images.symbol_tail->offset = 0;
-        strcat(images.symbol_tail->attributes, "external");
+        images->symbol_tail->value = 0;
+        images->symbol_tail->baseAddress = 0;
+        images->symbol_tail->offset = 0;
+        strcat(images->symbol_tail->attributes, "external");
         return;
         }
-    images.symbol_tail->value = IC;
-    images.symbol_tail->baseAddress = (IC / 32) * 32;
-    images.symbol_tail->offset = IC - images.symbol_tail->baseAddress;
+    images->symbol_tail->value = IC;
+    images->symbol_tail->baseAddress = (IC / 32) * 32;
+    images->symbol_tail->offset = IC - images->symbol_tail->baseAddress;
     if (!strcmp(attribute, ".data") || !strcmp(attribute, ".string"))
-        strcat(images.symbol_tail->attributes, "data");
+        strcat(images->symbol_tail->attributes, "data");
     else
-        strcat(images.symbol_tail->attributes, "code");
+        strcat(images->symbol_tail->attributes, "code");
 }
 
 /*this function checks if symbolName is a legal name for a symbol*/
@@ -344,6 +367,7 @@ int isRegister(char *str){
 code *addCodeNode(code *tail){
         tail->next = (code *)malloc(sizeof(code));
         tail = tail->next;
+        memset(tail,0,sizeof(code));
     return tail;
 }
 
@@ -351,5 +375,14 @@ code *addCodeNode(code *tail){
 data *addDataNode(data *tail){
         tail->next = (data *)malloc(sizeof(data));
         tail = tail->next;
+        memset(tail,0,sizeof(data));
+    return tail;
+}
+
+/*create a new symbol node*/
+symbol *addSymbolNode(symbol *tail){
+        tail->next = (symbol *)malloc(sizeof(symbol));
+        tail = tail->next;
+        memset(tail,0,sizeof(symbol));
     return tail;
 }

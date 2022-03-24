@@ -11,7 +11,7 @@ lea STR, r6
 m1
 sub r1, r4
 bne END
-cmp val1, #-6
+cmp val, #-6
 bne END[r15]
 dec K
 .entry MAIN

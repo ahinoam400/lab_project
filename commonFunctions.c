@@ -2,8 +2,8 @@
 
 int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head){
     symbol *sym = head;
-    while (sym != NULL){
-        if (!strcmp(sym->symbol, symbolName))
+    while(sym != NULL){
+        if(!strcmp(sym->symbol, symbolName))
             return 1;
         sym = sym->next;
     }
@@ -90,7 +90,7 @@ int split(char *str, char *arr[], int lineNum){
             break;
 
         case in_operand:
-            if (operandsNum < operandsCounter && cmd_or_data == 1)
+            if (operandsNum < operandsCounter && cmd_or_data)
                 return (printAndReturn("ERROR : EXCESS OPERAND", -1, lineNum));
             if (strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
@@ -98,9 +98,9 @@ int split(char *str, char *arr[], int lineNum){
                 state = after_param;
             }
             if (str[stringIndex] == ','){
-                if(cmd_or_data == 1 && operandsNum <= operandsCounter)
+                if(cmd_or_data && operandsNum <= operandsCounter)
                     return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
-                if(cmd_or_data == 0 &&  dataCounter <= 1)
+                if((!cmd_or_data && dataCounter < 1) || (!cmd_or_data && dataCounter == 1 && str[stringIndex+1] =='\n'))
                     return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
                 str[stringIndex] = 0;
                 arr[i++] = str + start;

@@ -5,7 +5,7 @@ typedef struct{
     unsigned int relocatable : 1;
     unsigned int absolute : 1;
     unsigned int empty_bit : 1;
-    unsigned int buffer:10;
+    unsigned int buffer:12;
 }data_line;
 
 struct data{/*hold the code for a file*/
@@ -74,10 +74,7 @@ typedef struct{/*two words for index addressing mode*/
     int empty_bit_3 : 1;
 }index_words;
 
-typedef struct{
-    int ic;
-    int l;
-}counters;
+
 
 struct twoWordsbytes{
     unsigned int lsbBytes : 20;
@@ -91,7 +88,6 @@ typedef union{/*hold the code for a line*/
     immediate_word imm_word; /*for immediate addressing mode*/
     direct_words dir_words; /*for direct addressing mode*/
     index_words inx_words; /*for index addressing mode*/
-    counters count;
     unsigned int bytes:20;
     struct twoWordsbytes twoWordsbytes;
 }code_line;
