@@ -9,29 +9,35 @@ void print_code(code* p_code) {
 
 void print_symbol(symbol* p_symbol) {
     while (p_symbol) {
-        printf("%s\n", p_symbol->symbol);
+        printf("name: %s, base address: %d, offset: %d, attributes: %s, value: %d\n", 
+               p_symbol->symbol, p_symbol->baseAddress, p_symbol->offset,
+               p_symbol->attributes, p_symbol->value);
         p_symbol = p_symbol->next;
     }
 }
 
-int main(){
-    code mycode;
-    mycode.code_line.command.opcode = 0;//1<<15;
-    mycode.code_line.command.absolute = 0;
-    mycode.code_line.command.relocatable = 0;
-    mycode.code_line.command.external = 1;
-    mycode.code_line.command.empty_bit = 0;//1<<15;
-    printf("%x\n",mycode.code_line.bytes);
-    printf("%x\n",0b0100001111000001);
-    return 0;
-    struct images images;
-    images.symbol_head = (symbol*)malloc(sizeof(symbol));
-    images.symbol_tail = images.symbol_head;
-    images.code_head = (code *)malloc(sizeof(code));
-    images.code_tail = images.code_head;
-    images.data_head = (data*)malloc(sizeof(data));
-    images.data_tail = images.data_head;
-    firstPass("assemblyExample", images);
-    print_symbol(images.symbol_head);
-    print_code(images.code_head);
+void print_data(data *p_data){
+    while(p_data){
+        printf("%x\n", p_data->data_line.);
+        p_data = p_data->next;
+    }
+}
+
+int main(int argc, char const *argv[]){
+    int i;
+    char* filename = "testsForFirstPass/error1";
+    
+    printf("aaaaa %s \n",filename);
+        struct images images;
+        images.symbol_head = (symbol*)malloc(sizeof(symbol));
+        images.symbol_tail = images.symbol_head;
+        images.code_head = (code *)malloc(sizeof(code));
+        images.code_tail = images.code_head;
+        images.data_head = (data*)malloc(sizeof(data));
+        images.data_tail = images.data_head;
+        printf("-----------------------%s-----------------------", filename);
+        firstPass(filename, images);
+        print_symbol(images.symbol_head);
+        print_code(images.code_head);
+        print_data(images.data_head);
 }

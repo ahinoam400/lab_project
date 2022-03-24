@@ -31,6 +31,8 @@ int split(char *str, char *arr[], int lineNum){
             break;
 
         case cmd_sym_data: /*if the word is a symbol, a data or a command*/
+            if(str[stringIndex] == ',')
+                return(printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
             if (strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
                 arr[i] = str + start;
@@ -51,6 +53,7 @@ int split(char *str, char *arr[], int lineNum){
         case after_command:
             if (str[stringIndex] == ',')
                 return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
+            
             if (!strchr(ws, str[stringIndex])){
                 start = stringIndex;
                 state = in_operand;
@@ -60,7 +63,7 @@ int split(char *str, char *arr[], int lineNum){
 
         case after_data:
             if (str[stringIndex] == ',')
-                return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
+                return(printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
             if (!strchr(ws, str[stringIndex])){
                 start = stringIndex;
                 state = in_operand;
@@ -87,15 +90,17 @@ int split(char *str, char *arr[], int lineNum){
             break;
 
         case in_operand:
+            if (operandsNum < operandsCounter && cmd_or_data == 1)
+                return (printAndReturn("ERROR : EXCESS OPERAND", -1, lineNum));
             if (strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
                 arr[i++] = str + start; /*not working well for the last param */
                 state = after_param;
             }
             if (str[stringIndex] == ','){
-                if (cmd_or_data == 1 && operandsNum <= operandsCounter)
+                if(cmd_or_data == 1 && operandsNum <= operandsCounter)
                     return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
-                if(cmd_or_data == 0 &&  dataCounter < 1)
+                if(cmd_or_data == 0 &&  dataCounter <= 1)
                     return (printAndReturn("ERROR : ILLEGAL COMMA", -1, lineNum));
                 str[stringIndex] = 0;
                 arr[i++] = str + start;
@@ -126,7 +131,7 @@ int split(char *str, char *arr[], int lineNum){
     }
     if(cmd_or_data == 1 && operandsCounter < operandsNum)
         return(printAndReturn("ERROR : MISSIMG OPERAND" , -1, lineNum));
-    if (cmd_or_data == 0) return dataCounter;
+    if(cmd_or_data == 0) return dataCounter;
     return 0;
 }
 

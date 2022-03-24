@@ -37,6 +37,7 @@ int firstPass(char *filename, struct images images){
         lineNum++;
         L = 0;
         dataNum = split(line, arr, lineNum); /*split the line into array*/
+        if(dataNum == -1)continue;
         lineLength = strlen(line);
         line[lineLength] = '\0';
         j=0;
@@ -92,11 +93,10 @@ int firstPass(char *filename, struct images images){
                         continue;
                     } 
                     images.data_tail->data_line.item = arr[j][i];
-                    printf(".string data_tail->item : %d\n", images.data_tail->data_line.item);
                     images.data_tail->data_line.empty_bit = 0;
-                    images.data_tail->data_line.class.absolute = 1; /*not working well*/
-                    images.data_tail->data_line.class.relocatable = 0;
-                    images.data_tail->data_line.class.external = 0;
+                    images.data_tail->data_line.absolute = 1; /*not working well*/
+                    images.data_tail->data_line.relocatable = 0;
+                    images.data_tail->data_line.external = 0;
                     DC++;
                 }
             }else if (!strcmp(arr[j], ".data")){
@@ -118,9 +118,9 @@ int firstPass(char *filename, struct images images){
                     } 
                     images.data_tail->data_line.item = num;
                     printf(".data data_tail->item : %d\n", images.data_tail->data_line.item);
-                    images.data_tail->data_line.class.absolute = 1;
-                    images.data_tail->data_line.class.relocatable = 0;
-                    images.data_tail->data_line.class.external = 0;
+                    images.data_tail->data_line.absolute = 1;
+                    images.data_tail->data_line.relocatable = 0;
+                    images.data_tail->data_line.external = 0;
                     DC++;
                 }
                 
@@ -155,13 +155,13 @@ int firstPass(char *filename, struct images images){
                             continue;
                         } 
                         images.code_tail->code_line.command.opcode = cmd_arr[i].cmd_opcode;
-                        images.code_tail->code_line.command.class.absolute = 1;
-                        images.code_tail->code_line.command.class.relocatable = 0;
-                        images.code_tail->code_line.command.class.external = 0;
+                        images.code_tail->code_line.command.absolute = 1;
+                        images.code_tail->code_line.command.relocatable = 0;
+                        images.code_tail->code_line.command.external = 0;
                         L++;
                         if (i < 14){                                                           /*if the command have oprands */
                             images.code_tail->code_line.word.funct = cmd_arr[i].cmd_funct; /* add the second word*/
-                            images.code_tail->code_line.word.class.absolute = 1;
+                            images.code_tail->code_line.word.absolute = 1;
                             L++;
                         }
                         j++;
@@ -251,7 +251,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         images.code_tail->code_line.word.dest_address = addressing_mode;
     switch (addressing_mode){/*write the code of the addressing mode*/
     case immediate:
-        images.code_tail->code_line.imm_word.class.absolute = 1;
+        images.code_tail->code_line.imm_word.absolute = 1;
         images.code_tail->code_line.imm_word.word = num;
         break;
     case direct:
