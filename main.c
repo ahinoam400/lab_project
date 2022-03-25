@@ -6,7 +6,7 @@ int main(int argc, char const *argv[]){
     for(i=0; i<argc; i++){
         if(macroSpread(argv[i]) == 0)continue;
         if(firstPass(argv[i]) == 0)continue;
-        if(secondPass(argv[i] == 0))continue;
+        if(secondPass(argv[i]) == 0)continue;
     }
     return 0;
 }
