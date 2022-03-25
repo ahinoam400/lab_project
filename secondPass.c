@@ -1,6 +1,8 @@
-#include "secondPass.h"
 
-int secondPass(char *filename, code *code_tail , code *code_head , symbol *symbol_head ,symbol *symbol_tail){
+#include "commonFunctions.h"
+int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
+
+int secondPass(char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
@@ -9,24 +11,43 @@ int secondPass(char *filename, code *code_tail , code *code_head , symbol *symbo
         return -1;
     }
     char line[MAX_LINE_LEN];
-    int errFlag = 0;
-    int i=0, operandsNum, addressingMode;
-    symbol *sym = (symbol *)malloc(sizeof(symbol));
+    int errFlag = 0, lineLength;
+    char firstChar = ' ', *ws = " \t";
+    bool isEmptyLine = true;
+    int i=0, operandsNum, addressingMode, lineNum;
+    symbol *sym;
+    code *funct;
+    images->code_tail = images->code_head->next; /*in the second pass we used the code_tail as a pointer to the current record*/
     while(fgets(line, MAX_LINE_LEN, assembly)){
+        printf("%s\n", line);
+        lineLength = strlen(line);
+        line[lineLength] = '\0';
+        for (i = 0; i < lineLength; i++){ /*checks if the line is empty line*/
+            if(strchr("\n", line[i])){
+                isEmptyLine = true;
+                break;
+            }
+            if (!strchr(ws, line[i])){
+                isEmptyLine = false;
+                firstChar = line[i];
+                break;
+            }
+        }
+        if(firstChar == ';' || isEmptyLine)continue;
         char *arr[MAX_LINE_LEN];
-        split(line, arr);
-        if(!isLegalSymName(arr[i]))
-            continue;
+        split(line, arr, lineNum);
+        /*if(!isLegalSymName(arr[i]))
+            continue;*/
         if(!(strcmp(arr[i], ".data"))||!(strcmp(arr[i], ".string"))||!(strcmp(arr[i], ".extern")))
             continue;
         if(!strcmp(arr[i], ".entry")){
             i++;
-            if(!isNameInTable(arr[i], symbol_head)){
+            if(!isNameInTable(arr[i], images->symbol_head)){
                 errFlag = 1;
                 printf("ERROR: NAME IS NOT IN TABLE\n");
                 continue;
             }
-            sym = head;
+            sym = images->symbol_head;
             while(sym != NULL){
                 if(!strcmp(sym->symbol, arr[i])){
                     strcat(sym->attributes, ", entry");
@@ -36,60 +57,47 @@ int secondPass(char *filename, code *code_tail , code *code_head , symbol *symbo
             }
             continue;
         }
-        if(arr[i][strlen(arr[i])] == ':')i++;
-        if(operandsNum = isCommand(arr[i]))i++;
-        if(operandsNum >= 1){
-            addressingMode =  adressingModeSecondPass(arr[i++], symbol_head, code_head);
+        if(arr[i][strlen(arr[i])-1] == ':')
+            i++;
+        if(!(strcmp(arr[i], ".data"))||!(strcmp(arr[i], ".string"))||!(strcmp(arr[i], ".extern")))
+            continue;
+        if(operandsNum = isCommand(arr[i])){
+            i++;
+            images->code_tail = images->code_tail->next;
+        }
+        if(operandsNum > 0){
+            funct = images->code_tail;
+            addressingMode =  adressingModeSecondPass(arr[i++], images, funct, lineNum, operandsNum-1);
             if(addressingMode == -1){
                 errFlag = 1;
                 continue;
             }
             if(operandsNum == 2){
-                addressingMode = adressingModeSecondPass(arr[i++], symbol_head, code_head);
+                addressingMode = adressingModeSecondPass(arr[i++], images, funct, lineNum, 0);
                 if(addressingMode == -1){
                     errFlag = 1;
                     continue;
                 }
             }
+            images->code_tail = images->code_tail->next;
         }
     }
     return !errFlag;
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
-int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_haed){
-    enum addressingModes{immediate =0, register_direct, direct,index};
+int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest){
+    enum addressingModes{immediate =0, direct,index, register_direct};
     int state, addressing_mode = -1, i, num, len, j;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
-    symbol *node = sym_head;
-    /*find the addresing mode*/
-    if (operand[0] == '#'){
-        copy = operand + 1;
-        if (num = isLegalNumber(copy))
-            addressing_mode = immediate;
-    }else if (isRegister(operand)){
-        num = isRegister(operand);
-        addressing_mode = register_direct;
-    }else if (isLegalSymName(operand)){
-        addressing_mode = direct;
-    }else{
-        strcpy(symCopy, operand);
-        for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
-        symCopy[i - 1] = '\0';
-        strcpy(regCopy, operand + i + 1);
-        if (regCopy[strlen(regCopy) - 1] != ']' || !isLegalSymName(symCopy))
-            return(printAndReturn("ERROR : ILLEGAL OPERAND\n",-1));
-        len = strlen(regCopy);
-        regCopy[len - 1] = '\0';
-        if (!(num = isRegister(regCopy)))
-            return(printAndReturn("ERROR : ILLEGAL OPERAND\n", -1));
-        if (num < 10)
-            return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER\n", -1));
-        addressing_mode = index;
-    }
+    symbol *node = images->symbol_head;
+    addressing_mode = src_or_dest?
+                        funct->code_line.word.src_address:
+                        funct->code_line.word.dest_address;
     switch (addressing_mode){/*write the code of the addressing mode*/
     case immediate:
+        images->code_tail = images->code_tail->next;
         break;
     case register_direct:
         break;
@@ -97,34 +105,42 @@ int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_haed){
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){
-                    code_tail->code_line.dir_words.class.external = 1;
-                    code_tail->code_line.dir_words.class_2.external = 1;
-                    break;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.dir_word_1.external = 1;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.dir_word_2.external_2 = 1;
+                }else{
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.dir_word_1.base_address = node->baseAddress;
+                    images->code_tail->code_line.dir_word_1.relocatable = 1;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.dir_word_2.offset = node->offset;
+                    images->code_tail->code_line.dir_word_2.relocatable_2 = 1;
                 }
-                code_tail->code_line.dir_words.base_address = node->baseAddress;
-                code_tail->code_line.dir_words.offset = node->offset;
-                code_tail->code_line.dir_words.class.relocatable = 1;
-                code_tail->code_line.dir_words.class_2.relocatable = 1;
+                break;
             }
             node = node->next;
         }
         break;
     case index:
+        strcpy(symCopy, operand);
+        for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
+        symCopy[i] = '\0';
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
-                    code_tail->code_line.inx_words.class.external = 1;
-                    code_tail->code_line.inx_words.class_2.external = 1;
-                    break;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.inx_word_1.external = 1;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.inx_word_2.external_2 = 1;
+                }else{
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.inx_word_1.base_address = node->baseAddress;
+                    images->code_tail->code_line.inx_word_1.relocatable = 1;
+                    images->code_tail = images->code_tail->next;
+                    images->code_tail->code_line.inx_word_2.offset = node->offset;
+                    images->code_tail->code_line.inx_word_2.relocatable_2 = 1;
                 }
-                code_tail->code_line.inx_words.base_address = node->baseAddress;
-                code_tail->code_line.inx_words.offset = node->offset;
-                code_tail->code_line.inx_words.class.relocatable = 1;
-                code_tail->code_line.inx_words.class_2.relocatable = 1;
-                if (src_or_dest == 0)
-                    code_tail->code_line.word.src_register = num;
-                if (src_or_dest == 1)
-                    code_tail->code_line.word.dest_register = num;
             }
             node = node->next;
         }

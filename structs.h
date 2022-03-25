@@ -50,13 +50,16 @@ typedef struct{/*two words for direct addressing mode*/
     unsigned int relocatable : 1;
     unsigned int absolute : 1;
     unsigned int empty_bit : 1;
+}direct_word_1;
+
+typedef struct{
     /*the second word:*/
     unsigned int offset :16;
     unsigned int external_2 : 1;
     unsigned int relocatable_2 : 1;
     unsigned int absolute_2 : 1;
     unsigned int empty_bit_2 : 1;
-}direct_words;
+}direct_word_2;
 
 typedef struct{/*two words for index addressing mode*/
     /*the first word:*/
@@ -65,14 +68,15 @@ typedef struct{/*two words for index addressing mode*/
     unsigned int relocatable : 1;
     unsigned int absolute : 1;
     unsigned int empty_bit : 1;
-    unsigned int buffer :12;
+}index_word_1;
+typedef struct{
     /*the second word:*/
     unsigned int offset :16;
     unsigned int external_2 : 1;
     unsigned int relocatable_2 : 1;
     unsigned int absolute_2 : 1;
     int empty_bit_3 : 1;
-}index_words;
+}index_word_2;
 
 
 
@@ -86,8 +90,10 @@ typedef union{/*hold the code for a line*/
     cmd_word command;
     second_word word; /*for comands with operands*/
     immediate_word imm_word; /*for immediate addressing mode*/
-    direct_words dir_words; /*for direct addressing mode*/
-    index_words inx_words; /*for index addressing mode*/
+    direct_word_1 dir_word_1; /*for direct addressing mode*/
+    direct_word_2 dir_word_2; /*for direct addressing mode*/
+    index_word_1 inx_word_1; /*for index addressing mode*/
+    index_word_2 inx_word_2; /*for index addressing mode*/
     unsigned int bytes:20;
     struct twoWordsbytes twoWordsbytes;
 }code_line;
@@ -103,4 +109,5 @@ struct images {
     symbol *symbol_head, *symbol_tail;
     code *code_head, *code_tail;
     data *data_head, *data_tail;
+    int ICF;
 };

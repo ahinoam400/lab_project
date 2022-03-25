@@ -1,2 +1,2 @@
-#include "commonFunctions.h"
-int adressingModeSecondPass(char *operand, symbol *sym_head, code *code_haid)
+
+int secondPass(char *filename, struct images *images);

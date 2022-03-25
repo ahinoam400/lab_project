@@ -3,7 +3,7 @@ extern command cmd_arr[];
 int ICF, DCF;
 int IC = 100, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images);
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct);
 
 
 command cmd_arr[MAX_CMD_NUM]={
@@ -25,7 +25,7 @@ int firstPass(char *filename, struct images *images){
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     int lineLength = 0, lineNum =0;
     int errFlag = 0, symbolFlag = 0;
-    int num, i, operandsNum, j = 0, addressing_mode, dataNum;
+    int num, i, operandsNum, j = 0, addressing_mode, dataNum, dataLoop;
     char line[MAX_LINE_LEN], *name, *ws = " \t";
     char firstChar = ' ';
     bool isEmptyLine = true;
@@ -101,19 +101,30 @@ int firstPass(char *filename, struct images *images){
                     images->data_tail->data_line.external = 0;
                     DC++;
                 }
+                images->data_tail = addDataNode(images->data_tail);
+                if(images->data_tail == NULL){
+                    printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                    errFlag = 1;
+                    continue;
+                }
+                images->data_tail->data_line.absolute = 1;
+                DC++; 
             }else if (!strcmp(arr[j], ".data")){
                 if (symbolFlag){
                     images->symbol_tail = addSymbolNode(images->symbol_tail);
                     addSymbol(name, DC, ".data", lineNum, images);
                 }
                 j++;
-                num = isLegalNumber(arr[j]);
-                if(num == 0){ /*not working well - jump to line 180*/
-                    printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
-                    errFlag = 1;
-                    continue;
-                }
-                for(; j<dataNum; j++){
+
+                for(dataLoop=0; dataLoop<dataNum; dataLoop++,j++){
+                    num = isLegalNumber(arr[j]);
+                    printf("1111111\n");
+                    if(num == 0){ /*not working well - jump to line 180*/
+                        printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
+                        errFlag = 1;
+                        continue;
+                    }
+                    printf("22222222\n");                    
                     images->data_tail = addDataNode(images->data_tail);
                     if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
@@ -127,7 +138,6 @@ int firstPass(char *filename, struct images *images){
                     images->data_tail->data_line.external = 0;
                     DC++;
                 }
-                
             }else if (!strcmp(arr[j], ".entry"))
                 continue;
             else if (!strcmp(arr[j], ".extern")){
@@ -160,7 +170,7 @@ int firstPass(char *filename, struct images *images){
                             errFlag = 1;
                             continue;
                         } 
-                        images->code_tail->code_line.command.opcode = 1<<(cmd_arr[i].cmd_opcode - 1);
+                        images->code_tail->code_line.command.opcode = 1<<(cmd_arr[i].cmd_opcode);
                         images->code_tail->code_line.command.absolute = 1;
                         L++;
                         if (i < 14){/*if the command have oprands */
@@ -178,8 +188,10 @@ int firstPass(char *filename, struct images *images){
                         break;
                     }
                 }
-                if (operandsNum > 0){ /*if the command have operand*/
-                    addressing_mode = addressingModeFirstPass(arr[j++], 1, lineNum, images);
+                code *code_funct = images->code_tail; /* save thee pointer to the original funct instuction */
+                if (operandsNum > 0){ /*if the command have operands*/
+                    /* process first operand */
+                    addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct);
                     if (addressing_mode == immediate)
                         L++;
                     if (addressing_mode == direct || addressing_mode == index)
@@ -189,7 +201,7 @@ int firstPass(char *filename, struct images *images){
                         continue;
                     }
                     if (operandsNum == 2){ /*if the command have two operands*/
-                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images);
+                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct);
                         if (addressing_mode == immediate)L++;
                         if (addressing_mode == direct || addressing_mode == index)L += 2;
                         if (addressing_mode == -1){
@@ -209,27 +221,30 @@ int firstPass(char *filename, struct images *images){
         return 0;
     ICF = IC;
     DCF = DC;
-    symbol *sym = (symbol *)malloc(sizeof(symbol));
-    sym = images->symbol_head;
+    symbol *sym = images->symbol_head;
     while (sym != NULL){
-        if (!strcmp(sym->attributes, ".data")){
+        if (!strcmp(sym->attributes, "data")){
             sym->value += ICF;
             sym->offset = sym->value % 16;
             sym->baseAddress = sym->value - sym->offset;
         }
         sym = sym->next;
     }
+    images->ICF = ICF;
     free(sym);
     return 1;
 }
 
+int findAddressingMode(char *operand, int lineNum) {
+
+}
 /*finds the addressing mode of the operand and add it to the code*/
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images){
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct){
     enum addressingModes{immediate = 0, direct,index, register_direct};
     int state, addressing_mode = -1, i, num, len, j , k;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
-    symbol *node = images->symbol_head;
+    int additionalAddresingWords = 0;
     /*find the addresing mode*/
     if (operand[0] == '#'){
         copy = operand + 1;
@@ -255,11 +270,10 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
             return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER\n", -1, lineNum));
         addressing_mode = index;
     }
-        if (src_or_dest == 1) /*if the operand is a source operand*/
-            images->code_tail->code_line.word.src_address = addressing_mode;
-        if (src_or_dest == 0) /*if the operand is a destination operand*/
-            images->code_tail->code_line.word.dest_address = addressing_mode;
-    
+    if (src_or_dest == 1) /*if the operand is a source operand*/
+        code_funct->code_line.word.src_address = addressing_mode;
+    if (src_or_dest == 0) /*if the operand is a destination operand*/
+        code_funct->code_line.word.dest_address = addressing_mode;
     switch (addressing_mode){/*write the code of the addressing mode*/
     case immediate:
         images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
@@ -279,6 +293,10 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         /*wait til the second pass*/
         break;
     case index:
+        if (src_or_dest == 1)
+            code_funct->code_line.word.src_register = num;
+        if (src_or_dest == 0)
+            code_funct->code_line.word.dest_register = num;
         for(k=0; k<2; k++){
             images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
             if(images->code_tail == NULL){
@@ -288,9 +306,9 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         /* wait til the second pass*/
     case register_direct:
         if (src_or_dest == 1)
-            images->code_tail->code_line.word.src_register = num;
+            code_funct->code_line.word.src_register = num;
         if (src_or_dest == 0)
-            images->code_tail->code_line.word.dest_register = num;
+            code_funct->code_line.word.dest_register = num;
     default:
         break;
     }
@@ -321,47 +339,6 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         strcat(images->symbol_tail->attributes, "code");
 }
 
-/*this function checks if symbolName is a legal name for a symbol*/
-int isLegalSymName(char symbolName[MAX_LINE_LEN]){
-    int i;
-    if (isCommand(symbolName) != -1 || isRegister(symbolName) != 0)
-        return 0;
-    for (i = 0; symbolName[i] != '\0'; i++){
-        if (!isalpha(symbolName[i]) && !isdigit(symbolName[i]))
-            return 0;
-    }
-    return 1;
-}
-
-/*checks if num is a legal number */
-int isLegalNumber(char *number){
-    int num, i = 0;
-    if (number[i] == '-' || number[i] == '+')
-        i++;
-    while (number[i] != '\0' && number[i] != '\n'){
-        if (!isdigit(number[i]))
-            return 0;
-        i++;
-    }
-    return atoi(number);
-}
-
-/*Checks if str is a register */
-int isRegister(char *str){
-    int i = 0, number;
-    char *str2;
-    if (str[i] != 'r')
-        return 0;
-    for (i = 1; str[i] != '\0'; i++){
-        if (!isdigit(str[i]))
-            return 0;
-    }
-    str2 = str + 1;
-    number = atoi(str2);
-    if (number > 15)
-        return 0;
-    return number;
-}
 
 /*create new code node*/
 code *addCodeNode(code *tail){

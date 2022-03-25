@@ -1,5 +1,5 @@
 #include "firstPass.h"
-
+#include "secondPass.h"
 
 int main(int argc, char const *argv[]){
     int i;
@@ -15,7 +15,9 @@ int main(int argc, char const *argv[]){
         images.data_tail = images.data_head;
         printf("-----------------------%s-----------------------\n", filename);
         firstPass(filename, &images);
+        secondPass(filename, &images);  
         print_symbol(images.symbol_head);
+        
         print_code(images.code_head);
-        print_data(images.data_head);
+        print_data(images.data_head, images.ICF);
 }

@@ -21,6 +21,8 @@ void entryFile(symbol *head, char *fileName){
     }
 }
 
+
+
 int decToHex(int decNumber){
 	int temp;
 	char hexNumber;

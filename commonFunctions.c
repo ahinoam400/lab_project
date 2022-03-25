@@ -163,3 +163,77 @@ int isCommand(char commandName[MAX_LINE_LEN])
     free(cmd);
     return -1;
 }
+
+/*checks if num is a legal number */
+int isLegalNumber(char *number){
+    int num, i = 0;
+    if (number[i] == '-' || number[i] == '+')
+        i++;
+    while (number[i] != '\0' && number[i] != '\n'){
+        if (!isdigit(number[i]))
+            return 0;
+        i++;
+    }
+    return atoi(number);
+}
+
+/*this function checks if symbolName is a legal name for a symbol*/
+int isLegalSymName(char symbolName[MAX_LINE_LEN]){
+    int i;
+    if (isCommand(symbolName) != -1 || isRegister(symbolName) != 0)
+        return 0;
+    for (i = 0; symbolName[i] != '\0'; i++){
+        if (!isalpha(symbolName[i]) && !isdigit(symbolName[i]))
+            return 0;
+    }
+    return 1;
+}
+
+/*Checks if str is a register */
+int isRegister(char *str){
+    int i = 0, number;
+    char *str2;
+    if (str[i] != 'r')
+        return 0;
+    for (i = 1; str[i] != '\0'; i++){
+        if (!isdigit(str[i]))
+            return 0;
+    }
+    str2 = str + 1;
+    number = atoi(str2);
+    if (number > 15)
+        return 0;
+    return number;
+}
+
+void print_code(code* p_code) {
+    int ic = 100;
+    p_code = p_code->next;
+    char hexWord[32];
+    while (p_code) {
+        sprintf(hexWord, "%x",p_code->code_line.bytes);
+        printf("%d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
+        p_code = p_code->next;
+    }
+}
+
+void print_symbol(symbol* p_symbol) {
+    while (p_symbol) {
+        printf("name: %s, base address: %d, offset: %d, attributes: %s, value: %d\n", 
+               p_symbol->symbol, p_symbol->baseAddress, p_symbol->offset,
+               p_symbol->attributes, p_symbol->value);
+        p_symbol = p_symbol->next;
+    }
+}
+
+void print_data(data *p_data, int icf){
+    unsigned int *bytes;
+    p_data = p_data->next;
+    char hexWord[32];
+    while(p_data){
+        bytes = (unsigned int *) &p_data->data_line;
+        sprintf(hexWord, "%x", *bytes);
+        printf("%d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
+        p_data = p_data->next;
+    }
+}
