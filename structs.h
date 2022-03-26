@@ -110,4 +110,5 @@ struct images {
     code *code_head, *code_tail;
     data *data_head, *data_tail;
     int ICF;
+    int DCF;
 };

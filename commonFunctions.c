@@ -204,14 +204,17 @@ int isRegister(char *str){
         return 0;
     return number;
 }
+void print_code(code *p_code){
+    fprint_code(p_code, stdout);
+}
 
-void print_code(code* p_code) {
+void fprint_code(code* p_code, FILE *stream) {
     int ic = 100;
     char hexWord[32];   
     p_code = p_code->next;
     while (p_code) {
-        sprintf(hexWord, "%x",p_code->code_line.bytes);
-        printf("%d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
+        sprintf(hexWord, "%05x",p_code->code_line.bytes);
+        fprintf(stream, "%d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
         p_code = p_code->next;
     }
 }
@@ -234,7 +237,7 @@ void fprint_data(data *p_data, int icf, FILE *stream){
     p_data = p_data->next;
     while(p_data){
         bytes = (unsigned int *) &p_data->data_line;
-        sprintf(hexWord, "%x", *bytes);
+        sprintf(hexWord, "%05x", *bytes);
         fprintf(stream , "%d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
         p_data = p_data->next;
     }

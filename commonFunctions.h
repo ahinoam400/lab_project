@@ -16,3 +16,4 @@ void print_code(code* p_code);
 void print_symbol(symbol* p_symbol);
 void print_data(data* p_data, int icf);
 void fprint_data(data *p_data, int icf, FILE *stream);
+void fprint_code(code* p_code, FILE *stream);

@@ -1,7 +1,7 @@
 #include "firstPass.h"
 extern command cmd_arr[];
 int ICF, DCF;
-int IC = 100, DC = 0, L = 0;
+int IC = BASE_ADDRESS, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
 int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct);
 
@@ -230,6 +230,7 @@ int firstPass(char *filename, struct images *images){
         sym = sym->next;
     }
     images->ICF = ICF;
+    images->DCF = DCF;
     free(sym);
     return 1;
 }
