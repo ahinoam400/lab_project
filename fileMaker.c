@@ -5,7 +5,7 @@ void entryFile(symbol *head, char *fileName, struct images *images){
     strcpy(fileNameCopy, fileName);
     FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "a");
     if (entryF == NULL)
-        return (printAndReturn("ERROR OPENING FILE\n", -1));
+        return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     char str[MAX_LINE_LEN];
     symbol *sym = (symbol*)malloc(sizeof(symbol));
     sym = images->symbol_head;
@@ -29,7 +29,7 @@ void objectFile(struct images *images, char *fileName, int ICF, int DCF){
     strcpy(fileNameCopy, fileName);
     FILE *objectF = fopen(strcat(fileNameCopy, ".ob"), "a");
     if (objectF == NULL)
-        return (printAndReturn("ERROR OPENING FILE\n", -1));
+        return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
 }
 
 int decToHex(int decNumber){

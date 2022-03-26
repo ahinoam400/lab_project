@@ -15,7 +15,7 @@ int split(char *str, char *arr[], int lineNum){
     enum states{before,cmd_sym_data,after_param,after_command,
                 after_data,in_operand, after_oprtand, comma};
     int stringIndex = 0, i = 0;
-    int start = 0, end, operandsNum = 0, operandsCounter = 0, dataCounter = 0, cmd_or_data;
+    int start = 0, operandsNum = 0, operandsCounter = 0, dataCounter = 0, cmd_or_data;
     int state = before;
     char ws[6] = "\t \n";
     strcat(str, " "); /* Add extra space in order to process the last param*/
@@ -145,8 +145,7 @@ int printAndReturn(char *str, int num, int lineNum){
 
 /*this function checks if commandName is a command. returns the number
 of operands of the command or -1 if commandName is not command*/
-int isCommand(char commandName[MAX_LINE_LEN])
-{
+int isCommand(char commandName[MAX_LINE_LEN]){
     command *cmd = (command *)malloc(sizeof(command));
     int index, cmp;
     for (index = 0; index < MAX_CMD_NUM; index++){
@@ -166,7 +165,7 @@ int isCommand(char commandName[MAX_LINE_LEN])
 
 /*checks if num is a legal number */
 int isLegalNumber(char *number){
-    int num, i = 0;
+    int i = 0;
     if (number[i] == '-' || number[i] == '+')
         i++;
     while (number[i] != '\0' && number[i] != '\n'){
@@ -208,8 +207,8 @@ int isRegister(char *str){
 
 void print_code(code* p_code) {
     int ic = 100;
+    char hexWord[32];   
     p_code = p_code->next;
-    char hexWord[32];
     while (p_code) {
         sprintf(hexWord, "%x",p_code->code_line.bytes);
         printf("%d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
@@ -228,8 +227,8 @@ void print_symbol(symbol* p_symbol) {
 
 void print_data(data *p_data, int icf){
     unsigned int *bytes;
-    p_data = p_data->next;
     char hexWord[32];
+    p_data = p_data->next;
     while(p_data){
         bytes = (unsigned int *) &p_data->data_line;
         sprintf(hexWord, "%x", *bytes);

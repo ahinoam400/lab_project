@@ -5,7 +5,6 @@ int IC = 100, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
 int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct);
 
-
 command cmd_arr[MAX_CMD_NUM]={
     {"mov",0,0}, {"cmp",1,0}, {"add",2,10},
     {"sub",2,11}, {"lea",4,0}, {"clr",5,10},
@@ -316,8 +315,6 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
 }
 
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images){
-    //images->symbol_tail->next = (symbol *)malloc(sizeof(symbol));
-    //images->symbol_tail = images->symbol_tail->next;
     if(images->symbol_tail == NULL){
         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
         return;

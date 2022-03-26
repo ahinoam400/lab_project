@@ -6,6 +6,7 @@
         "firstpassfunctions.h": "c",
         "ctype.h": "c",
         "constant.h": "c",
-        "type_traits": "c"
+        "type_traits": "c",
+        "commonfunctions.h": "c"
     }
 }

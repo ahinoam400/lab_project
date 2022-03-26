@@ -17,5 +17,5 @@ int main(int argc, char const *argv[]){
         firstPass(filename, &images);
         print_symbol(images.symbol_head);
         print_code(images.code_head);
-        print_data(images.data_head);
+        print_data(images.data_head, images.ICF);
 }
