@@ -30,6 +30,7 @@ void objectFile(struct images *images, char *fileName, int ICF, int DCF){
     FILE *objectF = fopen(strcat(fileNameCopy, ".ob"), "a");
     if (objectF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
+        
 }
 
 int decToHex(int decNumber){
