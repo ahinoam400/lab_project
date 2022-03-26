@@ -1,5 +1,5 @@
-assembler: main.o preAssembler.o commonFunctions.o firstPass.o secondPass.o
-	gcc -Wall -ansi -pedantic main.o preAssembler.o commonFunctions.o firstPass.o secondPass.o -o assembler
+assembler: main.o preAssembler.o commonFunctions.o firstPass.o secondPass.o fileMaker.o
+	gcc -Wall -ansi -pedantic main.o preAssembler.o commonFunctions.o firstPass.o secondPass.o fileMaker.o -o assembler
 main.o: main.c preAssembler.h commonFunctions.h firstPass.h secondPass.h
 	gcc -Wall -ansi -pedantic main.c -o main.o
 commonFunctions.o: commonFunctions.c commonFunctions.h
@@ -8,3 +8,5 @@ firstPass.o: firstPass.c commonFunctions.h
 	gcc -Wall -ansi -pedantic firstPass.c -o firstPass.o
 secondPass.o: secondPass.c commonFunctions.h
 	gcc -Wall -ansi -pedantic secondPass.c -o secondPass.o
+fileMaker.o:
+	gcc -Wall -ansi -pedantic fileMaker.c -o fileMaker.o

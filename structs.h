@@ -23,7 +23,7 @@ typedef struct{/*the first word*/
 }cmd_word;
 
  
-typedef struct{/*for comands with operands*/
+typedef struct{/*for commands with operands*/
     unsigned int dest_address : 2;
     unsigned int dest_register : 4;
     unsigned int src_address : 2;
