@@ -1,5 +1,5 @@
 *.am
 *.ob
-*.ex
-*.en
+*.ext
+*.ent
 output.txt

@@ -235,6 +235,9 @@ K: .data 31
 147	A4-Bf-Cf-Df-E7
 148	A4-Bf-Cf-D9-Ec
 149	A4-B0-C0-D1-Ef
+MAIN,0096,0004
+LIST,0144,0002
+K,0144,0005
 
 ####### testsForFirstPass/secondPassErrors.as #######
 ;.entry NOTSYM

@@ -1,25 +1,17 @@
 #include "commonFunctions.h"
 #include "fileMaker.h"
 #include <stdio.h>
-void entryFile(symbol *head, char *fileName, struct images *images){
+void entryFile(char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
-    FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "a");
+    FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "w");
     if (entryF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     char str[MAX_LINE_LEN];
-    symbol *sym = (symbol*)malloc(sizeof(symbol));
-    sym = images->symbol_head;
+    symbol *sym = images->symbol_head->next;
     while (sym != NULL){
         if (sym->attributes[8]!= '\0'){
-            strcat(str, sym->symbol);
-            strcat(str, ",");
-            strcat(str, atoi(sym->baseAddress));
-            strcat(str, ",");
-            strcat(str, atoi(sym->offset));
-            strcat(str, "\n");
-            fwrite(str, 1, sizeof(str), entryF);
-            str[0]= '\0';
+            fprintf(entryF, "%s,%04d,%04d\n", sym->symbol, sym->baseAddress, sym->offset);
         }
         sym = sym->next;
     }

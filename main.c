@@ -16,6 +16,7 @@ int main(int argc, char const *argv[]){
         if(firstPass(argv[i], &images) == 0)continue;
         if(secondPass(argv[i], &images) == 0)continue;
         objectFile(&images, argv[i]);
+        entryFile(argv[i], &images);
     }
     return 0;
 }
