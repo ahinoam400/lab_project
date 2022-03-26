@@ -226,13 +226,18 @@ void print_symbol(symbol* p_symbol) {
 }
 
 void print_data(data *p_data, int icf){
+    fprint_data(p_data, icf, stdout);
+}
+void fprint_data(data *p_data, int icf, FILE *stream){
     unsigned int *bytes;
     char hexWord[32];
     p_data = p_data->next;
     while(p_data){
         bytes = (unsigned int *) &p_data->data_line;
         sprintf(hexWord, "%x", *bytes);
-        printf("%d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
+        fprintf(stream , "%d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
         p_data = p_data->next;
     }
 }
+
+

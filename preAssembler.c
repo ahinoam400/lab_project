@@ -1,5 +1,5 @@
 #include "preAssembler.h"
-void macroSpread(char* fileName);
+#include "constant.h"
 typedef struct macroNode{ /*a struct that holds within it a list with all of the macros*/
     char name[80];
     char macro[80][80];
@@ -20,7 +20,7 @@ int macroSpread(char *fileName){
     fileNameCopy[len] = '\0';
     macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
     if(assembly == NULL ){
-        printf("ERROR : OPENING FILE\n");
+        printf("ERROR : OPENING FILE %s\n", fileName);
         return 0;
     }
     head = (macroNode*)malloc(sizeof(macroNode));
@@ -69,5 +69,7 @@ int macroSpread(char *fileName){
         }
         fwrite(line, strlen(line), 1, macroSpreadFile);
     }
+    fclose(macroSpreadFile);
+    fclose(assembly);
     return 1;
 }

@@ -1,5 +1,5 @@
 #include "commonFunctions.h"
-
+#include "fileMaker.h"
 void entryFile(symbol *head, char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
@@ -24,13 +24,13 @@ void entryFile(symbol *head, char *fileName, struct images *images){
     }
 }
 
-void objectFile(struct images *images, char *fileName, int ICF, int DCF){
+void objectFile(struct images *images, char *fileName){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
     FILE *objectF = fopen(strcat(fileNameCopy, ".ob"), "a");
     if (objectF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
-        
+    fprint_data(images->data_head, images->ICF, objectF);
 }
 
 int decToHex(int decNumber){
