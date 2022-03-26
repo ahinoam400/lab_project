@@ -4,10 +4,8 @@ objs = commonFunctions.o firstPass.o secondPass.o fileMaker.o preAssembler.o
 	gcc -c -Wall -ansi -pedantic $< -o $@
 
 
-test: testFirstPass testSecondPass
-#	./testStructs
-	./testFirstPass
-	./testSecondPass
+test:
+	./test.sh
 
 test% : test%.o $(objs)
 	gcc -Wall -ansi -pedantic $^ -o $@

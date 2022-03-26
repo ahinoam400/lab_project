@@ -117,13 +117,11 @@ int firstPass(char *filename, struct images *images){
 
                 for(dataLoop=0; dataLoop<dataNum; dataLoop++,j++){
                     num = isLegalNumber(arr[j]);
-                    printf("1111111\n");
                     if(num == 0){ /*not working well - jump to line 180*/
                         printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
                         errFlag = 1;
                         continue;
                     }
-                    printf("22222222\n");                    
                     images->data_tail = addDataNode(images->data_tail);
                     if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);

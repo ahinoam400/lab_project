@@ -1,5 +1,0 @@
-NUM: .data 123
- .data 123
-.data 1,2 , 3 ,4
-STR: .string "abcd"
-.string "efgh"
