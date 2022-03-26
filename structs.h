@@ -100,15 +100,28 @@ typedef union{/*hold the code for a line*/
 
 struct code{/*hold the code for a file*/
     code_line code_line;
+    int ic;
+    int l;
     struct code *next;
 };
 typedef struct code code;
 
+struct external_word{
+    char *symbol;
+    unsigned int base_address;
+    unsigned int offset;
+};
+struct  external_words {
+    struct external_word ext_word;
+    struct external_words *next;
+};
+typedef struct external_words external_words;
 
 struct images {
     symbol *symbol_head, *symbol_tail;
     code *code_head, *code_tail;
     data *data_head, *data_tail;
+    external_words *ext_head, *ext_tail;
     int ICF;
     int DCF;
 };

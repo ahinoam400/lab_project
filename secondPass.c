@@ -14,7 +14,7 @@ int secondPass(char *filename, struct images *images){
     int errFlag = 0, lineLength;
     char firstChar = ' ', *ws = " \t";
     bool isEmptyLine = true;
-    int i=0, operandsNum, addressingMode, lineNum;
+    int i=0, operandsNum, addressingMode, lineNum, ic = BASE_ADDRESS;
     symbol *sym;
     code *funct;
     images->code_tail = images->code_head->next; /*in the second pass we used the code_tail as a pointer to the current record*/
@@ -63,7 +63,7 @@ int secondPass(char *filename, struct images *images){
             continue;
         if(operandsNum = isCommand(arr[i])){
             i++;
-            images->code_tail = images->code_tail->next;
+            images->code_tail = images->code_tail->next; 
         }
         if(operandsNum > 0){
             funct = images->code_tail;
@@ -104,10 +104,15 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
     case direct:
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
-                if (!strcmp(node->attributes, "external")){
+                if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
+                    images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
+                    images->ext_tail = images->ext_tail->next;
                     images->code_tail = images->code_tail->next;
                     images->code_tail->code_line.dir_word_1.external = 1;
+                    images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
+                    images->ext_tail->ext_word.symbol = node->symbol;
                     images->code_tail = images->code_tail->next;
+                    images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l;
                     images->code_tail->code_line.dir_word_2.external_2 = 1;
                 }else{
                     images->code_tail = images->code_tail->next;
@@ -129,6 +134,11 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
+                    images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
+                    images->ext_tail = images->ext_tail->next;
+                    images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
+                    images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
+                    images->ext_tail->ext_word.symbol = node->symbol;
                     images->code_tail = images->code_tail->next;
                     images->code_tail->code_line.inx_word_1.external = 1;
                     images->code_tail = images->code_tail->next;

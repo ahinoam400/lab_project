@@ -3,7 +3,7 @@ extern command cmd_arr[];
 int ICF, DCF;
 int IC = BASE_ADDRESS, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct);
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic);
 
 command cmd_arr[MAX_CMD_NUM]={
     {"mov",0,0}, {"cmp",1,0}, {"add",2,10},
@@ -188,19 +188,13 @@ int firstPass(char *filename, struct images *images){
                 code *code_funct = images->code_tail; /* save thee pointer to the original funct instuction */
                 if (operandsNum > 0){ /*if the command have operands*/
                     /* process first operand */
-                    addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct);
-                    if (addressing_mode == immediate)
-                        L++;
-                    if (addressing_mode == direct || addressing_mode == index)
-                        L += 2;
+                    addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct, &L, IC);
                     if (addressing_mode == -1){
                         errFlag = 1;
                         continue;
                     }
                     if (operandsNum == 2){ /*if the command have two operands*/
-                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct);
-                        if (addressing_mode == immediate)L++;
-                        if (addressing_mode == direct || addressing_mode == index)L += 2;
+                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct, &L, IC);
                         if (addressing_mode == -1){
                             errFlag = 1;
                             continue;
@@ -208,9 +202,7 @@ int firstPass(char *filename, struct images *images){
                     }
                 }
             }
-        }
-        /*images->code_tail->code_line.count.ic = IC;
-        images->code_tail->code_line.count.l = L;*/
+        }        
         IC += L;
         lineLength = 0;
     }
@@ -237,7 +229,7 @@ int findAddressingMode(char *operand, int lineNum) {
 
 }
 /*finds the addressing mode of the operand and add it to the code*/
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct){
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic){
     enum addressingModes{immediate = 0, direct,index, register_direct};
     int state, addressing_mode = -1, i, num, len, j , k;
     char *copy;
@@ -278,6 +270,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         if(images->code_tail == NULL){
             return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
         } 
+        (*l)++;
         images->code_tail->code_line.imm_word.absolute = 1;
         images->code_tail->code_line.imm_word.word = num;
         break;
@@ -287,6 +280,9 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
             if(images->code_tail == NULL){
                 return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
             } 
+            images->code_tail->ic = ic;
+            images->code_tail->l = *l;
+            (*l)++;
         }
         /*wait til the second pass*/
         break;
@@ -299,7 +295,10 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
             images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
             if(images->code_tail == NULL){
                 return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
-            } 
+            }
+            images->code_tail->ic = ic;
+            images->code_tail->l = *l;
+            (*l)++; 
         }
         /* wait til the second pass*/
     case register_direct:

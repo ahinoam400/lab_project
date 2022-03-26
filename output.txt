@@ -238,6 +238,8 @@ K: .data 31
 MAIN,0096,0004
 LIST,0144,0002
 K,0144,0005
+W BASE 0115
+W OFFSET 0116
 
 ####### testsForFirstPass/secondPassErrors.as #######
 ;.entry NOTSYM

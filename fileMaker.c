@@ -26,16 +26,20 @@ void objectFile(struct images *images, char *fileName){
     fprintf(objectF, "%d %d\n", images->ICF-BASE_ADDRESS, images->DCF);
     fprint_code(images->code_head, objectF);
     fprint_data(images->data_head, images->ICF, objectF);
+    fclose(objectF);
 }
 
-int decToHex(int decNumber){
-	int temp;
-	char hexNumber;
-	temp = decNumber % 16;
-	if( temp < 10)
-	    temp =temp + 48; 
-    else
-	    temp = temp + 55;
-	hexNumber = temp;
-	return hexNumber;
+void externalFile(struct images *images, char *fileName){
+    char fileNameCopy[MAX_LINE_LEN];
+    strcpy(fileNameCopy, fileName);
+    FILE *externalF = fopen(strcat(fileNameCopy, ".ext"), "w");
+    external_words *node = images->ext_head->next;
+    if (externalF == NULL)
+        return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
+    while(node){
+        fprintf(externalF, "%s BASE %04d\n", node->ext_word.symbol, node->ext_word.base_address);
+        fprintf(externalF, "%s OFFSET %04d\n", node->ext_word.symbol, node->ext_word.offset);   
+        node = node->next;
+    }
+    fclose(externalF);
 }

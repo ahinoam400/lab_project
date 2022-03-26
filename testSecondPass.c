@@ -13,6 +13,8 @@ int main(int argc, char const *argv[]){
         images.code_tail = images.code_head;
         images.data_head = (data*)malloc(sizeof(data));
         images.data_tail = images.data_head;
+            images.ext_head = (external_words*)malloc(sizeof(external_words));
+    images.ext_tail = images.ext_head;
         printf("-----------------------%s-----------------------\n", filename);
         firstPass(filename, &images);
         secondPass(filename, &images);  
