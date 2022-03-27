@@ -308,6 +308,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
     return addressing_mode;
 }
 
+/*adds a new symbol to the symbol table*/
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images){
     if(images->symbol_tail == NULL){
         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
@@ -330,6 +331,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         strcat(images->symbol_tail->attributes, "code");
 }
 
+/*checks if the operands' addressing mode is legal*/
 int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
     int i, j;
     for (i=0; i<MAX_CMD_NUM; i++){
@@ -350,24 +352,27 @@ int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
 
 /*create new code node*/
 code *addCodeNode(code *tail){
-        tail->next = (code *)malloc(sizeof(code));
-        tail = tail->next;
-        memset(tail,0,sizeof(code));
+    tail->next = (code *)malloc(sizeof(code));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(code));
     return tail;
 }
 
 /*create a new data node*/
 data *addDataNode(data *tail){
-        tail->next = (data *)malloc(sizeof(data));
-        tail = tail->next;
-        memset(tail,0,sizeof(data));
+    tail->next = (data *)malloc(sizeof(data));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(data));
     return tail;
 }
 
 /*create a new symbol node*/
 symbol *addSymbolNode(symbol *tail){
-        tail->next = (symbol *)malloc(sizeof(symbol));
-        tail = tail->next;
-        memset(tail,0,sizeof(symbol));
+    tail->next = (symbol *)malloc(sizeof(symbol));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(symbol));
     return tail;
 }

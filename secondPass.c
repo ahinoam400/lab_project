@@ -48,14 +48,8 @@ int secondPass(const char *filename, struct images *images){
                 printf("LINE %d : ERROR: NAME IS NOT IN TABLE\n", lineNum);
                 continue;
             }
-            sym = images->symbol_head;
-            while(sym != NULL){
-                if(!strcmp(sym->symbol, arr[i])){
-                    sym->isEntry = 1;
-                    break;
-                }
-                sym = sym->next;
-            }
+            sym = getSymbolByName(images->symbol_head, arr[i]);
+            sym->isEntry = 1;
             continue;
         }
         if(arr[i][strlen(arr[i])-1] == ':')

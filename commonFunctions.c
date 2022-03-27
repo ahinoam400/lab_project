@@ -148,12 +148,27 @@ int isCommand(char commandName[MAX_LINE_LEN]){
     return cmd?cmd->operandsNum:-1;
 }
 
+/*this function searchs a command name in cmd_arr and returns its address
+if it exists and NULL else*/
 command* getCommandByName(char *cmdName){
     int index;
     for (index = 0; index < MAX_CMD_NUM; index++){
         if ((strcmp(cmdName, cmd_arr[index].cmdName)) == 0){ /*if commandName is command*/
             return &cmd_arr[index];
         }
+    }
+    return NULL;
+}
+
+/*this function searchs a symbol in the symbol list and returns its address
+if it exists and NULL else*/
+symbol* getSymbolByName(symbol *sym_head, char *symName){
+    symbol *sym = sym_head;
+    while(sym != NULL){
+        if ((strcmp(symName, sym->symbol)) == 0){ /*if symName is symbol*/
+            return sym;
+        }
+        sym = sym->next;
     }
     return NULL;
 }
@@ -202,7 +217,7 @@ int isRegister(char *str){
 void print_code(code *p_code){
     fprint_code(p_code, stdout);
 }
-
+/*prints the given code in the special base method*/
 void fprint_code(code* p_code, FILE *stream) {
     int ic = 100;
     char hexWord[32];   
@@ -214,18 +229,10 @@ void fprint_code(code* p_code, FILE *stream) {
     }
 }
 
-void print_symbol(symbol* p_symbol) {
-    while (p_symbol) {
-        printf("name: %s, base address: %d, offset: %d, attributes: %s, value: %d\n", 
-               p_symbol->symbol, p_symbol->baseAddress, p_symbol->offset,
-               p_symbol->attributes, p_symbol->value);
-        p_symbol = p_symbol->next;
-    }
-}
-
 void print_data(data *p_data, int icf){
     fprint_data(p_data, icf, stdout);
 }
+/*prints the given data in the special base method*/
 void fprint_data(data *p_data, int icf, FILE *stream){
     unsigned int *bytes;
     char hexWord[32];
