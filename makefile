@@ -13,4 +13,4 @@ update:
 	cp output.txt expected.txt
 
 clean:
-	rm *.o main || true
+	rm *.o main || true 
