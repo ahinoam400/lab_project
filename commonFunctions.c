@@ -224,7 +224,7 @@ void fprint_code(code* p_code, FILE *stream) {
     p_code = p_code->next;
     while (p_code) {
         sprintf(hexWord, "%05x",p_code->code_line.bytes);
-        fprintf(stream, "%d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
+        fprintf(stream, "%04d\tA%c-B%c-C%c-D%c-E%c\n", ic++, hexWord[0], hexWord[1], hexWord[2], hexWord[3], hexWord[4]);
         p_code = p_code->next;
     }
 }
@@ -240,7 +240,7 @@ void fprint_data(data *p_data, int icf, FILE *stream){
     while(p_data){
         bytes = (unsigned int *) &p_data->data_line;
         sprintf(hexWord, "%05x", *bytes);
-        fprintf(stream , "%d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
+        fprintf(stream , "%04d\tA%c-B%c-C%c-D%c-E%c\n" , icf++ ,hexWord[0] ,hexWord[1] ,hexWord[2] ,hexWord[3] ,hexWord[4]);
         p_data = p_data->next;
     }
 }

@@ -1,7 +1,6 @@
-
 #include "commonFunctions.h"
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
-
+external_word *addExtNode(external_word *tail);
 int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
@@ -62,16 +61,12 @@ int secondPass(const char *filename, struct images *images){
         if(operandsNum > 0){
             funct = images->code_tail;
             addressingMode =  adressingModeSecondPass(arr[i++], images, funct, lineNum, operandsNum-1);
-            if(addressingMode == -1){
+            if(addressingMode == -1)
                 errFlag = -1;
-                continue;
-            }
             if(operandsNum == 2){
                 addressingMode = adressingModeSecondPass(arr[i++], images, funct, lineNum, 0);
-                if(addressingMode == -1){
+                if(addressingMode == -1)
                     errFlag = -1;
-                    continue;
-                }
             }
             images->code_tail = images->code_tail->next;
         }
@@ -97,9 +92,6 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     case direct:
         while (node != NULL){
-            if(!isNameInTable(operand, images->symbol_head)){
-                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
-            }
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
                     images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
@@ -124,20 +116,25 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             }
             node = node->next;
         }
+        if(!isNameInTable(operand, images->symbol_head)){
+            images->code_tail = images->code_tail->next;
+            images->code_tail = images->code_tail->next;
+            return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+        }
         break;
     case index:
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i] = '\0';
         if(!isNameInTable(symCopy, images->symbol_head)){
-                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+            images->code_tail = images->code_tail->next;
+            images->code_tail = images->code_tail->next;
+            return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
         }
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
-                    images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
-                    memset(images->ext_tail->next,0,sizeof(external_words));
-                    images->ext_tail = images->ext_tail->next;
+                    images->ext_tail = addExtNode(images->ext_tail, lineNum)
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
                     images->ext_tail->ext_word.symbol = node->symbol;
@@ -159,4 +156,11 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
     default:
         break;
     }
+}
+external_word *addExtNode(external_word *tail, int lineNum){
+    tail->next = (symbol *)malloc(sizeof(symbol));
+    if(tail->next == NULL) return printAndReturn("ERROR : MEMORY ALLOCATION FAILED", NULL, lineNum);
+    tail = tail->next;
+    memset(tail,0,sizeof(external_word));
+    return tail;
 }
