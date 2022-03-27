@@ -1,6 +1,7 @@
 #include "commonFunctions.h"
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
-external_word *addExtNode(external_word *tail);
+external_words *addExtNode(struct images *images, int lineNum);
+
 int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
@@ -90,10 +91,8 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
     case direct:
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
-                if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
-                    images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
-                    memset(images->ext_tail->next,0,sizeof(external_words));
-                    images->ext_tail = images->ext_tail->next;
+                if (!strcmp(node->attributes, "external")){
+                    addExtNode(images, lineNum);
                     images->code_tail = images->code_tail->next;
                     images->code_tail->code_line.dir_word_1.external = 1;
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
@@ -131,7 +130,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
-                    images->ext_tail = addExtNode(images->ext_tail, lineNum)
+                    addExtNode(images, lineNum);
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
                     images->ext_tail->ext_word.symbol = node->symbol;
@@ -154,10 +153,13 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     }
 }
-external_word *addExtNode(external_word *tail, int lineNum){
-    tail->next = (symbol *)malloc(sizeof(symbol));
-    if(tail->next == NULL) return printAndReturn("ERROR : MEMORY ALLOCATION FAILED", NULL, lineNum);
-    tail = tail->next;
-    memset(tail,0,sizeof(external_word));
-    return tail;
+external_words *addExtNode(struct images *images, int lineNum){
+    images->ext_tail->next = (external_words *)malloc(sizeof(external_words));
+    if(images->ext_tail->next == NULL){
+        printf("LINE : %d ERROR : MEMORY ALLOCATION FAILED", lineNum);
+        return NULL;
+    }
+    images->ext_tail = images->ext_tail->next;
+    memset(images->ext_tail,0,sizeof(external_words));
+    return images->ext_tail;
 }
