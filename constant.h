@@ -15,6 +15,9 @@ typedef struct{/*struct for the commands*/
     char cmdName[5];
     int cmd_opcode;
     int cmd_funct;
+    int srcAddressingModes[4];
+    int destAddressingModes[4];
+    int operandsNum;
 }command;
 
 extern command cmd_arr[MAX_CMD_NUM];

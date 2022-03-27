@@ -135,8 +135,6 @@ int split(char *str, char *arr[], int lineNum){
     return 0;
 }
 
-
-
 /*print str and return num*/
 int printAndReturn(char *str, int num, int lineNum){
     printf("LINE %d : %s\n", lineNum, str);
@@ -146,21 +144,18 @@ int printAndReturn(char *str, int num, int lineNum){
 /*this function checks if commandName is a command. returns the number
 of operands of the command or -1 if commandName is not command*/
 int isCommand(char commandName[MAX_LINE_LEN]){
-    command *cmd = (command *)malloc(sizeof(command));
-    int index, cmp;
+    command *cmd = getCommandByName(commandName);
+    return cmd?cmd->operandsNum:-1;
+}
+
+command* getCommandByName(char *cmdName){
+    int index;
     for (index = 0; index < MAX_CMD_NUM; index++){
-        cmd = &cmd_arr[index];
-        if ((cmp = strcmp(commandName, cmd->cmdName)) == 0){ /*if commandName is command*/
-            if (index < 5)
-                return 2;
-            if (index < 14)
-                return 1;
-            return 0;
+        if ((strcmp(cmdName, cmd_arr[index].cmdName)) == 0){ /*if commandName is command*/
+            return &cmd_arr[index];
         }
-        cmd = (command *)malloc(sizeof(command));
     }
-    free(cmd);
-    return -1;
+    return NULL;
 }
 
 /*checks if num is a legal number */

@@ -3,17 +3,16 @@ extern command cmd_arr[];
 int ICF, DCF;
 int IC = BASE_ADDRESS, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic);
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic, char *cmdName);
 
 command cmd_arr[MAX_CMD_NUM]={
-    {"mov",0,0}, {"cmp",1,0}, {"add",2,10},
-    {"sub",2,11}, {"lea",4,0}, {"clr",5,10},
-    {"not",5,11}, {"inc",5,12}, {"dec",5,13},
-    {"jmp",9,10}, {"bne",9,11}, {"jsr",9,12},
-    {"red",12,0}, {"prn",13,0}, {"rts",14,0},
-    {"stop",15,0}
+    {"mov",0,0, {0,1,2,3}, {1,2,3} ,2}, {"cmp",1,0, {0,1,2,3}, {0,1,2,3},2}, {"add",2,10, {0,1,2,3}, {1,2,3},2},
+    {"sub",2,11, {0,1,2,3}, {1,2,3}, 2}, {"lea",4,0,{1,2}, {1,2,3},2}, {"clr",5,10, {-1}, {1,2,3},1},
+    {"not",5,11, {-1}, {1,2,3},1}, {"inc",5,12, {-1}, {1,2,3},1}, {"dec",5,13, {-1}, {1,2,3},1},
+    {"jmp",9,10, {-1}, {1,2},1}, {"bne",9,11, {-1}, {1,2},1}, {"jsr",9,12, {-1}, {1,2},1},
+    {"red",12,0, {-1}, {1,2,3},1}, {"prn",13,0, {-1}, {0,1,2,3},1}, {"rts",14,0, {-1},{-1},0},
+    {"stop",15,0, {-1}, {-1},0}
 };
-
 
 int firstPass(const char *filename, struct images *images){
     enum addressingModes{ immediate = 0,direct,index,register_direct};
@@ -35,7 +34,7 @@ int firstPass(const char *filename, struct images *images){
     DC = 0, IC = BASE_ADDRESS, L=0;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN] = {0};
-        printf(";%s\n",line);
+        printf(";%d %s\n", IC, line);
         lineNum++;
         L = 0 , symbolFlag = 0;
         dataNum = split(line, arr, lineNum); /*split the line into array*/
@@ -115,7 +114,6 @@ int firstPass(const char *filename, struct images *images){
                     addSymbol(name, DC, ".data", lineNum, images);
                 }
                 j++;
-
                 for(dataLoop=0; dataLoop<dataNum; dataLoop++,j++){
                     if(isLegalNumber(arr[j]) == -1){
                         printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
@@ -156,43 +154,38 @@ int firstPass(const char *filename, struct images *images){
                     errFlag = 1;
                     continue;
                 }
-                for (i = 0; i < MAX_CMD_NUM; i++){
-                    cmd = &cmd_arr[i];
-                    if ((strcmp(arr[j], cmd->cmdName)) == 0){/*if arr[j] is command*/
-                        images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-                        if(images->code_tail == NULL){
-                            printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                            errFlag = 1;
-                            continue;
-                        } 
-                        images->code_tail->code_line.command.opcode = 1<<(cmd_arr[i].cmd_opcode);
-                        images->code_tail->code_line.command.absolute = 1;
-                        L++;
-                        if (i < 14){/*if the command have oprands */
-                            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-                            if(images->code_tail == NULL){
-                                printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                                errFlag = 1;
-                                continue;
-                            } 
-                            images->code_tail->code_line.word.funct = cmd_arr[i].cmd_funct; /* add the second word*/
-                            images->code_tail->code_line.word.absolute = 1;
-                            L++;
-                        }
-                        j++;
-                        break;
-                    }
+                cmd = getCommandByName(arr[j]);
+                images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                if(images->code_tail == NULL){
+                    printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                    errFlag = 1;
+                    continue;
+                } 
+                images->code_tail->code_line.command.opcode = 1<<(cmd->cmd_opcode);
+                images->code_tail->code_line.command.absolute = 1;
+                L++;
+                if (cmd->operandsNum>0){/*if the command have oprands */
+                    images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                    if(images->code_tail == NULL){
+                        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                        errFlag = 1;
+                        continue;
+                    } 
+                    images->code_tail->code_line.word.funct = cmd->cmd_funct; /* add the second word*/
+                    images->code_tail->code_line.word.absolute = 1;
+                    L++;
                 }
+                j++;
                 code *code_funct = images->code_tail; /* save thee pointer to the original funct instuction */
                 if (operandsNum > 0){ /*if the command have operands*/
                     /* process first operand */
-                    addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct, &L, IC);
+                    addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct, &L, IC, cmd->cmdName);
                     if (addressing_mode == -1){
                         errFlag = 1;
                         continue;
                     }
                     if (operandsNum == 2){ /*if the command have two operands*/
-                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct, &L, IC);
+                        addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct, &L, IC, cmd->cmdName);
                         if (addressing_mode == -1){
                             errFlag = 1;
                             continue;
@@ -223,11 +216,8 @@ int firstPass(const char *filename, struct images *images){
     return 1;
 }
 
-int findAddressingMode(char *operand, int lineNum) {
-
-}
 /*finds the addressing mode of the operand and add it to the code*/
-int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic){
+int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic, char *cmdName){
     enum addressingModes{immediate = 0, direct,index, register_direct};
     int addressing_mode = -1, i, num, len, k;
     char *copy;
@@ -332,6 +322,15 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         strcat(images->symbol_tail->attributes, "data");
     else
         strcat(images->symbol_tail->attributes, "code");
+}
+
+int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
+  
+    int index;
+    for (index = 0; index<MAX_CMD_NUM; index++){
+        
+    }
+
 }
 
 

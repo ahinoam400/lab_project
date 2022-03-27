@@ -16,17 +16,17 @@ int main(int argc, char const *argv[]){
         images.data_tail = images.data_head;
         images.ext_tail = images.ext_head;
         if(macroSpread(argv[i]) == 0)continue;
-            if(firstPass(argv[i], &images) == 0){
+        if(firstPass(argv[i], &images) == 0){
             freeImages(&images);
             continue;
         }
-        printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
-        printf("XX %d\n",images.ICF);
-        print_data(images.data_head, images.ICF);
         if(secondPass(argv[i], &images) == 0){
             freeImages(&images);
             continue;
         }
+        print_code(images.code_head);
+        print_data(images.data_head, images.ICF);
+        print_symbol(images.symbol_head);
         objectFile(argv[i], &images);
         entryFile(argv[i], &images);
         externalFile(argv[i], &images);

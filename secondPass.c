@@ -110,6 +110,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
                     images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
+                    memset(images->ext_tail->next,0,sizeof(external_words));
                     images->ext_tail = images->ext_tail->next;
                     images->code_tail = images->code_tail->next;
                     images->code_tail->code_line.dir_word_1.external = 1;
@@ -142,6 +143,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
                     images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
+                    memset(images->ext_tail->next,0,sizeof(external_words));
                     images->ext_tail = images->ext_tail->next;
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;

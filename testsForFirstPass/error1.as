@@ -1,3 +1,5 @@
+mov L, #20
+lea L , #100
 notcmd  1
 mov 1
 stop 1
