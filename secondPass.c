@@ -20,7 +20,6 @@ int secondPass(const char *filename, struct images *images){
         char *arr[MAX_LINE_LEN] = {0};
         i=0;
         lineNum++;
-        /*printf("%s\n", line);*/
         lineLength = strlen(line);
         line[lineLength] = '\0';
         for (j = 0; i < lineLength; j++){ /*checks if the line is empty line*/
@@ -36,8 +35,6 @@ int secondPass(const char *filename, struct images *images){
         }
         if(firstChar == ';' || isEmptyLine)continue;
         split(line, arr, lineNum);
-        /*if(!isLegalSymName(arr[i]))
-            continue;*/
         if(!(strcmp(arr[i], ".data"))||!(strcmp(arr[i], ".string"))||!(strcmp(arr[i], ".extern")))
             continue;
         if(!strcmp(arr[i], ".entry")){
