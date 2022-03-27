@@ -7,18 +7,18 @@ int secondPass(char *filename, struct images *images){
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if (assembly == NULL){
-        printf("ERROR OPENING FILE\n");
-        return -1;
+        return(printAndReturn("ERROR OPENING FILE", -1, 0));
     }
     char line[MAX_LINE_LEN];
-    int errFlag = 0, lineLength;
+    int errFlag = 0, lineLength, lineNum = 0;
     char firstChar = ' ', *ws = " \t";
     bool isEmptyLine = true;
-    int i=0, operandsNum, addressingMode, lineNum, ic = BASE_ADDRESS;
+    int i=0, operandsNum, addressingMode, ic = BASE_ADDRESS;
     symbol *sym;
     code *funct;
     images->code_tail = images->code_head->next; /*in the second pass we used the code_tail as a pointer to the current record*/
     while(fgets(line, MAX_LINE_LEN, assembly)){
+        lineNum++;
         printf("%s\n", line);
         lineLength = strlen(line);
         line[lineLength] = '\0';
@@ -44,7 +44,7 @@ int secondPass(char *filename, struct images *images){
             i++;
             if(!isNameInTable(arr[i], images->symbol_head)){
                 errFlag = 1;
-                printf("ERROR: NAME IS NOT IN TABLE\n");
+                printf("LINE %d : ERROR: NAME IS NOT IN TABLE\n", lineNum);
                 continue;
             }
             sym = images->symbol_head;
@@ -103,6 +103,9 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     case direct:
         while (node != NULL){
+            if(!isNameInTable(operand, images->symbol_head)){
+                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+            }
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
                     images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
@@ -131,6 +134,9 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i] = '\0';
+        if(!isNameInTable(symCopy, images->symbol_head)){
+                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+        }
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){

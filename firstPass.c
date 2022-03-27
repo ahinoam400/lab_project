@@ -54,7 +54,7 @@ int firstPass(char *filename, struct images *images){
         if(firstChar == ';' || isEmptyLine)continue;
         if(isEmptyLine == false){ /*if the is not an empty line and not a comment line*/
             if (arr[j][strlen(arr[j]) - 1] == ':'){ /*if the first word is a symbol definition*/
-                if (j != 0){
+                if (j!= 0){
                     printf("LINE %d : ERROR: ILLEGAL SYMBOL\n", lineNum);
                     errFlag = 1;
                     continue;
@@ -116,12 +116,12 @@ int firstPass(char *filename, struct images *images){
                 j++;
 
                 for(dataLoop=0; dataLoop<dataNum; dataLoop++,j++){
-                    num = isLegalNumber(arr[j]);
-                    if(num == 0){ /*not working well - jump to line 180*/
+                    if(isLegalNumber(arr[j]) == -1){
                         printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
                         errFlag = 1;
                         continue;
                     }
+                    num = atoi(arr[j]);
                     images->data_tail = addDataNode(images->data_tail);
                     if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
@@ -129,7 +129,6 @@ int firstPass(char *filename, struct images *images){
                         continue;
                     } 
                     images->data_tail->data_line.item = num;
-                    printf(".data data_tail->item : %d\n", images->data_tail->data_line.item);
                     images->data_tail->data_line.absolute = 1;
                     images->data_tail->data_line.relocatable = 0;
                     images->data_tail->data_line.external = 0;
@@ -238,8 +237,10 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
     /*find the addresing mode*/
     if (operand[0] == '#'){
         copy = operand + 1;
-        if(num = isLegalNumber(copy))
+        if(isLegalNumber(copy) == 0){
             addressing_mode = immediate;
+            num = atoi(copy);
+        }
     }else if(isRegister(operand)){
         num = isRegister(operand);
         addressing_mode = register_direct;

@@ -170,10 +170,10 @@ int isLegalNumber(char *number){
         i++;
     while (number[i] != '\0' && number[i] != '\n'){
         if (!isdigit(number[i]))
-            return 0;
+            return -1;
         i++;
     }
-    return atoi(number);
+    return 0;
 }
 
 /*this function checks if symbolName is a legal name for a symbol*/
@@ -188,7 +188,7 @@ int isLegalSymName(char symbolName[MAX_LINE_LEN]){
     return 1;
 }
 
-/*Checks if str is a register */
+/*Checks if str is a register and retrun the register number*/
 int isRegister(char *str){
     int i = 0, number;
     char *str2;

@@ -1,7 +1,7 @@
 #include "commonFunctions.h"
 #include "fileMaker.h"
 #include <stdio.h>
-void entryFile(char *fileName, struct images *images){
+int entryFile(char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
     FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "w");
@@ -15,9 +15,10 @@ void entryFile(char *fileName, struct images *images){
         }
         sym = sym->next;
     }
+    return 0;
 }
 
-void objectFile(struct images *images, char *fileName){
+int objectFile(struct images *images, char *fileName){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
     FILE *objectF = fopen(strcat(fileNameCopy, ".ob"), "w");
@@ -27,9 +28,10 @@ void objectFile(struct images *images, char *fileName){
     fprint_code(images->code_head, objectF);
     fprint_data(images->data_head, images->ICF, objectF);
     fclose(objectF);
+    return 0;
 }
 
-void externalFile(struct images *images, char *fileName){
+int externalFile(struct images *images, char *fileName){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, fileName);
     FILE *externalF = fopen(strcat(fileNameCopy, ".ext"), "w");
@@ -42,4 +44,5 @@ void externalFile(struct images *images, char *fileName){
         node = node->next;
     }
     fclose(externalF);
+    return 0;
 }
