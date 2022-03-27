@@ -9,7 +9,7 @@ dec r1
 endm
 val: .data 1,    3,8  ,21
 not r2
-APPLE: add val[r0], r15
+APPLE: add val[r10], r15
 .extern MAY
 nam
 SHMOOOOOOLIK: prn #69

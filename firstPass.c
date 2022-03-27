@@ -4,34 +4,36 @@ int ICF, DCF;
 int IC = BASE_ADDRESS, DC = 0, L = 0;
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
 int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic, char *cmdName);
+int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode);
 
 command cmd_arr[MAX_CMD_NUM]={
-    {"mov",0,0, {0,1,2,3}, {1,2,3} ,2}, {"cmp",1,0, {0,1,2,3}, {0,1,2,3},2}, {"add",2,10, {0,1,2,3}, {1,2,3},2},
-    {"sub",2,11, {0,1,2,3}, {1,2,3}, 2}, {"lea",4,0,{1,2}, {1,2,3},2}, {"clr",5,10, {-1}, {1,2,3},1},
-    {"not",5,11, {-1}, {1,2,3},1}, {"inc",5,12, {-1}, {1,2,3},1}, {"dec",5,13, {-1}, {1,2,3},1},
-    {"jmp",9,10, {-1}, {1,2},1}, {"bne",9,11, {-1}, {1,2},1}, {"jsr",9,12, {-1}, {1,2},1},
-    {"red",12,0, {-1}, {1,2,3},1}, {"prn",13,0, {-1}, {0,1,2,3},1}, {"rts",14,0, {-1},{-1},0},
+    {"mov",0,0, {0,1,2,3,-1}, {1,2,3,-1} ,2}, {"cmp",1,0, {0,1,2,3,-1}, {0,1,2,3,-1},2}, {"add",2,10, {0,1,2,3,-1}, {1,2,3,-1},2},
+    {"sub",2,11, {0,1,2,3,-1}, {1,2,3,-1}, 2}, {"lea",4,0,{1,2,-1}, {1,2,3,-1},2}, {"clr",5,10, {-1}, {1,2,3,-1},1},
+    {"not",5,11, {-1}, {1,2,3,-1},1}, {"inc",5,12, {-1}, {1,2,3,-1},1}, {"dec",5,13, {-1}, {1,2,3,-1},1},
+    {"jmp",9,10, {-1}, {1,2,-1},1}, {"bne",9,11, {-1}, {1,2,-1},1}, {"jsr",9,12, {-1}, {1,2,-1},1},
+    {"red",12,0, {-1}, {1,2,3,-1},1}, {"prn",13,0, {-1}, {0,1,2,3,-1},1}, {"rts",14,0, {-1},{-1},0},
     {"stop",15,0, {-1}, {-1},0}
 };
 
 int firstPass(const char *filename, struct images *images){
     enum addressingModes{ immediate = 0,direct,index,register_direct};
     char fileNameCopy[MAX_LINE_LEN];
-    strcpy(fileNameCopy, filename);
-    int lineLength = 0, lineNum =0;
+    int lineLength, lineNum;
     int errFlag = 0, symbolFlag = 0;
     int num, i, operandsNum, j = 0, addressing_mode, dataNum, dataLoop;
     char line[MAX_LINE_LEN], *name, *ws = " \t";
     char firstChar = ' ';
     bool isEmptyLine = true;
-    command *cmd;;
-    FILE *assembly;
+    command *cmd;
+    code *code_funct;
     symbol *sym;
+    FILE *assembly;
+    strcpy(fileNameCopy, filename);
     assembly = fopen(strcat(fileNameCopy, ".am"), "r");
     if (assembly == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     cmd = (command *)malloc(sizeof(command));
-    DC = 0, IC = BASE_ADDRESS, L=0;
+    DC = 0, IC = BASE_ADDRESS, L=0 ,lineLength = 0, lineNum =0;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN] = {0};
        /* printf(";%d %s\n", IC, line);*/
@@ -176,7 +178,7 @@ int firstPass(const char *filename, struct images *images){
                     L++;
                 }
                 j++;
-                code *code_funct = images->code_tail; /* save thee pointer to the original funct instuction */
+                code_funct = images->code_tail; /* save thee pointer to the original funct instuction */
                 if (operandsNum > 0){ /*if the command have operands*/
                     /* process first operand */
                     addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct, &L, IC, cmd->cmdName);
@@ -221,8 +223,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
     enum addressingModes{immediate = 0, direct,index, register_direct};
     int addressing_mode = -1, i, num, len, k;
     char *copy;
-    char symCopy[strlen(operand)], regCopy[strlen(operand)];
-    int additionalAddresingWords = 0;
+    char symCopy[MAX_LINE_LEN], regCopy[MAX_LINE_LEN];
     /*find the addresing mode*/
     if (operand[0] == '#'){
         copy = operand + 1;
@@ -249,6 +250,9 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         if (num < 10)
             return(printAndReturn("ERROR : ILLEGAL REGISTER NUMBER\n", -1, lineNum));
         addressing_mode = index;
+    }
+    if(isLegalAddressingMode(src_or_dest, cmdName, addressing_mode) == -1){
+        return(printAndReturn("ERROR : ILLEGAL ADDRESSING MODE", -1, lineNum));
     }
     if (src_or_dest == 1) /*if the operand is a source operand*/
         code_funct->code_line.word.src_address = addressing_mode;
@@ -325,14 +329,22 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
 }
 
 int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
-  
-    int index;
-    for (index = 0; index<MAX_CMD_NUM; index++){
-        
+    int i, j;
+    for (i=0; i<MAX_CMD_NUM; i++){
+        if(strcmp(cmd, cmd_arr[i].cmdName) == 0){
+            if(src_or_dest == 1){
+                for(j=0; cmd_arr[i].srcAddressingModes[j]!=-1; j++)
+                    if(addrssingMode == cmd_arr[i].srcAddressingModes[j])
+                        return  0;
+            }else if(src_or_dest == 0){
+                for(j=0; cmd_arr[i].destAddressingModes[j]!=-1; j++)
+                    if(addrssingMode == cmd_arr[i].destAddressingModes[j])
+                        return 0;
+            }
+        }
     }
-
+    return -1;
 }
-
 
 /*create new code node*/
 code *addCodeNode(code *tail){

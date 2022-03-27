@@ -62,10 +62,9 @@ int secondPass(const char *filename, struct images *images){
             i++;
         if(!(strcmp(arr[i], ".data"))||!(strcmp(arr[i], ".string"))||!(strcmp(arr[i], ".extern")))
             continue;
-        if(operandsNum = isCommand(arr[i])){
+        if(operandsNum = isCommand(arr[i]))
             i++;
-            images->code_tail = images->code_tail->next; 
-        }
+        images->code_tail = images->code_tail->next;
         if(operandsNum > 0){
             funct = images->code_tail;
             addressingMode =  adressingModeSecondPass(arr[i++], images, funct, lineNum, operandsNum-1);
