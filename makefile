@@ -14,5 +14,4 @@ main : main.o $(objs)
 	gcc -Wall -ansi -pedantic $^ -o $@
 
 clean:
-	rm *.o
-	rm main testFirstPass testSecondPass
+	rm *.o main
