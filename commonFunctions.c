@@ -18,6 +18,7 @@ int split(char *str, char *arr[], int lineNum){
     int start = 0, operandsNum = 0, operandsCounter = 0, dataCounter = 0, cmd_or_data;
     int state = before;
     char ws[6] = "\t \n";
+    command *cmd;
     strcat(str, " "); /* Add extra space in order to process the last param*/
     while (str[stringIndex]){
         switch (state){
@@ -36,7 +37,8 @@ int split(char *str, char *arr[], int lineNum){
             if (strchr(ws, str[stringIndex])){
                 str[stringIndex] = 0;
                 arr[i] = str + start;
-                operandsNum = isCommand(arr[i]);
+                cmd = getCommandByName(arr[i]);
+                operandsNum = cmd?cmd->operandsNum:-1;
                 if (operandsNum > -1){
                     cmd_or_data = 1;
                     state = after_command;
@@ -141,13 +143,6 @@ int printAndReturn(char *str, int num, int lineNum){
     return num;
 }
 
-/*this function checks if commandName is a command. returns the number
-of operands of the command or -1 if commandName is not command*/
-int isCommand(char commandName[MAX_LINE_LEN]){
-    command *cmd = getCommandByName(commandName);
-    return cmd?cmd->operandsNum:-1;
-}
-
 /*this function searchs a command name in cmd_arr and returns its address
 if it exists and NULL else*/
 command* getCommandByName(char *cmdName){
@@ -189,7 +184,7 @@ int isLegalNumber(char *number){
 /*this function checks if symbolName is a legal name for a symbol*/
 int isLegalSymName(char symbolName[MAX_LINE_LEN]){
     int i;
-    if (isCommand(symbolName) != -1 || isRegister(symbolName) != 0)
+    if (getCommandByName(symbolName) || isRegister(symbolName))
         return 0;
     for (i = 0; symbolName[i] != '\0'; i++){
         if (!isalpha(symbolName[i]) && !isdigit(symbolName[i]))
