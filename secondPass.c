@@ -1,6 +1,6 @@
 #include "commonFunctions.h"
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
-external_word *addExtNode(external_word *tail);
+external_words *addExtNode(external_words *tail, int lineNum);
 int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
@@ -131,7 +131,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
-                    images->ext_tail = addExtNode(images->ext_tail, lineNum)
+                    images->ext_tail = addExtNode(images->ext_tail, lineNum);
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
                     images->ext_tail->ext_word.symbol = node->symbol;
@@ -154,10 +154,10 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     }
 }
-external_word *addExtNode(external_word *tail, int lineNum){
+external_words *addExtNode(external_words *tail, int lineNum){
     tail->next = (symbol *)malloc(sizeof(symbol));
     if(tail->next == NULL) return printAndReturn("ERROR : MEMORY ALLOCATION FAILED", NULL, lineNum);
     tail = tail->next;
-    memset(tail,0,sizeof(external_word));
+    memset(tail,0,sizeof(external_words));
     return tail;
 }

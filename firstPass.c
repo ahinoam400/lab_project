@@ -158,7 +158,7 @@ int firstPass(const char *filename, struct images *images){
                     continue;
                 }
                 cmd = getCommandByName(arr[j]);
-                images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                images->code_tail = addCodeNode(images->code_tail, lineNum);/*add the first word*/
                 if(images->code_tail == NULL){
                     printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
                     errFlag = -1;
@@ -168,7 +168,7 @@ int firstPass(const char *filename, struct images *images){
                 images->code_tail->code_line.command.absolute = 1;
                 L++;
                 if (cmd->operandsNum>0){/*if the command have oprands */
-                    images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
+                    images->code_tail = addCodeNode(images->code_tail, lineNum);/*add the first word*/
                     if(images->code_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
                         errFlag = -1;
