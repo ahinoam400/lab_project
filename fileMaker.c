@@ -3,11 +3,12 @@
 #include <stdio.h>
 int entryFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
+    symbol *sym = images->symbol_head->next;
+    FILE *entryF;
     strcpy(fileNameCopy, fileName);
-    FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "w");
+    entryF = fopen(strcat(fileNameCopy, ".ent"), "w");
     if (entryF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
-    symbol *sym = images->symbol_head->next;
     while (sym != NULL){
         if (sym->isEntry){
             fprintf(entryF, "%s,%04d,%04d\n", sym->symbol, sym->baseAddress, sym->offset);
@@ -19,8 +20,9 @@ int entryFile(const char *fileName, struct images *images){
 
 int objectFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
+    FILE *objectF;
     strcpy(fileNameCopy, fileName);
-    FILE *objectF = fopen(strcat(fileNameCopy, ".ob"), "w");
+    objectF = fopen(strcat(fileNameCopy, ".ob"), "w");
     if (objectF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     fprintf(objectF, "%d %d\n", images->ICF-BASE_ADDRESS, images->DCF);
@@ -32,9 +34,10 @@ int objectFile(const char *fileName, struct images *images){
 
 int externalFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
-    strcpy(fileNameCopy, fileName);
-    FILE *externalF = fopen(strcat(fileNameCopy, ".ext"), "w");
     external_words *node = images->ext_head->next;
+    FILE *externalF;
+    strcpy(fileNameCopy, fileName);
+    externalF = fopen(strcat(fileNameCopy, ".ext"), "w");
     if (externalF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     while(node){

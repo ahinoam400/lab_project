@@ -4,18 +4,20 @@ external_words *addExtNode(struct images *images, int lineNum);
 
 int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
-    strcpy(fileNameCopy, filename);
-    FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
-    if (assembly == NULL){
-        return(printAndReturn("ERROR OPENING FILE", -1, 0));
-    }
     char line[MAX_LINE_LEN];
     int errFlag = 0, lineLength, lineNum = 0;
     char firstChar = ' ', *ws = " \t";
     bool isEmptyLine = true;
-    int i=0, j, operandsNum, addressingMode, ic = BASE_ADDRESS;
+    int i=0, j, operandsNum, addressingMode;
     symbol *sym;
     code *funct;
+    command *cmd;
+    FILE *assembly;
+    strcpy(fileNameCopy, filename);
+    assembly = fopen(strcat(fileNameCopy, ".am"), "r");
+    if (assembly == NULL){
+        return(printAndReturn("ERROR OPENING FILE", -1, 0));
+    }
     images->code_tail = images->code_head->next; /*in the second pass we used the code_tail as a pointer to the current record*/
     while(fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN] = {0};
@@ -40,12 +42,12 @@ int secondPass(const char *filename, struct images *images){
             continue;
         if(!strcmp(arr[i], ".entry")){
             i++;
-            if(!isNameInTable(arr[i], images->symbol_head)){
+            sym = getSymbolByName(images->symbol_head, arr[i]);
+            if(!sym){
                 errFlag = -1;
                 printf("LINE %d : ERROR: NAME IS NOT IN TABLE\n", lineNum);
                 continue;
             }
-            sym = getSymbolByName(images->symbol_head, arr[i]);
             sym->isEntry = 1;
             continue;
         }
@@ -53,7 +55,9 @@ int secondPass(const char *filename, struct images *images){
             i++;
         if(!(strcmp(arr[i], ".data"))||!(strcmp(arr[i], ".string"))||!(strcmp(arr[i], ".extern")))
             continue;
-        if(operandsNum = isCommand(arr[i]))
+        cmd = getCommandByName(arr[i]);
+        operandsNum = cmd?cmd->operandsNum:-1;
+        if(operandsNum > 0)
             i++;
         images->code_tail = images->code_tail->next;
         if(operandsNum > 0){
@@ -75,9 +79,8 @@ int secondPass(const char *filename, struct images *images){
 /*finds the addressing mode of the operand and add it to the code*/
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest){
     enum addressingModes{immediate =0, direct,index, register_direct};
-    int state, addressing_mode = -1, i, num, len;
-    char *copy;
-    char symCopy[strlen(operand)], regCopy[strlen(operand)];
+    int addressing_mode = -1, i;
+    char symCopy[MAX_LINE_LEN];
     symbol *node = images->symbol_head;
     addressing_mode = src_or_dest?
                         funct->code_line.word.src_address:
@@ -112,7 +115,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             }
             node = node->next;
         }
-        if(!isNameInTable(operand, images->symbol_head)){
+        if(!getSymbolByName(images->symbol_head, operand)){
             images->code_tail = images->code_tail->next;
             images->code_tail = images->code_tail->next;
             return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
@@ -122,7 +125,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i] = '\0';
-        if(!isNameInTable(symCopy, images->symbol_head)){
+        if(!getSymbolByName(images->symbol_head, symCopy)){
             images->code_tail = images->code_tail->next;
             images->code_tail = images->code_tail->next;
             return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
@@ -152,7 +155,9 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
     default:
         break;
     }
+    return 0;
 }
+
 external_words *addExtNode(struct images *images, int lineNum){
     images->ext_tail->next = (external_words *)malloc(sizeof(external_words));
     if(images->ext_tail->next == NULL){

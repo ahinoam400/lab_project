@@ -17,12 +17,13 @@ int macroSpread(const char *fileName){
     size_t len = strlen(fileName);
     strcpy(fileNameCopy, fileName);
     assembly = fopen(strcat(fileNameCopy, ".as"), "r");
-    fileNameCopy[len] = '\0';
-    macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
     if(assembly == NULL ){
         printf("ERROR : OPENING FILE %s\n", fileName);
         return -1;
     }
+    fileNameCopy[len] = '\0';
+    macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
+
     head = (macroNode*)malloc(sizeof(macroNode));
     tail = head;
     while(fgets(line, MAX_LINE_LEN, assembly)){
@@ -40,7 +41,7 @@ int macroSpread(const char *fileName){
         }
         node = head;
         do{
-            if(node != NULL && token != NULL){
+            if(node && token){
                 if(strcmp(node->name,token) == 0){/*checks if token is a macro from the list */
                     for(index = 0; index<macroLength; index++){
                         /*copies the macro contents to macroSpreadFile */
@@ -51,13 +52,13 @@ int macroSpread(const char *fileName){
             }
             node = node->next;
         }
-        while(!macroFlag && node != NULL);
+        while(!macroFlag && node);
         
         if(flag == 1){
             flag = 0;
             continue;
         }
-        if(token != NULL){
+        if(token){
             if(strcmp(token,"macro") == 0){/*add a new macro to the linked list*/
                 macroFlag = 1, macroLength = 0, index = 0;
                 token = strtok(NULL, " \n");

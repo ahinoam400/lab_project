@@ -74,7 +74,7 @@ int firstPass(const char *filename, struct images *images){
                     errFlag = -1;
                     continue;
                 }
-                if (isNameInTable(name, images->symbol_head)){
+                if (getSymbolByName(images->symbol_head, name)){
                     printf("LINE %d : ERROR: SYMBOL NAME ALREADY EXISTS\n" , lineNum);
                     errFlag = -1;
                     continue;

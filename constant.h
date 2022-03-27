@@ -8,7 +8,7 @@ typedef struct symbol{ /*struct for symbols table*/
     int baseAddress;
     int offset;
     char attributes[MAX_LINE_LEN];
-    int isEntry : 1;
+    int isEntry;
     struct symbol* next;
 }symbol;
 

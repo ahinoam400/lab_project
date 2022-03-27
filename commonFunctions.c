@@ -1,15 +1,5 @@
 #include "commonFunctions.h"
 
-int isNameInTable(char symbolName[MAX_LINE_LEN], symbol *head){
-    symbol *sym = head;
-    while(sym != NULL){
-        if(!strcmp(sym->symbol, symbolName))
-            return 1;
-        sym = sym->next;
-    }
-    return 0;
-}
-
 /*this function split the line str into array*/
 int split(char *str, char *arr[], int lineNum){
     enum states{before,cmd_sym_data,after_param,after_command,
