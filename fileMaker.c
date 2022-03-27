@@ -7,10 +7,9 @@ int entryFile(const char *fileName, struct images *images){
     FILE *entryF = fopen(strcat(fileNameCopy, ".ent"), "w");
     if (entryF == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
-    char str[MAX_LINE_LEN];
     symbol *sym = images->symbol_head->next;
     while (sym != NULL){
-        if (sym->attributes[8]!= '\0'){
+        if (sym->isEntry){
             fprintf(entryF, "%s,%04d,%04d\n", sym->symbol, sym->baseAddress, sym->offset);
         }
         sym = sym->next;

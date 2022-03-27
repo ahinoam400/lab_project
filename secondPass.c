@@ -51,7 +51,7 @@ int secondPass(const char *filename, struct images *images){
             sym = images->symbol_head;
             while(sym != NULL){
                 if(!strcmp(sym->symbol, arr[i])){
-                    strcat(sym->attributes, ", entry");
+                    sym->isEntry = 1;
                     break;
                 }
                 sym = sym->next;
