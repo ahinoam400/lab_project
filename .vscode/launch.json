@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": ["testsForFirstPass/example"
+            "args": ["testsForFirstPass/test1" 
             ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
