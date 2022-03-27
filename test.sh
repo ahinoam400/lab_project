@@ -1,6 +1,5 @@
 #!/bin/bash -ex
 
-make main
 for f in testsForFirstPass/*.as; do 
   echo "####### $f #######"; 
   ./main ${f%.*}; # removes extension

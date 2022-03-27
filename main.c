@@ -24,9 +24,6 @@ int main(int argc, char const *argv[]){
             freeImages(&images);
             continue;
         }
-        print_code(images.code_head);
-        print_data(images.data_head, images.ICF);
-        print_symbol(images.symbol_head);
         objectFile(argv[i], &images);
         entryFile(argv[i], &images);
         externalFile(argv[i], &images);

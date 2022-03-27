@@ -21,7 +21,7 @@ int secondPass(const char *filename, struct images *images){
         char *arr[MAX_LINE_LEN] = {0};
         i=0;
         lineNum++;
-        printf("%s\n", line);
+        /*printf("%s\n", line);*/
         lineLength = strlen(line);
         line[lineLength] = '\0';
         for (j = 0; i < lineLength; j++){ /*checks if the line is empty line*/

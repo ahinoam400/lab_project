@@ -34,7 +34,7 @@ int firstPass(const char *filename, struct images *images){
     DC = 0, IC = BASE_ADDRESS, L=0;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN] = {0};
-        printf(";%d %s\n", IC, line);
+       /* printf(";%d %s\n", IC, line);*/
         lineNum++;
         L = 0 , symbolFlag = 0;
         dataNum = split(line, arr, lineNum); /*split the line into array*/

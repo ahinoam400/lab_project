@@ -1,58 +1,24 @@
 ####### testsForFirstPass/error1.as #######
-;notcmd  1
-
-LINE 1 : ERROR: COMMAND NAME
-;mov 1
-
-LINE 2 : ERROR : MISSIMG OPERAND
-;stop 1
-
-LINE 3 : ERROR : EXCESS OPERAND
-; .data SYM: 123
-
-LINE 4 : ERROR : ILLEGAL NUMBER
-; SYM$: 123
-
-LINE 5 : ERROR: ILLEGAL SYMBOL NAME
-;STR: .string "abcd"
-
-;STR: .string "efgh"
-
-LINE 7 : ERROR: SYMBOL NAME ALREADY EXISTS
-;^mov 1 2
-
-LINE 8 : ERROR : ILLEGAL CHAR
-;.data notanumber
-
-LINE 9 : ERROR : ILLEGAL NUMBER
-;.extern not*a*symbol
-
-LINE 10 : ERROR: THERE IS NO SYMBOL
-;mov, 1,2
-
-LINE 11 : ERROR : ILLEGAL COMMA
-;.data 1,
-
-LINE 12 : ERROR : ILLEGAL COMMA
-;.data , 1
-
+LINE 3 : ERROR: COMMAND NAME
+LINE 4 : ERROR : MISSIMG OPERAND
+LINE 5 : ERROR : EXCESS OPERAND
+LINE 6 : ERROR : ILLEGAL NUMBER
+LINE 7 : ERROR: ILLEGAL SYMBOL NAME
+LINE 9 : ERROR: SYMBOL NAME ALREADY EXISTS
+LINE 10 : ERROR : ILLEGAL CHAR
+LINE 11 : ERROR : ILLEGAL NUMBER
+LINE 12 : ERROR: THERE IS NO SYMBOL
 LINE 13 : ERROR : ILLEGAL COMMA
-;prn 2,
-
 LINE 14 : ERROR : ILLEGAL COMMA
-;prn illegal*operand
+LINE 15 : ERROR : ILLEGAL COMMA
+LINE 16 : ERROR : ILLEGAL COMMA
+LINE 17 : ERROR : ILLEGAL OPERAND
 
-LINE 15 : ERROR : ILLEGAL OPERAND
-
-;mov 1 2
-
-LINE 16 : ERROR : MISSING COMMA
-;mov r20
-
-LINE 17 : ERROR : MISSIMG OPERAND
-;mov 1,,2
-
-LINE 18 : ERROR : MULTIPLE CONSECUTIVE COMMAS
+LINE 18 : ERROR : MISSING COMMA
+LINE 19 : ERROR : MISSIMG OPERAND
+LINE 20 : ERROR : MULTIPLE CONSECUTIVE COMMAS
+mov L, #20
+lea L , #100
 notcmd  1
 mov 1
 stop 1
@@ -73,92 +39,6 @@ mov r20
 mov 1,,2
 
 ####### testsForFirstPass/example.as #######
-;; file ps.as
-
-;.entry LIST
-
-;.extern W
-
-;MAIN: add r3, LIST
-
-;LOOP: prn #48
-
-;lea STR, r6
-
-;inc r6
-
-;mov r3, W
-
-;sub r1, r4
-
-;bne END
-
-;cmp val1, #-6
-
-;bne END[r15]
-
-;dec K
-
-;.entry MAIN
-
-;sub LOOP[r10] ,r14
-
-;END: stop
-
-;STR: .string "abcd"
-
-;LIST: .data 6, -9
-
-;.data -100
-
-;.entry K
-
-;K: .data 31
-
-;.extern val1
-; file ps.as
-
-.entry LIST
-
-.extern W
-
-MAIN: add r3, LIST
-
-LOOP: prn #48
-
-lea STR, r6
-
-inc r6
-
-mov r3, W
-
-sub r1, r4
-
-bne END
-
-cmp val1, #-6
-
-bne END[r15]
-
-dec K
-
-.entry MAIN
-
-sub LOOP[r10] ,r14
-
-END: stop
-
-STR: .string "abcd"
-
-LIST: .data 6, -9
-
-.data -100
-
-.entry K
-
-K: .data 31
-
-.extern val1
 ; file ps.as
 .entry LIST
 .extern W
@@ -240,137 +120,95 @@ val1 BASE 0125
 val1 OFFSET 0126
 
 ####### testsForFirstPass/secondPassErrors.as #######
-;.entry NOTSYM
-
-;add r12, NOTSYM
-
-;lea NOTSYM2, r4
-
-;SYM: sub NOTSYM, r5
-
-;bne NOTSYM2[r11]
-.entry NOTSYM
-
 LINE 1 : ERROR: NAME IS NOT IN TABLE
-add r12, NOTSYM
-
 LINE 2 : ERROR: NAME IS NOT IN TABLE
-lea NOTSYM2, r4
-
-SYM: sub NOTSYM, r5
-
-bne NOTSYM2[r11]
 .entry NOTSYM
 add r12, NOTSYM
 lea NOTSYM2, r4
 SYM: sub NOTSYM, r5
 bne NOTSYM2[r11]
 ####### testsForFirstPass/test1.as #######
-;cmp #4,   r8
-
-;DAN: .string "dandan"
-
-;sub     YAIR[r13],       r1
-
-;mov #5, YONI
-
-;.entry DAN
-
-;dec koby
-
-;clr r5
-
-;rts
-
-;     red r4
-
-;KOBY: .data 3,25,42,-16
-
-;not r10
-
-;.extern YONI
-
-;YAIR:   bne KOBY[r3]
-
-LINE 13 : ERROR : ILLEGAL REGISTER NUMBER
-
-;.entry SHIMON
-
-;prn r2 
-
-;SHIMON:     add #22,          r5
-
-;dec koby
-
-;clr r5
-
-;rts
-
-;stop
-
 cmp #4,   r8
 DAN: .string "dandan"
 sub     YAIR[r13],       r1
 mov #5, YONI
 .entry DAN
-dec koby
+dec KOBY
 clr r5
 rts
      red r4
 KOBY: .data 3,25,42,-16
 not r10
 .extern YONI
-YAIR:   bne KOBY[r3]
+YAIR:   bne KOBY[r10]
+.data 0
 .entry SHIMON
 prn r2 
 SHIMON:     add #22,          r5
-dec koby
+dec KOBY
 clr r5
 rts
 stop
+40 12
+100	A4-B0-C0-D0-E2
+101	A4-B0-C0-D2-E3
+102	A4-B0-C0-D0-E4
+103	A4-B0-C0-D0-E4
+104	A4-Bb-Cd-D8-E7
+105	A2-B0-C0-D6-E0
+106	A2-B0-C0-D1-Eb
+107	A4-B0-C0-D0-E1
+108	A4-B0-C0-D0-E1
+109	A4-B0-C0-D0-E5
+110	A1-B0-C0-D0-E0
+111	A1-B0-C0-D0-E0
+112	A4-B0-C0-D2-E0
+113	A4-Bd-C0-D0-E1
+114	A2-B0-C0-D9-E0
+115	A2-B0-C0-D0-E3
+116	A4-B0-C0-D2-E0
+117	A4-Ba-C0-D1-E7
+118	A4-B4-C0-D0-E0
+119	A4-B1-C0-D0-E0
+120	A4-B0-C0-D1-E3
+121	A4-B0-C0-D2-E0
+122	A4-Bb-C0-D2-Eb
+123	A4-B0-C2-D0-E0
+124	A4-Bb-C0-D2-Ea
+125	A2-B0-C0-D9-E0
+126	A2-B0-C0-D0-E3
+127	A4-B2-C0-D0-E0
+128	A4-B0-C0-D0-Eb
+129	A4-B0-C0-D0-E4
+130	A4-Ba-C0-D1-E7
+131	A4-B0-C0-D1-E6
+132	A4-B0-C0-D2-E0
+133	A4-Bd-C0-D0-E1
+134	A2-B0-C0-D9-E0
+135	A2-B0-C0-D0-E3
+136	A4-B0-C0-D2-E0
+137	A4-Ba-C0-D1-E7
+138	A4-B4-C0-D0-E0
+139	A4-B8-C0-D0-E0
+140	A4-B0-C0-D6-E4
+141	A4-B0-C0-D6-E1
+142	A4-B0-C0-D6-Ee
+143	A4-B0-C0-D6-E4
+144	A4-B0-C0-D6-E1
+145	A4-B0-C0-D6-Ee
+146	A4-B0-C0-D0-E0
+147	A4-B0-C0-D0-E3
+148	A4-B0-C0-D1-E9
+149	A4-B0-C0-D2-Ea
+150	A4-Bf-Cf-Df-E0
+151	A4-B0-C0-D0-E0
+DAN,0128,0012
+SHIMON,0128,0001
+YONI BASE 0110
+YONI OFFSET 0111
 
 ####### testsForFirstPass/test2.as #######
-;; this is test2
-
-;BANANA:     sub #87, r5
-
-;clr r3
-
-;.entry val
-
-;val: .data 1,    3,8  ,21
-
-;not r2
-
-;APPLE: add val[r0], r15
-
 LINE 7 : ERROR : ILLEGAL OPERAND
-
-;.extern MAY
-
-;rts
-
-;mov r9, r10
-
-;dec r1
-
-;SHMOOOOOOLIK: prn #69
-
-;        dec r6
-
-;lea BANANA,    r10
-
-;inc MAY
-
-;clr SHMOOOOOOLIK
-
-;rts
-
-;mov r9, r10
-
-;dec r1
-
-;stop
 
 ; this is test2
 BANANA:     sub #87, r5
