@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-for f in testsForFirstPass/*.as; do 
+for f in tests/*.as; do 
   echo "####### $f #######"; 
   ./main ${f%.*}; # removes extension
   cat ${f%.*}.am ${f%.*}.ob ${f%.*}.ent ${f%.*}.ext || true

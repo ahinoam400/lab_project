@@ -1,46 +1,4 @@
-####### testsForFirstPass/error1.as #######
-LINE 1 : ERROR : ILLEGAL ADDRESSING MODE
-LINE 2 : ERROR : ILLEGAL ADDRESSING MODE
-LINE 3 : ERROR: COMMAND NAME
-LINE 4 : ERROR : MISSIMG OPERAND
-LINE 5 : ERROR : EXCESS OPERAND
-LINE 6 : ERROR : ILLEGAL NUMBER
-LINE 7 : ERROR: ILLEGAL SYMBOL NAME
-LINE 9 : ERROR: SYMBOL NAME ALREADY EXISTS
-LINE 10 : ERROR : ILLEGAL CHAR
-LINE 11 : ERROR : ILLEGAL NUMBER
-LINE 12 : ERROR: THERE IS NO SYMBOL
-LINE 13 : ERROR : ILLEGAL COMMA
-LINE 14 : ERROR : ILLEGAL COMMA
-LINE 15 : ERROR : ILLEGAL COMMA
-LINE 16 : ERROR : ILLEGAL COMMA
-LINE 17 : ERROR : ILLEGAL OPERAND
-
-LINE 18 : ERROR : MISSING COMMA
-LINE 19 : ERROR : MISSIMG OPERAND
-LINE 20 : ERROR : MULTIPLE CONSECUTIVE COMMAS
-mov L, #20
-lea L , #100
-notcmd  1
-mov 1
-stop 1
- .data SYM: 123
- SYM$: 123
-STR: .string "abcd"
-STR: .string "efgh"
-^mov 1 2
-.data notanumber
-.extern not*a*symbol
-mov, 1,2
-.data 1,
-.data , 1
-prn 2,
-prn illegal*operand
-mov 1 2
-mov r20
-mov 1,,2
-
-####### testsForFirstPass/example.as #######
+####### tests/example.as #######
 ; file ps.as
 .entry LIST
 .extern W
@@ -121,7 +79,45 @@ W OFFSET 0116
 val1 BASE 0125
 val1 OFFSET 0126
 
-####### testsForFirstPass/secondPassErrors.as #######
+####### tests/firstPassErrors.as #######
+LINE 1 : ERROR: COMMAND NAME
+LINE 2 : ERROR : MISSIMG OPERAND
+LINE 3 : ERROR : EXCESS OPERAND
+LINE 4 : ERROR : ILLEGAL NUMBER
+LINE 5 : ERROR: ILLEGAL SYMBOL NAME
+LINE 7 : ERROR: SYMBOL NAME ALREADY EXISTS
+LINE 8 : ERROR : ILLEGAL CHAR
+LINE 9 : ERROR : ILLEGAL NUMBER
+LINE 10 : ERROR: THERE IS NO SYMBOL
+LINE 11 : ERROR : ILLEGAL COMMA
+LINE 12 : ERROR : ILLEGAL COMMA
+LINE 13 : ERROR : ILLEGAL COMMA
+LINE 14 : ERROR : ILLEGAL COMMA
+LINE 15 : ERROR : ILLEGAL OPERAND
+
+LINE 16 : ERROR : MISSING COMMA
+LINE 17 : ERROR : MISSIMG OPERAND
+LINE 18 : ERROR : MULTIPLE CONSECUTIVE COMMAS
+notcmd  1
+mov 1
+stop 1
+ .data SYM: 123
+ SYM$: 123
+STR: .string "abcd"
+STR: .string "efgh"
+^mov 1 2
+.data notanumber
+.extern not*a*symbol
+mov, 1,2
+.data 1,
+.data , 1
+prn 2,
+prn illegal*operand
+mov 1 2
+mov r20
+mov 1,,2
+
+####### tests/secondPassErrors.as #######
 LINE 1 : ERROR: NAME IS NOT IN TABLE
 LINE 2 : ERROR: NAME IS NOT IN TABLE
 LINE 3 : ERROR: NAME IS NOT IN TABLE
@@ -130,9 +126,9 @@ LINE 5 : ERROR: NAME IS NOT IN TABLE
 .entry NOTSYM
 add r12, NOTSYM
 lea NOTSYM2, r4
-SYM: sub NOTSYM, r5
-bne NOTSYM2[r11]
-####### testsForFirstPass/test1.as #######
+SYM: sub NOTSYM2, r5
+bne NOTSYM[r11]
+####### tests/test1.as #######
 cmp #4,   r8
 DAN: .string "dandan"
 sub     YAIR[r13],       r1
@@ -212,14 +208,14 @@ SHIMON,0128,0001
 YONI BASE 0110
 YONI OFFSET 0111
 
-####### testsForFirstPass/test2.as #######
+####### tests/test2.as #######
 ; this is test2
 BANANA:     sub #87, r5
 clr r3
 .entry val
 val: .data 1,    3,8  ,21
 not r2
-APPLE: add val[r10], r15
+APPLE: add val[r11], r15
 .extern MAY
 rts
 mov r9, r10
@@ -242,7 +238,7 @@ stop
 0105	A4-B0-C0-D2-E0
 0106	A4-Bb-C0-D0-Eb
 0107	A4-B0-C0-D0-E4
-0108	A4-Ba-Ca-Db-Ef
+0108	A4-Ba-Cb-Db-Ef
 0109	A2-B0-C0-D8-E0
 0110	A2-B0-C0-D0-Eb
 0111	A4-B4-C0-D0-E0
