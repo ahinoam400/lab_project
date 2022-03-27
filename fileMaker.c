@@ -1,6 +1,7 @@
 #include "commonFunctions.h"
 #include "fileMaker.h"
 #include <stdio.h>
+/*create entry file*/
 int entryFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     symbol *sym = images->symbol_head->next;
@@ -18,6 +19,7 @@ int entryFile(const char *fileName, struct images *images){
     return 0;
 }
 
+/*create object file*/
 int objectFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     FILE *objectF;
@@ -32,6 +34,7 @@ int objectFile(const char *fileName, struct images *images){
     return 0;
 }
 
+/*create external file*/
 int externalFile(const char *fileName, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     external_words *node = images->ext_head->next;
