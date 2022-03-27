@@ -1,6 +1,6 @@
 cmp #4,   r8
 macro mac1
-dec koby
+dec KOBY
 clr r5
 rts
 endm
@@ -13,7 +13,8 @@ mac1
 KOBY: .data 3,25,42,-16
 not r10
 .extern YONI
-YAIR:   bne KOBY[r3]
+YAIR:   bne KOBY[r10]
+.data 0
 .entry SHIMON
 prn r2 
 SHIMON:     add #22,          r5

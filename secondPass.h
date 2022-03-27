@@ -1,2 +1,2 @@
 
-int secondPass(char *filename, struct images *images);
+int secondPass(const char *filename, struct images *images);

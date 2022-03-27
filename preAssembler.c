@@ -6,7 +6,7 @@ typedef struct macroNode{ /*a struct that holds within it a list with all of the
     struct macroNode *next;
 }macroNode;
 
-int macroSpread(char *fileName){
+int macroSpread(const char *fileName){
     FILE *assembly;
     FILE *macroSpreadFile;
     char fileNameCopy[MAX_LINE_LEN];

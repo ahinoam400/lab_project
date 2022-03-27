@@ -2,7 +2,7 @@
 #include "commonFunctions.h"
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
 
-int secondPass(char *filename, struct images *images){
+int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
     FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
@@ -13,28 +13,29 @@ int secondPass(char *filename, struct images *images){
     int errFlag = 0, lineLength, lineNum = 0;
     char firstChar = ' ', *ws = " \t";
     bool isEmptyLine = true;
-    int i=0, operandsNum, addressingMode, ic = BASE_ADDRESS;
+    int i=0, j, operandsNum, addressingMode, ic = BASE_ADDRESS;
     symbol *sym;
     code *funct;
     images->code_tail = images->code_head->next; /*in the second pass we used the code_tail as a pointer to the current record*/
     while(fgets(line, MAX_LINE_LEN, assembly)){
+        char *arr[MAX_LINE_LEN] = {0};
+        i=0;
         lineNum++;
         printf("%s\n", line);
         lineLength = strlen(line);
         line[lineLength] = '\0';
-        for (i = 0; i < lineLength; i++){ /*checks if the line is empty line*/
-            if(strchr("\n", line[i])){
+        for (j = 0; i < lineLength; j++){ /*checks if the line is empty line*/
+            if(strchr("\n", line[j])){
                 isEmptyLine = true;
                 break;
             }
-            if (!strchr(ws, line[i])){
+            if (!strchr(ws, line[j])){
                 isEmptyLine = false;
-                firstChar = line[i];
+                firstChar = line[j];
                 break;
             }
         }
         if(firstChar == ';' || isEmptyLine)continue;
-        char *arr[MAX_LINE_LEN];
         split(line, arr, lineNum);
         /*if(!isLegalSymName(arr[i]))
             continue;*/
@@ -88,7 +89,7 @@ int secondPass(char *filename, struct images *images){
 /*finds the addressing mode of the operand and add it to the code*/
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest){
     enum addressingModes{immediate =0, direct,index, register_direct};
-    int state, addressing_mode = -1, i, num, len, j;
+    int state, addressing_mode = -1, i, num, len;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
     symbol *node = images->symbol_head;

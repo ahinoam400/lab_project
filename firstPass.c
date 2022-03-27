@@ -15,24 +15,26 @@ command cmd_arr[MAX_CMD_NUM]={
 };
 
 
-int firstPass(char *filename, struct images *images){
+int firstPass(const char *filename, struct images *images){
     enum addressingModes{ immediate = 0,direct,index,register_direct};
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
-    FILE *assembly = fopen(strcat(fileNameCopy, ".am"), "r");
-    if (assembly == NULL)
-        return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     int lineLength = 0, lineNum =0;
     int errFlag = 0, symbolFlag = 0;
     int num, i, operandsNum, j = 0, addressing_mode, dataNum, dataLoop;
     char line[MAX_LINE_LEN], *name, *ws = " \t";
     char firstChar = ' ';
     bool isEmptyLine = true;
-    command *cmd = (command *)malloc(sizeof(command));
-
+    command *cmd;;
+    FILE *assembly;
+    symbol *sym;
+    assembly = fopen(strcat(fileNameCopy, ".am"), "r");
+    if (assembly == NULL)
+        return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
+    cmd = (command *)malloc(sizeof(command));
     while (fgets(line, MAX_LINE_LEN, assembly)){
-        printf(";%s\n",line);
         char *arr[MAX_LINE_LEN] = {0};
+        printf(";%s\n",line);
         lineNum++;
         L = 0 , symbolFlag = 0;
         dataNum = split(line, arr, lineNum); /*split the line into array*/
@@ -95,9 +97,7 @@ int firstPass(char *filename, struct images *images){
                     } 
                     images->data_tail->data_line.item = arr[j][i];
                     images->data_tail->data_line.empty_bit = 0;
-                    images->data_tail->data_line.absolute = 1; /*not working well*/
-                    images->data_tail->data_line.relocatable = 0;
-                    images->data_tail->data_line.external = 0;
+                    images->data_tail->data_line.absolute = 1; 
                     DC++;
                 }
                 images->data_tail = addDataNode(images->data_tail);
@@ -130,8 +130,6 @@ int firstPass(char *filename, struct images *images){
                     } 
                     images->data_tail->data_line.item = num;
                     images->data_tail->data_line.absolute = 1;
-                    images->data_tail->data_line.relocatable = 0;
-                    images->data_tail->data_line.external = 0;
                     DC++;
                 }
             }else if (!strcmp(arr[j], ".entry"))
@@ -209,7 +207,7 @@ int firstPass(char *filename, struct images *images){
         return 0;
     ICF = IC;
     DCF = DC;
-    symbol *sym = images->symbol_head;
+    sym = images->symbol_head;
     while (sym != NULL){
         if (!strcmp(sym->attributes, "data")){
             sym->value += ICF;
@@ -230,7 +228,7 @@ int findAddressingMode(char *operand, int lineNum) {
 /*finds the addressing mode of the operand and add it to the code*/
 int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic){
     enum addressingModes{immediate = 0, direct,index, register_direct};
-    int state, addressing_mode = -1, i, num, len, j , k;
+    int addressing_mode = -1, i, num, len, k;
     char *copy;
     char symCopy[strlen(operand)], regCopy[strlen(operand)];
     int additionalAddresingWords = 0;

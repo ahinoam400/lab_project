@@ -1,3 +1,3 @@
-int objectFile(struct images *images, char *fileName);
-int entryFile(char *fileName, struct images *images);
-int externalFile(struct images *images, char *fileName);
+int entryFile(const char *fileName, struct images *images);
+int externalFile(const char *fileName, struct images *images);
+int objectFile(const char *fileName, struct images *images);
