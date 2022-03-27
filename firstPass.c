@@ -32,6 +32,7 @@ int firstPass(const char *filename, struct images *images){
     if (assembly == NULL)
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     cmd = (command *)malloc(sizeof(command));
+    DC = 0, IC = BASE_ADDRESS, L=0;
     while (fgets(line, MAX_LINE_LEN, assembly)){
         char *arr[MAX_LINE_LEN] = {0};
         printf(";%s\n",line);
