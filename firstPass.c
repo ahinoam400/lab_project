@@ -2,6 +2,9 @@
 extern command cmd_arr[];
 int ICF, DCF;
 int IC = BASE_ADDRESS, DC = 0, L = 0;
+code *addCodeNode(struct images *images, int lineNum);
+data *addDataNode(struct images *images, int lineNum);
+symbol *addSymbolNode(symbol *tail, int lineNum);
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images);
 int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct images *images, code *code_funct, int *l, int ic, char *cmdName);
 int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode);
@@ -82,7 +85,7 @@ int firstPass(const char *filename, struct images *images){
             }
             if (!strcmp(arr[j], ".string")){
                 if (symbolFlag){
-                    images->symbol_tail = addSymbolNode(images->symbol_tail);
+                    images->symbol_tail = addSymbolNode(images->symbol_tail, lineNum);
                     addSymbol(name, DC, ".string", lineNum, images);
                 }
                 j++;
@@ -93,9 +96,7 @@ int firstPass(const char *filename, struct images *images){
                         errFlag = -1;
                         continue;
                     }
-                    images->data_tail = addDataNode(images->data_tail);
-                    if(images->data_tail == NULL){
-                        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                    if(addDataNode(images, lineNum) == NULL){
                         errFlag = -1;
                         continue;
                     } 
@@ -104,17 +105,15 @@ int firstPass(const char *filename, struct images *images){
                     images->data_tail->data_line.absolute = 1; 
                     DC++;
                 }
-                images->data_tail = addDataNode(images->data_tail);
-                if(images->data_tail == NULL){
-                    printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                    errFlag = -1;
-                    continue;
-                }
+                if(addDataNode(images, lineNum) == NULL){
+                        errFlag = -1;
+                        continue;
+                } 
                 images->data_tail->data_line.absolute = 1;
                 DC++; 
             }else if (!strcmp(arr[j], ".data")){
                 if (symbolFlag){
-                    images->symbol_tail = addSymbolNode(images->symbol_tail);
+                    images->symbol_tail = addSymbolNode(images->symbol_tail, lineNum);
                     addSymbol(name, DC, ".data", lineNum, images);
                 }
                 j++;
@@ -125,9 +124,7 @@ int firstPass(const char *filename, struct images *images){
                         continue;
                     }
                     num = atoi(arr[j]);
-                    images->data_tail = addDataNode(images->data_tail);
-                    if(images->data_tail == NULL){
-                        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                    if(addDataNode(images, lineNum) == NULL){
                         errFlag = -1;
                         continue;
                     } 
@@ -144,12 +141,12 @@ int firstPass(const char *filename, struct images *images){
                     errFlag = -1;
                     continue;
                 }
-                images->symbol_tail = addSymbolNode(images->symbol_tail);
+                images->symbol_tail = addSymbolNode(images->symbol_tail, lineNum);
                 addSymbol(arr[j], IC, ".extern", lineNum, images);
                 continue;
             } else{
                 if (symbolFlag){
-                    images->symbol_tail = addSymbolNode(images->symbol_tail);
+                    images->symbol_tail = addSymbolNode(images->symbol_tail, lineNum);
                     addSymbol(name, IC, ".code", lineNum, images);
                 }
                 operandsNum = isCommand(arr[j]);
@@ -159,9 +156,7 @@ int firstPass(const char *filename, struct images *images){
                     continue;
                 }
                 cmd = getCommandByName(arr[j]);
-                images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-                if(images->code_tail == NULL){
-                    printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                if(addCodeNode(images, lineNum) == NULL){/*add the first word*/
                     errFlag = -1;
                     continue;
                 } 
@@ -169,9 +164,7 @@ int firstPass(const char *filename, struct images *images){
                 images->code_tail->code_line.command.absolute = 1;
                 L++;
                 if (cmd->operandsNum>0){/*if the command have oprands */
-                    images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-                    if(images->code_tail == NULL){
-                        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+                    if(addCodeNode(images, lineNum) == NULL){/*add the first word*/
                         errFlag = -1;
                         continue;
                     } 
@@ -262,20 +255,16 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         code_funct->code_line.word.dest_address = addressing_mode;
     switch (addressing_mode){/*write the code of the addressing mode*/
     case immediate:
-        images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-        if(images->code_tail == NULL){
-            return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
-        } 
+        if(addCodeNode(images, lineNum) == NULL)
+            return -1;
         (*l)++;
         images->code_tail->code_line.imm_word.absolute = 1;
         images->code_tail->code_line.imm_word.word = num;
         break;
     case direct:
         for(k=0; k<2; k++){
-            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-            if(images->code_tail == NULL){
-                return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
-            } 
+            if(addCodeNode(images, lineNum) == NULL)
+                return -1;
             images->code_tail->ic = ic;
             images->code_tail->l = *l;
             (*l)++;
@@ -288,10 +277,8 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
         if (src_or_dest == 0)
             code_funct->code_line.word.dest_register = num;
         for(k=0; k<2; k++){
-            images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
-            if(images->code_tail == NULL){
-                return(printAndReturn("ERROR : MEMORY ALLOCATION FAILED",-1, lineNum));
-            }
+            if(addCodeNode(images, lineNum) == NULL)
+                return -1;
             images->code_tail->ic = ic;
             images->code_tail->l = *l;
             (*l)++; 
@@ -351,27 +338,34 @@ int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
 }
 
 /*create new code node*/
-code *addCodeNode(code *tail){
-    tail->next = (code *)malloc(sizeof(code));
-    if(tail->next == NULL) return NULL;
-    tail = tail->next;
-    memset(tail,0,sizeof(code));
-    return tail;
+code *addCodeNode(struct images *images, int lineNum){
+    images->code_tail->next = (code *)malloc(sizeof(code));
+    if(images->code_tail->next == NULL){
+        printf("LINE %d : ERROR : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+        return NULL;
+    }
+    images->code_tail = images->code_tail->next;
+    memset(images->code_tail,0,sizeof(code));
+    return images->code_tail;
 }
 
 /*create a new data node*/
-data *addDataNode(data *tail){
-    tail->next = (data *)malloc(sizeof(data));
-    if(tail->next == NULL) return NULL;
-    tail = tail->next;
-    memset(tail,0,sizeof(data));
-    return tail;
+data *addDataNode(struct images *images, int lineNum){
+    images->data_tail->next = (data *)malloc(sizeof(data));
+    if(images->data_tail->next == NULL){
+        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
+        return NULL;
+    }
+    images->data_tail = images->data_tail->next;
+    memset(images->data_tail,0,sizeof(data));
+    return images->data_tail;
 }
 
 /*create a new symbol node*/
-symbol *addSymbolNode(symbol *tail){
+symbol *addSymbolNode(symbol *tail, int lineNum){
     tail->next = (symbol *)malloc(sizeof(symbol));
-    if(tail->next == NULL) return NULL;
+    if(tail->next == NULL)
+        printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
     tail = tail->next;
     memset(tail,0,sizeof(symbol));
     return tail;
