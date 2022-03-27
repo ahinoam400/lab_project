@@ -61,12 +61,16 @@ int secondPass(const char *filename, struct images *images){
         if(operandsNum > 0){
             funct = images->code_tail;
             addressingMode =  adressingModeSecondPass(arr[i++], images, funct, lineNum, operandsNum-1);
-            if(addressingMode == -1)
+            if(addressingMode == -1){
                 errFlag = -1;
+                continue;
+            }
             if(operandsNum == 2){
                 addressingMode = adressingModeSecondPass(arr[i++], images, funct, lineNum, 0);
-                if(addressingMode == -1)
+                if(addressingMode == -1){
                     errFlag = -1;
+                    continue;
+                }
             }
             images->code_tail = images->code_tail->next;
         }
@@ -92,6 +96,9 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     case direct:
         while (node != NULL){
+            if(!isNameInTable(operand, images->symbol_head)){
+                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+            }
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){/*TODO: extract to a function*/
                     images->ext_tail->next = (external_words*)malloc(sizeof(external_words));
@@ -116,20 +123,13 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             }
             node = node->next;
         }
-        if(!isNameInTable(operand, images->symbol_head)){
-            images->code_tail = images->code_tail->next;
-            images->code_tail = images->code_tail->next;
-            return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
-        }
         break;
     case index:
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i] = '\0';
         if(!isNameInTable(symCopy, images->symbol_head)){
-            images->code_tail = images->code_tail->next;
-            images->code_tail = images->code_tail->next;
-            return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
+                return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
         }
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
