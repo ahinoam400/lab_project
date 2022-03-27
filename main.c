@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]){
         images.data_tail = images.data_head;
         images.ext_tail = images.ext_head;
         if(macroSpread(argv[i]) == 0)continue;
-        if(firstPass(argv[i], &images) == 0){
+            if(firstPass(argv[i], &images) == 0){
             freeImages(&images);
             continue;
         }
