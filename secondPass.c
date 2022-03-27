@@ -1,7 +1,11 @@
 #include "commonFunctions.h"
 int adressingModeSecondPass(char *operand, struct images *images, code *funct, int lineNum, int src_or_dest);
+<<<<<<< HEAD
 external_words *addExtNode(struct images *images, int lineNum);
 
+=======
+external_words *addExtNode(external_words *tail, int lineNum);
+>>>>>>> a76c1b7b692c295aad926d2322850fe966f4786e
 int secondPass(const char *filename, struct images *images){
     char fileNameCopy[MAX_LINE_LEN];
     strcpy(fileNameCopy, filename);
@@ -130,7 +134,11 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
+<<<<<<< HEAD
                     addExtNode(images, lineNum);
+=======
+                    images->ext_tail = addExtNode(images->ext_tail, lineNum);
+>>>>>>> a76c1b7b692c295aad926d2322850fe966f4786e
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
                     images->ext_tail->ext_word.symbol = node->symbol;
@@ -153,6 +161,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         break;
     }
 }
+<<<<<<< HEAD
 external_words *addExtNode(struct images *images, int lineNum){
     images->ext_tail->next = (external_words *)malloc(sizeof(external_words));
     if(images->ext_tail->next == NULL){
@@ -162,4 +171,12 @@ external_words *addExtNode(struct images *images, int lineNum){
     images->ext_tail = images->ext_tail->next;
     memset(images->ext_tail,0,sizeof(external_words));
     return images->ext_tail;
+=======
+external_words *addExtNode(external_words *tail, int lineNum){
+    tail->next = (symbol *)malloc(sizeof(symbol));
+    if(tail->next == NULL) return printAndReturn("ERROR : MEMORY ALLOCATION FAILED", NULL, lineNum);
+    tail = tail->next;
+    memset(tail,0,sizeof(external_words));
+    return tail;
+>>>>>>> a76c1b7b692c295aad926d2322850fe966f4786e
 }
