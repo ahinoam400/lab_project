@@ -306,6 +306,7 @@ int addressingModeFirstPass(char *operand, int src_or_dest , int lineNum, struct
     return addressing_mode;
 }
 
+/*adds a new symbol to the symbol table*/
 void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LEN], int lineNum, struct images *images){
     if(images->symbol_tail == NULL){
         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
@@ -328,6 +329,7 @@ void addSymbol(char symbolName[MAX_LINE_LEN], int IC, char attribute[MAX_LINE_LE
         strcat(images->symbol_tail->attributes, "code");
 }
 
+/*checks if the operands' addressing mode is legal*/
 int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
     int i, j;
     for (i=0; i<MAX_CMD_NUM; i++){
