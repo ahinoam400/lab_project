@@ -59,19 +59,19 @@ int firstPass(const char *filename, struct images *images){
             if (arr[j][strlen(arr[j]) - 1] == ':'){ /*if the first word is a symbol definition*/
                 if (j!= 0){
                     printf("LINE %d : ERROR: ILLEGAL SYMBOL\n", lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 name = arr[j];
                 name[strlen(name) - 1] = '\0'; /*remove the : from the symbol*/
                 if (!isLegalSymName(name)){
                     printf("LINE %d : ERROR: ILLEGAL SYMBOL NAME\n", lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 if (isNameInTable(name, images->symbol_head)){
                     printf("LINE %d : ERROR: SYMBOL NAME ALREADY EXISTS\n" , lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 symbolFlag = 1;
@@ -87,13 +87,13 @@ int firstPass(const char *filename, struct images *images){
                     if(arr[j][i] == '\"')continue;
                     if(!isalpha(arr[j][i])){
                         printf("LINE %d : ERROR : ILLEGAL CHAR", lineNum);
-                        errFlag = 1;
+                        errFlag = -1;
                         continue;
                     }
                     images->data_tail = addDataNode(images->data_tail);
                     if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                        errFlag = 1;
+                        errFlag = -1;
                         continue;
                     } 
                     images->data_tail->data_line.item = arr[j][i];
@@ -104,7 +104,7 @@ int firstPass(const char *filename, struct images *images){
                 images->data_tail = addDataNode(images->data_tail);
                 if(images->data_tail == NULL){
                     printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 images->data_tail->data_line.absolute = 1;
@@ -119,14 +119,14 @@ int firstPass(const char *filename, struct images *images){
                 for(dataLoop=0; dataLoop<dataNum; dataLoop++,j++){
                     if(isLegalNumber(arr[j]) == -1){
                         printf("LINE %d : ERROR : ILLEGAL NUMBER\n", lineNum);
-                        errFlag = 1;
+                        errFlag = -1;
                         continue;
                     }
                     num = atoi(arr[j]);
                     images->data_tail = addDataNode(images->data_tail);
                     if(images->data_tail == NULL){
                         printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                        errFlag = 1;
+                        errFlag = -1;
                         continue;
                     } 
                     images->data_tail->data_line.item = num;
@@ -139,7 +139,7 @@ int firstPass(const char *filename, struct images *images){
                 j++;
                 if(!isLegalSymName(arr[j])){
                     printf("LINE %d : ERROR: THERE IS NO SYMBOL\n", lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 images->symbol_tail = addSymbolNode(images->symbol_tail);
@@ -153,7 +153,7 @@ int firstPass(const char *filename, struct images *images){
                 operandsNum = isCommand(arr[j]);
                 if (operandsNum == -1){
                     printf("LINE %d : ERROR: COMMAND NAME\n", lineNum);
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
                 for (i = 0; i < MAX_CMD_NUM; i++){
@@ -162,7 +162,7 @@ int firstPass(const char *filename, struct images *images){
                         images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
                         if(images->code_tail == NULL){
                             printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                            errFlag = 1;
+                            errFlag = -1;
                             continue;
                         } 
                         images->code_tail->code_line.command.opcode = 1<<(cmd_arr[i].cmd_opcode);
@@ -172,7 +172,7 @@ int firstPass(const char *filename, struct images *images){
                             images->code_tail = addCodeNode(images->code_tail);/*add the first word*/
                             if(images->code_tail == NULL){
                                 printf("LINE %d : ERROR : MEMORY ALLOCATION FAILED", lineNum);
-                                errFlag = 1;
+                                errFlag = -1;
                                 continue;
                             } 
                             images->code_tail->code_line.word.funct = cmd_arr[i].cmd_funct; /* add the second word*/
@@ -188,13 +188,13 @@ int firstPass(const char *filename, struct images *images){
                     /* process first operand */
                     addressing_mode = addressingModeFirstPass(arr[j++], operandsNum-1, lineNum, images, code_funct, &L, IC);
                     if (addressing_mode == -1){
-                        errFlag = 1;
+                        errFlag = -1;
                         continue;
                     }
                     if (operandsNum == 2){ /*if the command have two operands*/
                         addressing_mode = addressingModeFirstPass(arr[j++], 0, lineNum, images, code_funct, &L, IC);
                         if (addressing_mode == -1){
-                            errFlag = 1;
+                            errFlag = -1;
                             continue;
                         }
                     }
@@ -204,8 +204,8 @@ int firstPass(const char *filename, struct images *images){
         IC += L;
         lineLength = 0;
     }
-    if(errFlag)
-        return 0;
+    if(errFlag==-1)
+        return -1;
     ICF = IC;
     DCF = DC;
     sym = images->symbol_head;
@@ -220,7 +220,7 @@ int firstPass(const char *filename, struct images *images){
     images->ICF = ICF;
     images->DCF = DCF;
     free(sym);
-    return 1;
+    return 0;
 }
 
 int findAddressingMode(char *operand, int lineNum) {

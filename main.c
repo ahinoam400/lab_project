@@ -15,15 +15,15 @@ int main(int argc, char const *argv[]){
         images.code_tail = images.code_head;
         images.data_tail = images.data_head;
         images.ext_tail = images.ext_head;
-        if(macroSpread(argv[i]) == 0)continue;
-        if(firstPass(argv[i], &images) == 0){
+        if(macroSpread(argv[i]) == -1)continue;
+        if(firstPass(argv[i], &images) == -1){
             freeImages(&images);
             continue;
         }
         printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n");
         printf("XX %d\n",images.ICF);
         print_data(images.data_head, images.ICF);
-        if(secondPass(argv[i], &images) == 0){
+        if(secondPass(argv[i], &images) == -1){
             freeImages(&images);
             continue;
         }

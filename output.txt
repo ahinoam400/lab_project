@@ -116,6 +116,17 @@ mov 1,,2
 ;K: .data 31
 
 ;.extern val1
+XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XX 141
+141	A4-B0-C0-D6-E1
+142	A4-B0-C0-D6-E2
+143	A4-B0-C0-D6-E3
+144	A4-B0-C0-D6-E4
+145	A4-B0-C0-D0-E0
+146	A4-B0-C0-D0-E6
+147	A4-Bf-Cf-Df-E7
+148	A4-Bf-Cf-D9-Ec
+149	A4-B0-C0-D1-Ef
 ; file ps.as
 
 .entry LIST
@@ -249,6 +260,8 @@ val1 OFFSET 0126
 ;SYM: sub NOTSYM, r5
 
 ;bne NOTSYM2[r11]
+XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XX 116
 .entry NOTSYM
 
 LINE 1 : ERROR: NAME IS NOT IN TABLE
@@ -266,3 +279,244 @@ lea NOTSYM2, r4
 SYM: sub NOTSYM, r5
 bne NOTSYM2[r11]
 ####### testsForFirstPass/test1.as #######
+;cmp #4,   r8
+
+;DAN: .string "dandan"
+
+;sub     YAIR[r13],       r1
+
+;mov #5, YONI
+
+;.entry DAN
+
+;dec KOBY
+
+;clr r5
+
+;rts
+
+;     red r4
+
+;KOBY: .data 3,25,42,-16
+
+;not r10
+
+;.extern YONI
+
+;YAIR:   bne KOBY[r10]
+
+;.data 0
+
+;.entry SHIMON
+
+;prn r2 
+
+;SHIMON:     add #22,          r5
+
+;dec KOBY
+
+;clr r5
+
+;rts
+
+;stop
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XX 140
+140	A4-B0-C0-D6-E4
+141	A4-B0-C0-D6-E1
+142	A4-B0-C0-D6-Ee
+143	A4-B0-C0-D6-E4
+144	A4-B0-C0-D6-E1
+145	A4-B0-C0-D6-Ee
+146	A4-B0-C0-D0-E0
+147	A4-B0-C0-D0-E3
+148	A4-B0-C0-D1-E9
+149	A4-B0-C0-D2-Ea
+150	A4-Bf-Cf-Df-E0
+151	A4-B0-C0-D0-E0
+cmp #4,   r8
+
+DAN: .string "dandan"
+
+sub     YAIR[r13],       r1
+
+mov #5, YONI
+
+.entry DAN
+
+dec KOBY
+
+clr r5
+
+rts
+
+     red r4
+
+KOBY: .data 3,25,42,-16
+
+not r10
+
+.extern YONI
+
+YAIR:   bne KOBY[r10]
+
+.data 0
+
+.entry SHIMON
+
+prn r2 
+
+SHIMON:     add #22,          r5
+
+dec KOBY
+
+clr r5
+
+rts
+
+stop
+
+cmp #4,   r8
+DAN: .string "dandan"
+sub     YAIR[r13],       r1
+mov #5, YONI
+.entry DAN
+dec KOBY
+clr r5
+rts
+     red r4
+KOBY: .data 3,25,42,-16
+not r10
+.extern YONI
+YAIR:   bne KOBY[r10]
+.data 0
+.entry SHIMON
+prn r2 
+SHIMON:     add #22,          r5
+dec KOBY
+clr r5
+rts
+stop
+40 12
+100	A4-B0-C0-D0-E2
+101	A4-B0-C0-D2-E3
+102	A4-B0-C0-D0-E4
+103	A4-B0-C0-D0-E4
+104	A4-Bb-Cd-D8-E7
+105	A2-B0-C0-D6-E0
+106	A2-B0-C0-D1-Eb
+107	A4-B0-C0-D0-E1
+108	A4-B0-C0-D0-E1
+109	A4-B0-C0-D0-E5
+110	A1-B0-C0-D0-E0
+111	A1-B0-C0-D0-E0
+112	A4-B0-C0-D2-E0
+113	A4-Bd-C0-D0-E1
+114	A2-B0-C0-D9-E0
+115	A2-B0-C0-D0-E3
+116	A4-B0-C0-D2-E0
+117	A4-Ba-C0-D1-E7
+118	A4-B4-C0-D0-E0
+119	A4-B1-C0-D0-E0
+120	A4-B0-C0-D1-E3
+121	A4-B0-C0-D2-E0
+122	A4-Bb-C0-D2-Eb
+123	A4-B0-C2-D0-E0
+124	A4-Bb-C0-D2-Ea
+125	A2-B0-C0-D9-E0
+126	A2-B0-C0-D0-E3
+127	A4-B2-C0-D0-E0
+128	A4-B0-C0-D0-Eb
+129	A4-B0-C0-D0-E4
+130	A4-Ba-C0-D1-E7
+131	A4-B0-C0-D1-E6
+132	A4-B0-C0-D2-E0
+133	A4-Bd-C0-D0-E1
+134	A2-B0-C0-D9-E0
+135	A2-B0-C0-D0-E3
+136	A4-B0-C0-D2-E0
+137	A4-Ba-C0-D1-E7
+138	A4-B4-C0-D0-E0
+139	A4-B8-C0-D0-E0
+140	A4-B0-C0-D6-E4
+141	A4-B0-C0-D6-E1
+142	A4-B0-C0-D6-Ee
+143	A4-B0-C0-D6-E4
+144	A4-B0-C0-D6-E1
+145	A4-B0-C0-D6-Ee
+146	A4-B0-C0-D0-E0
+147	A4-B0-C0-D0-E3
+148	A4-B0-C0-D1-E9
+149	A4-B0-C0-D2-Ea
+150	A4-Bf-Cf-Df-E0
+151	A4-B0-C0-D0-E0
+DAN,0128,0012
+SHIMON,0128,0001
+YONI BASE 0110
+YONI OFFSET 0111
+
+####### testsForFirstPass/test2.as #######
+;; this is test2
+
+;BANANA:     sub #87, r5
+
+;clr r3
+
+;.entry val
+
+;val: .data 1,    3,8  ,21
+
+;not r2
+
+;APPLE: add val[r0], r15
+
+LINE 7 : ERROR : ILLEGAL OPERAND
+
+;.extern MAY
+
+;rts
+
+;mov r9, r10
+
+;dec r1
+
+;SHMOOOOOOLIK: prn #69
+
+;        dec r6
+
+;lea BANANA,    r10
+
+;inc MAY
+
+;clr SHMOOOOOOLIK
+
+;rts
+
+;mov r9, r10
+
+;dec r1
+
+;stop
+
+; this is test2
+BANANA:     sub #87, r5
+clr r3
+.entry val
+val: .data 1,    3,8  ,21
+not r2
+APPLE: add val[r0], r15
+.extern MAY
+rts
+mov r9, r10
+dec r1
+SHMOOOOOOLIK: prn #69
+        dec r6
+lea BANANA,    r10
+inc MAY
+clr SHMOOOOOOLIK
+rts
+mov r9, r10
+dec r1
+stop
+
