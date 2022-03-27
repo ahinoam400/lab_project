@@ -21,7 +21,7 @@ int macroSpread(const char *fileName){
     macroSpreadFile = fopen(strcat(fileNameCopy, ".am"), "w");
     if(assembly == NULL ){
         printf("ERROR : OPENING FILE %s\n", fileName);
-        return 0;
+        return -1;
     }
     head = (macroNode*)malloc(sizeof(macroNode));
     tail = head;
@@ -71,5 +71,5 @@ int macroSpread(const char *fileName){
     }
     fclose(macroSpreadFile);
     fclose(assembly);
-    return 1;
+    return 0;
 }

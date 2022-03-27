@@ -44,7 +44,7 @@ int secondPass(const char *filename, struct images *images){
         if(!strcmp(arr[i], ".entry")){
             i++;
             if(!isNameInTable(arr[i], images->symbol_head)){
-                errFlag = 1;
+                errFlag = -1;
                 printf("LINE %d : ERROR: NAME IS NOT IN TABLE\n", lineNum);
                 continue;
             }
@@ -70,20 +70,20 @@ int secondPass(const char *filename, struct images *images){
             funct = images->code_tail;
             addressingMode =  adressingModeSecondPass(arr[i++], images, funct, lineNum, operandsNum-1);
             if(addressingMode == -1){
-                errFlag = 1;
+                errFlag = -1;
                 continue;
             }
             if(operandsNum == 2){
                 addressingMode = adressingModeSecondPass(arr[i++], images, funct, lineNum, 0);
                 if(addressingMode == -1){
-                    errFlag = 1;
+                    errFlag = -1;
                     continue;
                 }
             }
             images->code_tail = images->code_tail->next;
         }
     }
-    return !errFlag;
+    return errFlag;
 }
 
 /*finds the addressing mode of the operand and add it to the code*/
