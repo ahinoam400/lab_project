@@ -39,12 +39,10 @@ int firstPass(const char *filename, struct images *images){
        /* printf(";%d %s\n", IC, line);*/
         lineNum++;
         L = 0 , symbolFlag = 0;
-        dataNum = split(line, arr, lineNum); /*split the line into array*/
-        if(dataNum == -1)continue;
         lineLength = strlen(line);
         line[lineLength] = '\0';
         j=0;
-        for (i = 0; i < lineLength; i++){ /*checks if the line is empty line*/
+        for(i = 0; i < lineLength; i++){ /*checks if the line is empty line*/
             if(strchr("\n", line[i])){
                 isEmptyLine = true;
                 break;
@@ -56,6 +54,10 @@ int firstPass(const char *filename, struct images *images){
             }
         }
         if(firstChar == ';' || isEmptyLine)continue;
+        dataNum = split(line, arr, lineNum); /*split the line into array*/
+        if(dataNum == -1) {
+            continue;
+        }
         if(isEmptyLine == false){ /*if the is not an empty line and not a comment line*/
             if (arr[j][strlen(arr[j]) - 1] == ':'){ /*if the first word is a symbol definition*/
                 if (j!= 0){
