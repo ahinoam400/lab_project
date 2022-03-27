@@ -157,7 +157,17 @@ command* getCommandByName(char *cmdName){
     }
     return NULL;
 }
-
+symbol* getSymbolByName(symbol *sym_head, char *symName){
+    int index;
+    sym = sym_head;
+    while(sym != NULL){
+        if ((strcmp(symName, sym->symbol) == 0){ /*if symName is symbol*/
+            return &sym;
+        }
+        sym = sym->next;
+    }
+    return NULL;
+}
 /*checks if num is a legal number */
 int isLegalNumber(char *number){
     int i = 0;
