@@ -350,24 +350,27 @@ int isLegalAddressingMode(int src_or_dest, char *cmd, int addrssingMode){
 
 /*create new code node*/
 code *addCodeNode(code *tail){
-        tail->next = (code *)malloc(sizeof(code));
-        tail = tail->next;
-        memset(tail,0,sizeof(code));
+    tail->next = (code *)malloc(sizeof(code));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(code));
     return tail;
 }
 
 /*create a new data node*/
 data *addDataNode(data *tail){
-        tail->next = (data *)malloc(sizeof(data));
-        tail = tail->next;
-        memset(tail,0,sizeof(data));
+    tail->next = (data *)malloc(sizeof(data));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(data));
     return tail;
 }
 
 /*create a new symbol node*/
 symbol *addSymbolNode(symbol *tail){
-        tail->next = (symbol *)malloc(sizeof(symbol));
-        tail = tail->next;
-        memset(tail,0,sizeof(symbol));
+    tail->next = (symbol *)malloc(sizeof(symbol));
+    if(tail->next == NULL) return NULL;
+    tail = tail->next;
+    memset(tail,0,sizeof(symbol));
     return tail;
 }
