@@ -1,4 +1,4 @@
-####### tests/example.as #######
+####### tests/example/example.as #######
 ; file ps.as
 .entry LIST
 .extern W
@@ -79,7 +79,7 @@ W OFFSET 0116
 val1 BASE 0125
 val1 OFFSET 0126
 
-####### tests/firstPassErrors.as #######
+####### tests/firstPassErrors/firstPassErrors.as #######
 LINE 1 : ERROR: COMMAND NAME
 LINE 2 : ERROR : MISSIMG OPERAND
 LINE 3 : ERROR : EXCESS OPERAND
@@ -117,7 +117,7 @@ mov 1 2
 mov r20
 mov 1,,2
 
-####### tests/secondPassErrors.as #######
+####### tests/secondPassErrors/secondPassErrors.as #######
 LINE 1 : ERROR: NAME IS NOT IN TABLE
 LINE 2 : ERROR: NAME IS NOT IN TABLE
 LINE 3 : ERROR: NAME IS NOT IN TABLE
@@ -128,7 +128,7 @@ add r12, NOTSYM
 lea NOTSYM2, r4
 SYM: sub NOTSYM2, r5
 bne NOTSYM[r11]
-####### tests/test1.as #######
+####### tests/test1/test1.as #######
 cmp #4,   r8
 DAN: .string "dandan"
 sub     YAIR[r13],       r1
@@ -208,7 +208,7 @@ SHIMON,0128,0001
 YONI BASE 0110
 YONI OFFSET 0111
 
-####### tests/test2.as #######
+####### tests/test2/test2.as #######
 ; this is test2
 BANANA:     sub #87, r5
 clr r3

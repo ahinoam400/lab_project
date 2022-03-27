@@ -95,7 +95,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, operand)){
                 if (!strcmp(node->attributes, "external")){
-                    addExtNode(images, lineNum);
+                    addExtNode(images, lineNum); /*create a new external node*/
                     images->code_tail = images->code_tail->next;
                     images->code_tail->code_line.dir_word_1.external = 1;
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
@@ -115,7 +115,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
             }
             node = node->next;
         }
-        if(!getSymbolByName(images->symbol_head, operand)){
+        if(!getSymbolByName(images->symbol_head, operand)){/*if operand not in the symbol table*/
             images->code_tail = images->code_tail->next;
             images->code_tail = images->code_tail->next;
             return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
@@ -125,7 +125,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         strcpy(symCopy, operand);
         for (i = 0; symCopy[i] != '\0' && symCopy[i] != '['; i++);
         symCopy[i] = '\0';
-        if(!getSymbolByName(images->symbol_head, symCopy)){
+        if(!getSymbolByName(images->symbol_head, symCopy)){/*if operand not in the symbol table*/
             images->code_tail = images->code_tail->next;
             images->code_tail = images->code_tail->next;
             return(printAndReturn("ERROR: NAME IS NOT IN TABLE", -1, lineNum));
@@ -133,7 +133,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
         while (node != NULL){
             if (!strcmp(node->symbol, symCopy)){
                 if (!strcmp(node->attributes, "external")){
-                    addExtNode(images, lineNum);
+                    addExtNode(images, lineNum);/*create a new external node*/
                     images->ext_tail->ext_word.base_address = images->code_tail->ic + images->code_tail->l;
                     images->ext_tail->ext_word.offset = images->code_tail->ic + images->code_tail->l+1;
                     images->ext_tail->ext_word.symbol = node->symbol;
@@ -158,6 +158,7 @@ int adressingModeSecondPass(char *operand, struct images *images, code *funct, i
     return 0;
 }
 
+/*create a new external node in the external table*/
 external_words *addExtNode(struct images *images, int lineNum){
     images->ext_tail->next = (external_words *)malloc(sizeof(external_words));
     if(images->ext_tail->next == NULL){

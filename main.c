@@ -32,6 +32,7 @@ int main(int argc, char const *argv[]){
     return 0;
 }
 
+/*free the memory of images*/
 void freeImages(struct images *images){
     code *code_current = images->code_head->next;
     code *code_next;

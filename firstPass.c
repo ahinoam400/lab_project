@@ -37,7 +37,7 @@ int firstPass(const char *filename, struct images *images){
         return (printAndReturn("ERROR OPENING FILE\n", -1, 0));
     cmd = (command *)malloc(sizeof(command));
     DC = 0, IC = BASE_ADDRESS, L=0 ,lineLength = 0, lineNum =0;
-    while (fgets(line, MAX_LINE_LEN, assembly)){
+    while (fgets(line, MAX_LINE_LEN, assembly)){/*get line from the file*/
         char *arr[MAX_LINE_LEN] = {0};
         lineNum++;
         L = 0 , symbolFlag = 0;
@@ -83,7 +83,7 @@ int firstPass(const char *filename, struct images *images){
                 j++;
             }
             if (!strcmp(arr[j], ".string")){
-                if (symbolFlag){
+                if (symbolFlag){/*add symbol*/
                     addSymbolNode(images, lineNum);
                     addSymbol(name, DC, ".string", lineNum, images);
                 }
@@ -95,11 +95,11 @@ int firstPass(const char *filename, struct images *images){
                         errFlag = -1;
                         continue;
                     }
-                    if(addDataNode(images, lineNum) == NULL){
+                    if(addDataNode(images, lineNum) == NULL){/*add new data node*/
                         errFlag = -1;
                         continue;
                     } 
-                    images->data_tail->data_line.item = arr[j][i];
+                    images->data_tail->data_line.item = arr[j][i];/*add the char into the data table*/
                     images->data_tail->data_line.empty_bit = 0;
                     images->data_tail->data_line.absolute = 1; 
                     DC++;
@@ -111,7 +111,7 @@ int firstPass(const char *filename, struct images *images){
                 images->data_tail->data_line.absolute = 1;
                 DC++; 
             }else if (!strcmp(arr[j], ".data")){
-                if (symbolFlag){
+                if (symbolFlag){/*add symbol*/
                     addSymbolNode(images, lineNum);
                     addSymbol(name, DC, ".data", lineNum, images);
                 }
@@ -123,11 +123,11 @@ int firstPass(const char *filename, struct images *images){
                         continue;
                     }
                     num = atoi(arr[j]);
-                    if(addDataNode(images, lineNum) == NULL){
+                    if(addDataNode(images, lineNum) == NULL){/*add new data node*/
                         errFlag = -1;
                         continue;
                     } 
-                    images->data_tail->data_line.item = num;
+                    images->data_tail->data_line.item = num;/*add num into the data table*/
                     images->data_tail->data_line.absolute = 1;
                     DC++;
                 }
@@ -140,11 +140,11 @@ int firstPass(const char *filename, struct images *images){
                     errFlag = -1;
                     continue;
                 }
-                addSymbolNode(images, lineNum);
+                addSymbolNode(images, lineNum);/*add new symbol node in the symbol table*/
                 addSymbol(arr[j], IC, ".extern", lineNum, images);
                 continue;
-            } else{
-                if (symbolFlag){
+            }else{
+                if (symbolFlag){/*add symbol*/
                     addSymbolNode(images, lineNum);
                     addSymbol(name, IC, ".code", lineNum, images);
                 }
@@ -198,7 +198,7 @@ int firstPass(const char *filename, struct images *images){
     ICF = IC;
     DCF = DC;
     sym = images->symbol_head;
-    while (sym != NULL){
+    while (sym != NULL){/*change the values of symbol with data attributes*/
         if (!strcmp(sym->attributes, "data")){
             sym->value += ICF;
             sym->offset = sym->value % 16;
